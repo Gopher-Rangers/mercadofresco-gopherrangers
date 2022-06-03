@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
@@ -9,22 +11,32 @@ import (
 )
 
 func main() {
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Fatal("failed to load .env")
+	}
+
 	gin.SetMode("release")
-	_ = godotenv.Load("./.env")
 
 	server := gin.Default()
 
 	baseRoute := server.Group("/api/v1/")
 	{
-		// sectionRouterGroupproductsRouterGroup := baseRoute.Group("/products")
-		// {
-		// 	productsRouterGroup.POST("/", productHandler.Save())
-		// 	productsRouterGroup.GET("/", productHandler.GetAll())
-		// 	productsRouterGroup.GET("/:id", productHandler.GetById())
-		// 	productsRouterGroup.PUT("/:id", productHandler.Update())
-		// 	productsRouterGroup.DELETE("/:id", productHandler.Delete())
-		// 	productsRouterGroup.PATCH("/:id", productHandler.PatchNamePrice())
-		// }
+		productRouterGroup := baseRoute.Group("/products")
+		{
+			file := store.New(store.FileType, "./internal/product/products.json")
+			prod_rep := section.NewRepository(file)
+			prod_service := section.NewService(prod_rep)
+			prod := handler.NewSection(prod_service)
+
+			productRouterGroup.Use(prod.TokenAuthMiddleware)
+
+			productRouterGroup.GET("/", prod.GetAll())
+			//productRouterGroup.POST("/", prod.Store())
+			//productRouterGroup.GET("/:id", prod.IdVerificatorMiddleware, prod.GetByID())
+			//productRouterGroup.PATCH("/:id", prod.IdVerificatorMiddleware, prod.UpdateDescription())
+			//productRouterGroup.DELETE("/:id", prod.IdVerificatorMiddleware, prod.Delete())
+		}
 
 		sectionRouterGroup := baseRoute.Group("/sections")
 		{

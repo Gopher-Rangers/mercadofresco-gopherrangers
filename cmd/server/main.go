@@ -12,9 +12,9 @@ func main() {
 	gin.SetMode("release")
 	_ = godotenv.Load("./.env")
 
-	gin := gin.Default()
+	server := gin.Default()
 
-	baseRoute := gin.Group("/api/v1/")
+	baseRoute := server.Group("/api/v1/")
 	{
 		// sectionRouterGroupproductsRouterGroup := baseRoute.Group("/products")
 		// {
@@ -42,5 +42,5 @@ func main() {
 			sectionRouterGroup.DELETE("/:id", sec_p.IdVerificatorMiddleware, sec_p.DeleteSection())
 		}
 	}
-	gin.Run()
+	server.Run()
 }

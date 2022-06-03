@@ -16,6 +16,16 @@ func main() {
 			productsRouterGroup.DELETE("/:id", productHandler.Delete())
 			productsRouterGroup.PATCH("/:id", productHandler.PatchNamePrice())
 		}
+
+		productsRouterGroup := baseRoute.Group("/sections")
+		{
+			productsRouterGroup.POST("/", productHandler.Save())
+			productsRouterGroup.GET("/", productHandler.GetAll())
+			productsRouterGroup.GET("/:id", productHandler.GetById())
+			productsRouterGroup.PUT("/:id", productHandler.Update())
+			productsRouterGroup.DELETE("/:id", productHandler.Delete())
+			productsRouterGroup.PATCH("/:id", productHandler.PatchNamePrice())
+		}
 	}
 
 }

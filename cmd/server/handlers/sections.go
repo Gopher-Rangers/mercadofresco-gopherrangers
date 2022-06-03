@@ -7,28 +7,33 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/PedroHODL/Module3_WEB.git/GoWeb3/internal/produto"
-	"github.com/PedroHODL/Module3_WEB.git/GoWeb3/pkg/web"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
 )
 
 type request struct {
-	Name        string  `json:"name"`
-	ProductType string  `json:"type"`
-	Count       int     `json:"count"`
-	Price       float64 `json:"price"`
+	ID             int `json:"id"`
+	SectionNumber  int `json:"section_number" binding:"required"`
+	CurTemperature int `json:"current_temperature" binding:"required"`
+	MinTemperature int `json:"minimum_temperature" binding:"required"`
+	CurCapacity    int `json:"current_capacity" binding:"required"`
+	MinCapacity    int `json:"minimum_capacity" binding:"required"`
+	MaxCapacity    int `json:"maximum_capacity" binding:"required"`
+	WareHouseID    int `json:"warehouse_id" binding:"required"`
+	ProductTypeID  int `json:"product_type_id" binding:"required"`
 }
 
-type Product struct {
-	service produto.Services
+type Section struct {
+	service section.Services
 }
 
-func NewProduct(p produto.Services) Product {
-	new := Product{p}
+func NewSection(p section.Services) Section {
+	new := Section{p}
 	return new
 }
 
-func (p *Product) TokenAuthMiddleware(ctx *gin.Context) {
+func (p *Section) TokenAuthMiddleware(ctx *gin.Context) {
 	requiredToken := os.Getenv("TOKEN")
 
 	if requiredToken == "" {
@@ -49,7 +54,7 @@ func (p *Product) TokenAuthMiddleware(ctx *gin.Context) {
 	ctx.Next()
 }
 
-func (p *Product) IdVerificatorMiddleware(ctx *gin.Context) {
+func (p *Section) IdVerificatorMiddleware(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusBadRequest, "id não é alphanumérico"))
@@ -57,126 +62,82 @@ func (p *Product) IdVerificatorMiddleware(ctx *gin.Context) {
 	}
 
 	if 0 > id || id > p.service.LastID() {
-		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusBadRequest, "id fora do limite"))
+		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusBadRequest, "id menor que 0 ou maior que o ultimo id"))
 		return
 	}
 
 	ctx.Next()
 }
 
-func (p *Product) GetAll(ctx *gin.Context) {
-	prod, err := p.service.GetAll()
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
-		return
+func (p *Section) GetAll() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		prod := p.service.GetAll()
+		c.JSON(web.NewResponse(http.StatusOK, prod))
 	}
-	ctx.JSON(web.NewResponse(http.StatusOK, prod))
 }
 
-func (p *Product) CreateProduct(ctx *gin.Context) {
-	var req request
-	if err := ctx.Bind(&req); err != nil {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
-		return
-	}
+func (p *Section) GetByID() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
 
-	if req.Name == "" {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "campo 'nome' é obrigatório"))
-		return
+		prod, err := p.service.GetByID(id)
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+		c.JSON(web.NewResponse(http.StatusOK, prod))
 	}
-
-	if req.ProductType == "" {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "campo 'type' é obrigatório"))
-		return
-	}
-
-	if req.Count <= 0 {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "campo 'count' não pode ser menor que 1"))
-		return
-	}
-
-	if req.Price < 0 {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "campo 'price' não pode ser menor que 0"))
-		return
-	}
-
-	prod, err := p.service.Create(req.Name, req.ProductType, req.Count, req.Price)
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-		return
-	}
-
-	ctx.JSON(web.NewResponse(http.StatusOK, prod))
 }
 
-func (p *Product) Update(ctx *gin.Context) {
-	var req request
-	if err := ctx.Bind(&req); err != nil {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
-		return
-	}
+func (p *Section) CreateProduct() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req request
+		if err := c.Bind(&req); err != nil {
+			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
+			return
+		}
 
-	if req.Name == "" {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "campo 'nome' é obrigatório"))
-		return
-	}
+		prod, err := p.service.Create(req.SectionNumber, req.CurTemperature, req.MinTemperature,
+			req.CurCapacity, req.MinCapacity, req.MaxCapacity, req.WareHouseID, req.ProductTypeID)
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+			return
+		}
 
-	if req.ProductType == "" {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "campo 'type' é obrigatório"))
-		return
+		c.JSON(web.NewResponse(http.StatusCreated, prod))
 	}
-
-	if req.Count <= 0 {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "campo 'count' não pode ser menor que 1"))
-		return
-	}
-
-	if req.Price < 0 {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "campo 'price' não pode ser menor que 0"))
-		return
-	}
-
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	prod, err := p.service.Update(id, req.Name, req.ProductType, req.Count, req.Price)
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-		return
-	}
-
-	ctx.JSON(web.NewResponse(http.StatusOK, prod))
 }
 
-func (p *Product) UpdateName(ctx *gin.Context) {
-	var req request
-	if err := ctx.Bind(&req); err != nil {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
-		return
-	}
+func (p *Section) UpdateSecID() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req request
+		if err := c.Bind(&req); err != nil {
+			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
+			return
+		}
 
-	if req.Name == "" {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "campo 'nome' é obrigatório"))
-		return
-	}
+		id, _ := strconv.Atoi(c.Param("id"))
+		prod, err := p.service.UpdateSecID(id, req.SectionNumber)
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
 
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	prod, err := p.service.UpdateName(id, req.Name)
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-		return
+		c.JSON(web.NewResponse(http.StatusOK, prod))
 	}
-
-	ctx.JSON(web.NewResponse(http.StatusOK, prod))
 }
 
-func (p *Product) DeleteProduct(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+func (p *Section) DeleteSection() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
 
-	err := p.service.DeleteProduct(id)
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-		return
+		err := p.service.DeleteSection(id)
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+
+		prod := fmt.Sprintf("O produto %d foi removido", id)
+		c.JSON(web.NewResponse(http.StatusOK, prod))
 	}
-
-	prod := fmt.Sprintf("O produto %d foi removido", id)
-	ctx.JSON(web.NewResponse(http.StatusOK, prod))
 }

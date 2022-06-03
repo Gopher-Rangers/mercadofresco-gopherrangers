@@ -3,7 +3,7 @@ package section
 import (
 	"fmt"
 
-	store "github.com/mercadofresco-gopherrangers.git/pkg/store"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 )
 
 type Section struct {
@@ -37,16 +37,22 @@ func NewRepository(db store.Store) Repository {
 	return &repository{db: db}
 }
 
-func (r repository) GetAll() ([]Section, error) {
+func (r repository) GetAll() []Section {
 	var ListSections []Section
 	r.db.Read(&ListSections)
-	return ListSections, nil
+	return ListSections
 }
 
-func (r repository) GetByID(id int) ([]Section, error) {
+func (r repository) GetByID(id int) (Section, error) {
 	var ListSections []Section
 	r.db.Read(&ListSections)
-	return ListSections, nil
+	for i := range ListSections {
+		if ListSections[i].ID == id {
+			return ListSections[i], nil
+		}
+	}
+
+	return Section{}, fmt.Errorf("seção %d não encontrada", id)
 }
 
 func (r repository) Create(id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error) {
@@ -54,6 +60,12 @@ func (r repository) Create(id, secNum, curTemp, minTemp, curCap, minCap, maxCap,
 	r.db.Read(&ListSections)
 
 	p := Section{id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID}
+
+	for i := range ListSections {
+		if ListSections[i].SectionNumber == secNum {
+			return Section{}, fmt.Errorf("seção com sectionNumber: %d já existe no banco de dados", secNum)
+		}
+	}
 
 	for i := range ListSections {
 		if ListSections[i].ID+1 == id {
@@ -86,7 +98,7 @@ func (r repository) UpdateSecID(id, secNum int) (Section, error) {
 			flagExist = true
 		}
 		if ListSections[i].SectionNumber == secNum {
-			return Section{}, fmt.Errorf("seção com sectionNumber: %d já existe no banco de dados", id)
+			return Section{}, fmt.Errorf("seção com sectionNumber: %d já existe no banco de dados", secNum)
 		}
 	}
 
@@ -115,6 +127,10 @@ func (r repository) DeleteSection(id int) error {
 func (r repository) AvailableID() int {
 	var ListSections []Section
 	r.db.Read(&ListSections)
+
+	if len(ListSections) == 0 {
+		return 1
+	}
 
 	for prevI := range ListSections[:len(ListSections)-1] {
 		i := prevI + 1

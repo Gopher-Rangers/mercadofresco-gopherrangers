@@ -6,6 +6,7 @@ type Services interface {
 	Create(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error)
 	UpdateSecID(id, secNum int) (Section, error)
 	DeleteSection(id int) error
+	LastID() int
 }
 
 type service struct {
@@ -52,7 +53,7 @@ func (s *service) UpdateSecID(id, secNum int) (Section, error) {
 	return ps, nil
 }
 
-func (s *service) DeleteProduct(id int) error {
+func (s *service) DeleteSection(id int) error {
 	err := s.repository.DeleteSection(id)
 	if err != nil {
 		return err

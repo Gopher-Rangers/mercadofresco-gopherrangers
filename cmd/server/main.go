@@ -14,12 +14,6 @@ func main() {
 
 	gin := gin.Default()
 
-	db := store.New(store.FileType, "./internal/section/sections.json")
-
-	sec_rep := section.NewRepository(db)
-	sec_service := section.NewService(sec_rep)
-	sec_p := handler.NewSection(sec_service)
-
 	baseRoute := gin.Group("/api/v1/")
 	{
 		// sectionRouterGroupproductsRouterGroup := baseRoute.Group("/products")
@@ -34,6 +28,11 @@ func main() {
 
 		sectionRouterGroup := baseRoute.Group("/sections")
 		{
+			file := store.New(store.FileType, "./internal/section/sections.json")
+			sec_rep := section.NewRepository(file)
+			sec_service := section.NewService(sec_rep)
+			sec_p := handler.NewSection(sec_service)
+
 			sectionRouterGroup.Use(sec_p.TokenAuthMiddleware)
 
 			sectionRouterGroup.GET("/", sec_p.GetAll())

@@ -62,7 +62,7 @@ func (p *Section) IdVerificatorMiddleware(ctx *gin.Context) {
 	}
 
 	if 0 > id || id > p.service.LastID() {
-		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusBadRequest, "id menor que 0 ou maior que o ultimo id"))
+		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusNotFound, "id menor que 0 ou maior que o ultimo id"))
 		return
 	}
 
@@ -71,8 +71,8 @@ func (p *Section) IdVerificatorMiddleware(ctx *gin.Context) {
 
 func (p *Section) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		prod := p.service.GetAll()
-		c.JSON(web.NewResponse(http.StatusOK, prod))
+		sec := p.service.GetAll()
+		c.JSON(web.NewResponse(http.StatusOK, sec))
 	}
 }
 
@@ -80,12 +80,12 @@ func (p *Section) GetByID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, _ := strconv.Atoi(c.Param("id"))
 
-		prod, err := p.service.GetByID(id)
+		sec, err := p.service.GetByID(id)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
-		c.JSON(web.NewResponse(http.StatusOK, prod))
+		c.JSON(web.NewResponse(http.StatusOK, sec))
 	}
 }
 
@@ -97,14 +97,14 @@ func (p *Section) CreateProduct() gin.HandlerFunc {
 			return
 		}
 
-		prod, err := p.service.Create(req.SectionNumber, req.CurTemperature, req.MinTemperature,
+		sec, err := p.service.Create(req.SectionNumber, req.CurTemperature, req.MinTemperature,
 			req.CurCapacity, req.MinCapacity, req.MaxCapacity, req.WareHouseID, req.ProductTypeID)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 			return
 		}
 
-		c.JSON(web.NewResponse(http.StatusCreated, prod))
+		c.JSON(web.NewResponse(http.StatusCreated, sec))
 	}
 }
 
@@ -117,13 +117,13 @@ func (p *Section) UpdateSecID() gin.HandlerFunc {
 		}
 
 		id, _ := strconv.Atoi(c.Param("id"))
-		prod, err := p.service.UpdateSecID(id, req.SectionNumber)
+		sec, err := p.service.UpdateSecID(id, req.SectionNumber)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
 
-		c.JSON(web.NewResponse(http.StatusOK, prod))
+		c.JSON(web.NewResponse(http.StatusOK, sec))
 	}
 }
 
@@ -137,7 +137,7 @@ func (p *Section) DeleteSection() gin.HandlerFunc {
 			return
 		}
 
-		prod := fmt.Sprintf("O produto %d foi removido", id)
-		c.JSON(web.NewResponse(http.StatusOK, prod))
+		sec := fmt.Sprintf("O produto %d foi removido", id)
+		c.JSON(web.NewResponse(http.StatusNoContent, sec))
 	}
 }

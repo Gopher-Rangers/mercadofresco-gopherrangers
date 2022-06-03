@@ -98,7 +98,7 @@ func (r repository) UpdateSecID(id, secNum int) (Section, error) {
 			flagExist = true
 		}
 		if ListSections[i].SectionNumber == secNum {
-			return Section{}, fmt.Errorf("seção com sectionNumber: %d já existe no banco de dados", secNum)
+			return Section{}, fmt.Errorf("seção com section_number: %d já existe no banco de dados", secNum)
 		}
 	}
 

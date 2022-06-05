@@ -1,6 +1,8 @@
 package products
 
 import (
+	"fmt"
+
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 )
 
@@ -23,7 +25,7 @@ type Repository interface {
 	LastID() (int, error)
 	Store(prod Product, id int) (Product, error)
 	GetAll() ([]Product, error)
-	//GetById() (Product, error)
+	GetById(id int) (Product, error)
 	//UpdatePut(prod Product) (Product, error)
 	//UpdatePatch(prod Product) (Product, error)
 	//Delete(id int) (error)
@@ -65,11 +67,18 @@ func (r *repository) GetAll() ([]Product, error) {
 	return ps, nil
 }
 
-/*
-func (r *repository) GetById() (Product, error) {
-
+func (r *repository) GetById(id int) (Product, error) {
+	var ps []Product
+	r.db.Read(&ps)
+	for i:= range ps {
+		if ps[i].ID == id {
+			return ps[i], nil
+		}
+	}
+	return Product{}, fmt.Errorf("produto %d não encontrado", id)
 }
 
+/*
 func (r *repository) UpdatePut(prod Product) (Product, error) {
 
 }

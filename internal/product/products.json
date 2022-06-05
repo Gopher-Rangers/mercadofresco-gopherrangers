@@ -1,1 +1,30 @@
-[{"id":0,"product_code":"","description":"peixe","width":0.5,"height":10.55,"length":0,"net_weight":0,"expiration_rate":"20/08/2022","recommended_freezing_temperature":1.3,"freezing_rate":2,"product_type_id":2,"seller_id":2},{"id":0,"product_code":"","description":"peixe","width":0.5,"height":10.55,"length":0,"net_weight":0,"expiration_rate":"20/08/2022","recommended_freezing_temperature":1.3,"freezing_rate":2,"product_type_id":2,"seller_id":2},{"id":1,"product_code":"","description":"peixe","width":0.5,"height":10.55,"length":0,"net_weight":0,"expiration_rate":"20/08/2022","recommended_freezing_temperature":1.3,"freezing_rate":2,"product_type_id":2,"seller_id":2}]
+[
+    {
+        "id": 0,
+        "product_code": "",
+        "description": "peixe",
+        "width": 0.5,
+        "height": 10.55,
+        "length": 0,
+        "net_weight": 0,
+        "expiration_rate": "20/08/2022",
+        "recommended_freezing_temperature": 1.3,
+        "freezing_rate": 2,
+        "product_type_id": 2,
+        "seller_id": 2
+    },
+    {
+        "id": 1,
+        "product_code": "",
+        "description": "peixe",
+        "width": 0.5,
+        "height": 10.55,
+        "length": 0,
+        "net_weight": 0,
+        "expiration_rate": "20/08/2022",
+        "recommended_freezing_temperature": 1.3,
+        "freezing_rate": 2,
+        "product_type_id": 2,
+        "seller_id": 2
+    }
+]

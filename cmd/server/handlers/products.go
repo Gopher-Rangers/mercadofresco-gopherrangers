@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
@@ -75,6 +76,28 @@ func (prod *Product) GetAll() gin.HandlerFunc {
 			return
 		}
 		p, err := prod.service.GetAll()
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+		c.JSON(web.NewResponse(http.StatusOK, p))
+	}
+	return fn
+}
+
+func (prod *Product) GetById() gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		token := c.Request.Header.Get("token")
+		if token != os.Getenv("TOKEN"){
+			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
+			return
+		}
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_ID))
+			return
+		}
+		p, err := prod.service.GetById(id)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return

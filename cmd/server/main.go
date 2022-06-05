@@ -34,7 +34,7 @@ func main() {
 
 			productRouterGroup.POST("/", prod.Store())
 			productRouterGroup.GET("/", prod.GetAll())
-			//productRouterGroup.GET("/:id", prod.IdVerificatorMiddleware, prod.GetByID())
+			productRouterGroup.GET("/:id", prod.GetById())
 			//productRouterGroup.PATCH("/:id", prod.IdVerificatorMiddleware, prod.UpdatePut())
 			//productRouterGroup.PATCH("/:id", prod.IdVerificatorMiddleware, prod.UpdatePatch())
 			//productRouterGroup.DELETE("/:id", prod.IdVerificatorMiddleware, prod.Delete())

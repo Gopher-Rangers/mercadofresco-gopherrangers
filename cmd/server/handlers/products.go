@@ -24,6 +24,7 @@ const (
 	ERROR_PRODUCT_TYPE_ID = "product_type_id is mandatory"
 	ERROR_TOKEN = "token inválido"
 	ERROR_ID = "id inválido"
+	ERROR_UNIQUE_PRODUCT_CODE = "the product code must be unique"
 )
 
 type requestProduct struct {
@@ -53,6 +54,57 @@ func NewProduct(p products.Service) *Product {
 	return &Product{service: p}
 }
 
+func (prod *Product) checkBody(req products.Product, c *gin.Context) bool {
+	ps, _ := prod.service.GetAll()
+	for i :=range ps {
+		if ps[i].ProductCode == req.ProductCode {
+			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_UNIQUE_PRODUCT_CODE))
+			return false
+		}
+	}
+	if req.ProductCode == "" {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_PRODUCT_CODE))
+		return false
+	}
+	if req.Description == "" {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_DESCRIPTION))
+		return false
+	}
+	if req.Width == 0 {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_WIDTH))
+		return false
+	}
+	if req.Height == 0 {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_HEIGHT))
+		return false
+	}
+	if req.Length == 0 {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_LENGTH))
+		return false
+	}
+	if req.NetWeight == 0 {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_NET_WEIGHT))
+		return false
+	}
+	if req.ExpirationRate == "" {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_EXPIRATIONN_RATE))
+		return false
+	}
+	if req.RecommendedFreezingTemperature == 0 {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_RECOM_FREEZING_TEMP))
+		return false
+	}
+	if req.FreezingRate == 0 {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_FREEZING_RATE))
+		return false
+	}
+	if req.ProductTypeId == 0 {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_PRODUCT_TYPE_ID))
+		return false
+	}
+	return true
+}
+
 func (prod *Product) Store() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
@@ -65,12 +117,15 @@ func (prod *Product) Store() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
+		if !prod.checkBody(req, c) {
+			return
+		}
 		p, err := prod.service.Store(req)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
-		c.JSON(web.NewResponse(http.StatusOK, p))
+		c.JSON(web.NewResponse(http.StatusCreated, p))
 	}
 	return fn
 }
@@ -132,44 +187,7 @@ func (prod *Product) UpdatePut() gin.HandlerFunc {
 			return
 		}
 		req.ID = id
-		if req.ProductCode == "" {
-			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_PRODUCT_CODE))
-			return
-		}
-		if req.Description == "" {
-			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_DESCRIPTION))
-			return
-		}
-		if req.Width == 0 {
-			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_WIDTH))
-			return
-		}
-		if req.Height == 0 {
-			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_HEIGHT))
-			return
-		}
-		if req.Length == 0 {
-			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_LENGTH))
-			return
-		}
-		if req.NetWeight == 0 {
-			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_NET_WEIGHT))
-			return
-		}
-		if req.ExpirationRate == "" {
-			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_EXPIRATIONN_RATE))
-			return
-		}
-		if req.RecommendedFreezingTemperature == 0 {
-			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_RECOM_FREEZING_TEMP))
-			return
-		}
-		if req.FreezingRate == 0 {
-			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_FREEZING_RATE))
-			return
-		}
-		if req.ProductTypeId == 0 {
-			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_PRODUCT_TYPE_ID))
+		if !prod.checkBody(req, c) {
 			return
 		}
 		p, err := prod.service.UpdatePut(req, int(id))
@@ -200,7 +218,7 @@ func (prod *Product) Delete() gin.HandlerFunc {
 			return
 		}
 		p := fmt.Sprintf("o produto %d foi removido", id)
-		c.JSON(web.NewResponse(http.StatusOK, p))
+		c.JSON(web.NewResponse(http.StatusNoContent, p))
 	}
 	return fn
 }

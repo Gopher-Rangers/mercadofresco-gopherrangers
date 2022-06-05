@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -181,3 +182,25 @@ func (prod *Product) UpdatePut() gin.HandlerFunc {
 	return fn
 }
 
+func (prod *Product) Delete() gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		token := c.GetHeader("token")
+		if token != os.Getenv("TOKEN") {
+			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
+			return
+		}
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_ID))
+			return
+		}
+		err = prod.service.Delete(int(id))
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+		p := fmt.Sprintf("o produto %d foi removido", id)
+		c.JSON(web.NewResponse(http.StatusOK, p))
+	}
+	return fn
+}

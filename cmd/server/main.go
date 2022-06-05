@@ -37,7 +37,7 @@ func main() {
 			productRouterGroup.GET("/:id", prod.GetById())
 			productRouterGroup.PUT("/:id", prod.UpdatePut())
 			//productRouterGroup.PATCH("/:id", prod.IdVerificatorMiddleware, prod.UpdatePatch())
-			//productRouterGroup.DELETE("/:id", prod.IdVerificatorMiddleware, prod.Delete())
+			productRouterGroup.DELETE("/:id", prod.Delete())
 		}
 
 		sectionRouterGroup := baseRoute.Group("/sections")

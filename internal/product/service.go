@@ -6,7 +6,7 @@ type Service interface {
 	GetById(id int) (Product, error)
 	UpdatePut(prod Product, id int) (Product, error)
 	//UpdatePatch(prod Product) (Product, error)
-	//Delete(id int) (error)
+	Delete(id int) (error)
 }
 
 type service struct {
@@ -58,8 +58,12 @@ func (s *service) UpdatePut(prod Product, id int) (Product, error) {
 func (s *service) UpdatePatch(prod Product) (Product, error) {
 
 }
+*/
 
 func (s *service) Delete(id int) (error) {
-
+	err := s.repository.Delete(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
-*/

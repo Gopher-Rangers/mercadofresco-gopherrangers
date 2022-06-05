@@ -28,7 +28,7 @@ type Repository interface {
 	GetById(id int) (Product, error)
 	UpdatePut(prod Product, id int) (Product, error)
 	//UpdatePatch(prod Product, id int) (Product, error)
-	//Delete(id int) (error)
+	Delete(id int) (error)
 }
 
 type repository struct {
@@ -97,8 +97,20 @@ func (r *repository) UpdatePut(prod Product, id int) (Product, error) {
 func (r *repository) UpdatePatch(prod Product, id int) (Product, error) {
 
 }
+*/
 
 func (r *repository) Delete(id int) (error) {
-
+	var ps []Product
+	r.db.Read(&ps)
+	for i:= range ps {
+		if ps[i].ID == id {
+			ps = append(ps[:i], ps[i + 1:]...)
+			if err := r.db.Write(ps); err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+	return fmt.Errorf("produto %d não encontrado", id)
 }
-*/
+

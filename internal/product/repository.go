@@ -17,7 +17,7 @@ type Product struct {
 	ExpirationRate string `json:"expiration_rate"`
 	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature"`
 	FreezingRate float64 `json:"freezing_rate"`
-	ProductTypeTd int `json:"product_type_id"`
+	ProductTypeId int `json:"product_type_id"`
 	SellerId int `json:"seller_id"`
 }
 
@@ -26,8 +26,8 @@ type Repository interface {
 	Store(prod Product, id int) (Product, error)
 	GetAll() ([]Product, error)
 	GetById(id int) (Product, error)
-	//UpdatePut(prod Product) (Product, error)
-	//UpdatePatch(prod Product) (Product, error)
+	UpdatePut(prod Product, id int) (Product, error)
+	//UpdatePatch(prod Product, id int) (Product, error)
 	//Delete(id int) (error)
 }
 
@@ -78,12 +78,23 @@ func (r *repository) GetById(id int) (Product, error) {
 	return Product{}, fmt.Errorf("produto %d não encontrado", id)
 }
 
-/*
-func (r *repository) UpdatePut(prod Product) (Product, error) {
-
+func (r *repository) UpdatePut(prod Product, id int) (Product, error) {
+	var ps []Product
+	r.db.Read(&ps)
+	for i:= range ps {
+		if ps[i].ID == id {
+			ps[i] = prod
+			if err := r.db.Write(ps); err != nil {
+				return Product{}, err
+			}
+			return prod, nil
+		}
+	}
+	return Product{}, fmt.Errorf("produto %d não encontrado", id)
 }
 
-func (r *repository) UpdatePatch(prod Product) (Product, error) {
+/*
+func (r *repository) UpdatePatch(prod Product, id int) (Product, error) {
 
 }
 

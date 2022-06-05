@@ -45,23 +45,6 @@ func NewProduct(p products.Service) *Product {
 	return &Product{service: p}
 }
 
-func (prod *Product) GetAll() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		token := c.Request.Header.Get("token")
-		if token != os.Getenv("TOKEN"){
-			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
-			return
-		}
-		p, err := prod.service.GetAll()
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
-		}
-		c.JSON(web.NewResponse(http.StatusOK, p))
-	}
-	return fn
-}
-
 func (prod *Product) Store() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
@@ -75,6 +58,23 @@ func (prod *Product) Store() gin.HandlerFunc {
 			return
 		}
 		p, err := prod.service.Store(req)
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+		c.JSON(web.NewResponse(http.StatusOK, p))
+	}
+	return fn
+}
+
+func (prod *Product) GetAll() gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		token := c.Request.Header.Get("token")
+		if token != os.Getenv("TOKEN"){
+			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
+			return
+		}
+		p, err := prod.service.GetAll()
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return

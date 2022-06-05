@@ -5,6 +5,7 @@ import (
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -24,17 +25,18 @@ func main() {
 	{
 		productRouterGroup := baseRoute.Group("/products")
 		{
-			file := store.New(store.FileType, "./internal/product/products.json")
-			prod_rep := section.NewRepository(file)
-			prod_service := section.NewService(prod_rep)
-			prod := handler.NewSection(prod_service)
+			file := store.New(store.FileType, "../../internal/product/products.json")
+			prod_rep := products.NewRepository(file)
+			prod_service := products.NewService(prod_rep)
+			prod := handler.NewProduct(prod_service)
 
-			productRouterGroup.Use(prod.TokenAuthMiddleware)
+			//productRouterGroup.Use(prod.TokenAuthMiddleware)
 
+			productRouterGroup.POST("/", prod.Store())
 			productRouterGroup.GET("/", prod.GetAll())
-			//productRouterGroup.POST("/", prod.Store())
 			//productRouterGroup.GET("/:id", prod.IdVerificatorMiddleware, prod.GetByID())
-			//productRouterGroup.PATCH("/:id", prod.IdVerificatorMiddleware, prod.UpdateDescription())
+			//productRouterGroup.PATCH("/:id", prod.IdVerificatorMiddleware, prod.UpdatePut())
+			//productRouterGroup.PATCH("/:id", prod.IdVerificatorMiddleware, prod.UpdatePatch())
 			//productRouterGroup.DELETE("/:id", prod.IdVerificatorMiddleware, prod.Delete())
 		}
 

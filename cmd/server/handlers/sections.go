@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type request struct {
+type requestSections struct {
 	ID             int `json:"id"`
 	SectionNumber  int `json:"section_number" binding:"required"`
 	CurTemperature int `json:"current_temperature" binding:"required"`
@@ -91,7 +91,7 @@ func (p *Section) GetByID() gin.HandlerFunc {
 
 func (p *Section) CreateProduct() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req request
+		var req requestSections
 		if err := c.Bind(&req); err != nil {
 			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
 			return
@@ -110,7 +110,7 @@ func (p *Section) CreateProduct() gin.HandlerFunc {
 
 func (p *Section) UpdateSecID() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req request
+		var req requestSections
 		if err := c.Bind(&req); err != nil {
 			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
 			return

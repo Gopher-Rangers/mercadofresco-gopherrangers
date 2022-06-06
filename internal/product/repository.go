@@ -26,8 +26,7 @@ type Repository interface {
 	Store(prod Product, id int) (Product, error)
 	GetAll() ([]Product, error)
 	GetById(id int) (Product, error)
-	UpdatePut(prod Product, id int) (Product, error)
-	//UpdatePatch(prod Product, id int) (Product, error)
+	Update(prod Product, id int) (Product, error)
 	Delete(id int) (error)
 }
 
@@ -78,7 +77,7 @@ func (r *repository) GetById(id int) (Product, error) {
 	return Product{}, fmt.Errorf("produto %d não encontrado", id)
 }
 
-func (r *repository) UpdatePut(prod Product, id int) (Product, error) {
+func (r *repository) Update(prod Product, id int) (Product, error) {
 	var ps []Product
 	r.db.Read(&ps)
 	for i:= range ps {
@@ -92,12 +91,6 @@ func (r *repository) UpdatePut(prod Product, id int) (Product, error) {
 	}
 	return Product{}, fmt.Errorf("produto %d não encontrado", id)
 }
-
-/*
-func (r *repository) UpdatePatch(prod Product, id int) (Product, error) {
-
-}
-*/
 
 func (r *repository) Delete(id int) (error) {
 	var ps []Product
@@ -113,4 +106,3 @@ func (r *repository) Delete(id int) (error) {
 	}
 	return fmt.Errorf("produto %d não encontrado", id)
 }
-

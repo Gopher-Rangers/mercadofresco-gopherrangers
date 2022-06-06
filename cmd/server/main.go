@@ -30,13 +30,10 @@ func main() {
 			prod_service := products.NewService(prod_rep)
 			prod := handler.NewProduct(prod_service)
 
-			//productRouterGroup.Use(prod.TokenAuthMiddleware)
-
 			productRouterGroup.POST("/", prod.Store())
 			productRouterGroup.GET("/", prod.GetAll())
 			productRouterGroup.GET("/:id", prod.GetById())
-			productRouterGroup.PATCH("/:id", prod.UpdatePut())
-			//productRouterGroup.PATCH("/:id", prod.IdVerificatorMiddleware, prod.UpdatePatch())
+			productRouterGroup.PATCH("/:id", prod.Update())
 			productRouterGroup.DELETE("/:id", prod.Delete())
 		}
 

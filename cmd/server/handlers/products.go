@@ -22,29 +22,10 @@ const (
 	ERROR_RECOM_FREEZING_TEMP = "recommended_freezing_temperature is mandatory"
 	ERROR_FREEZING_RATE = "freezing_rate is mandatory"
 	ERROR_PRODUCT_TYPE_ID = "product_type_id is mandatory"
-	ERROR_TOKEN = "token inválido"
-	ERROR_ID = "id inválido"
+	ERROR_TOKEN = "ivalid token"
+	ERROR_ID = "invalid id"
 	ERROR_UNIQUE_PRODUCT_CODE = "the product code must be unique"
 )
-
-type requestProduct struct {
-	ID int `json:"id"`
-	ProductCode string `json:"product_code"`
-	Description string `json:"description"`
-	Width float64 `json:"width"`
-	Height float64 `json:"height"`
-	Length float64 `json:"length"`
-	NetWeight float64 `json:"net_weight"`
-	ExpirationRate string `json:"expiration_rate"`
-	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature"`
-	FreezingRate float64 `json:"freezing_rate"`
-	ProductTypeId int `json:"product_type_id"`
-	SellerId int `json:"seller_id"`
-}
-
-type requestDescription struct {
-	Description string `json:"description"`
-}
 
 type Product struct {
 	service products.Service
@@ -58,16 +39,22 @@ func (prod *Product) checkBody(req products.Product, c *gin.Context) bool {
 	ps, _ := prod.service.GetAll()
 	for i :=range ps {
 		if ps[i].ProductCode == req.ProductCode {
-			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_UNIQUE_PRODUCT_CODE))
+			c.JSON(web.DecodeError(
+				http.StatusUnprocessableEntity,
+				ERROR_UNIQUE_PRODUCT_CODE))
 			return false
 		}
 	}
 	if req.ProductCode == "" {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_PRODUCT_CODE))
+		c.JSON(web.DecodeError(
+			http.StatusUnprocessableEntity,
+			ERROR_PRODUCT_CODE))
 		return false
 	}
 	if req.Description == "" {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_DESCRIPTION))
+		c.JSON(web.DecodeError(
+			http.StatusUnprocessableEntity,
+			ERROR_DESCRIPTION))
 		return false
 	}
 	if req.Width == 0 {
@@ -83,23 +70,33 @@ func (prod *Product) checkBody(req products.Product, c *gin.Context) bool {
 		return false
 	}
 	if req.NetWeight == 0 {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_NET_WEIGHT))
+		c.JSON(web.DecodeError(
+			http.StatusUnprocessableEntity,
+			ERROR_NET_WEIGHT))
 		return false
 	}
 	if req.ExpirationRate == "" {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_EXPIRATIONN_RATE))
+		c.JSON(web.DecodeError(
+			http.StatusUnprocessableEntity,
+			ERROR_EXPIRATIONN_RATE))
 		return false
 	}
 	if req.RecommendedFreezingTemperature == 0 {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_RECOM_FREEZING_TEMP))
+		c.JSON(web.DecodeError(
+			http.StatusUnprocessableEntity,
+			ERROR_RECOM_FREEZING_TEMP))
 		return false
 	}
 	if req.FreezingRate == 0 {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_FREEZING_RATE))
+		c.JSON(web.DecodeError(
+			http.StatusUnprocessableEntity,
+			ERROR_FREEZING_RATE))
 		return false
 	}
 	if req.ProductTypeId == 0 {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_PRODUCT_TYPE_ID))
+		c.JSON(web.DecodeError(
+			http.StatusUnprocessableEntity,
+			ERROR_PRODUCT_TYPE_ID))
 		return false
 	}
 	return true
@@ -169,7 +166,7 @@ func (prod *Product) GetById() gin.HandlerFunc {
 	return fn
 }
 
-func (prod *Product) UpdatePut() gin.HandlerFunc {
+func (prod *Product) Update() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		token := c.GetHeader("token")
 		if token != os.Getenv("TOKEN") {
@@ -190,7 +187,7 @@ func (prod *Product) UpdatePut() gin.HandlerFunc {
 		if !prod.checkBody(req, c) {
 			return
 		}
-		p, err := prod.service.UpdatePut(req, int(id))
+		p, err := prod.service.Update(req, int(id))
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return

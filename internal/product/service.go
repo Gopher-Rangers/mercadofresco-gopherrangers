@@ -4,8 +4,7 @@ type Service interface {
 	Store(prod Product) (Product, error)
 	GetAll() ([]Product, error)
 	GetById(id int) (Product, error)
-	UpdatePut(prod Product, id int) (Product, error)
-	//UpdatePatch(prod Product) (Product, error)
+	Update(prod Product, id int) (Product, error)
 	Delete(id int) (error)
 }
 
@@ -46,19 +45,13 @@ func (s *service) GetById(id int) (Product, error) {
 	return ps, nil
 }
 
-func (s *service) UpdatePut(prod Product, id int) (Product, error) {
-	product, err := s.repository.UpdatePut(prod, id)
+func (s *service) Update(prod Product, id int) (Product, error) {
+	product, err := s.repository.Update(prod, id)
 	if err != nil {
 		return Product{}, err
 	}
 	return product, nil
 }
-
-/*
-func (s *service) UpdatePatch(prod Product) (Product, error) {
-
-}
-*/
 
 func (s *service) Delete(id int) (error) {
 	err := s.repository.Delete(id)

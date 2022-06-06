@@ -61,7 +61,7 @@ The following tools were used in this project:
 
 ## Requirements ##
 
-Before starting :checkered_flag:, you need to have [Git](https://git-scm.com) and [Go](https://go.dev/) installed.
+Before starting :checkered_flag:, you need to have [Git](https://git-scm.com), [Go](https://go.dev/) and [Swagger](https://swagger.io/) installed.
 
 ## Starting ##
 

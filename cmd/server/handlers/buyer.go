@@ -49,91 +49,82 @@ func (p *Buyer) ValidateID(ctx *gin.Context) {
 	ctx.Next()
 }
 
-func (b *Buyer) GetAll() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func (b *Buyer) GetAll(c *gin.Context) {
 
-		data, err := b.service.GetAll()
+	data, err := b.service.GetAll()
 
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
-			return
-		}
-
-		c.JSON(web.NewResponse(http.StatusOK, data))
+	if err != nil {
+		c.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
+		return
 	}
+
+	c.JSON(web.NewResponse(http.StatusOK, data))
 }
 
-func (b *Buyer) GetBuyerById() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func (b *Buyer) GetBuyerById(c *gin.Context) {
 
-		id, _ := strconv.Atoi(c.Param("id"))
+	id, _ := strconv.Atoi(c.Param("id"))
 
-		data, err := b.service.GetById(id)
+	data, err := b.service.GetById(id)
 
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
-		}
-
-		c.JSON(web.NewResponse(http.StatusOK, data))
+	if err != nil {
+		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		return
 	}
+
+	c.JSON(web.NewResponse(http.StatusOK, data))
 }
 
-func (p *Buyer) Create() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var req buyerRequest
-		if err := c.Bind(&req); err != nil {
-			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
-			return
-		}
+func (p *Buyer) Create(c *gin.Context) {
 
-		newBuyer, err := p.service.Create(req.CardNumberId, req.FirstName, req.LastName)
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
-			return
-		}
-
-		c.JSON(web.NewResponse(http.StatusCreated, newBuyer))
+	var req buyerRequest
+	if err := c.Bind(&req); err != nil {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
+		return
 	}
+
+	newBuyer, err := p.service.Create(req.CardNumberId, req.FirstName, req.LastName)
+	if err != nil {
+		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+		return
+	}
+
+	c.JSON(web.NewResponse(http.StatusCreated, newBuyer))
 }
 
-func (p *Buyer) Update() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var req buyerRequest
-		if err := c.Bind(&req); err != nil {
-			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
-			return
-		}
-
-		id, _ := strconv.Atoi(c.Param("id"))
-
-		newBuyer, err := p.service.Update(id, req.CardNumberId, req.FirstName, req.LastName)
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
-		}
-
-		c.JSON(web.NewResponse(http.StatusCreated, newBuyer))
+func (p *Buyer) Update(c *gin.Context) {
+	var req buyerRequest
+	if err := c.Bind(&req); err != nil {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
+		return
 	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	newBuyer, err := p.service.Update(id, req.CardNumberId, req.FirstName, req.LastName)
+	if err != nil {
+		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		return
+	}
+
+	c.JSON(web.NewResponse(http.StatusCreated, newBuyer))
 }
 
-func (p *Buyer) Delete() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var req buyerRequest
-		if err := c.Bind(&req); err != nil {
-			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
-			return
-		}
-
-		id, _ := strconv.Atoi(c.Param("id"))
-
-		err := p.service.Delete(id)
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
-		}
-
-		sec := fmt.Sprintf("Buyer with id %d deleted", id)
-		c.JSON(web.NewResponse(http.StatusNoContent, sec))
+func (p *Buyer) Delete(c *gin.Context) {
+	var req buyerRequest
+	if err := c.Bind(&req); err != nil {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
+		return
 	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	err := p.service.Delete(id)
+	if err != nil {
+		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		return
+	}
+
+	sec := fmt.Sprintf("Buyer with id %d deleted", id)
+	c.JSON(web.NewResponse(http.StatusNoContent, sec))
 }

@@ -31,15 +31,15 @@ func main() {
 			file := store.New(store.FileType, "./internal/section/sections.json")
 			sec_rep := section.NewRepository(file)
 			sec_service := section.NewService(sec_rep)
-			sec_p := handler.NewSection(sec_service)
+			section := handler.NewSection(sec_service)
 
-			sectionRouterGroup.Use(sec_p.TokenAuthMiddleware)
+			sectionRouterGroup.Use(section.TokenAuthMiddleware)
 
-			sectionRouterGroup.GET("/", sec_p.GetAll())
-			sectionRouterGroup.POST("/", sec_p.CreateProduct())
-			sectionRouterGroup.GET("/:id", sec_p.IdVerificatorMiddleware, sec_p.GetByID())
-			sectionRouterGroup.PATCH("/:id", sec_p.IdVerificatorMiddleware, sec_p.UpdateSecID())
-			sectionRouterGroup.DELETE("/:id", sec_p.IdVerificatorMiddleware, sec_p.DeleteSection())
+			sectionRouterGroup.GET("/", section.GetAll())
+			sectionRouterGroup.POST("/", section.CreateSection())
+			sectionRouterGroup.GET("/:id", section.IdVerificatorMiddleware, section.GetByID())
+			sectionRouterGroup.PATCH("/:id", section.IdVerificatorMiddleware, section.UpdateSecID())
+			sectionRouterGroup.DELETE("/:id", section.IdVerificatorMiddleware, section.DeleteSection())
 		}
 	}
 	server.Run()

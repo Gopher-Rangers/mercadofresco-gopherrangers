@@ -1,84 +1,117 @@
 package buyer
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strconv"
-	"strings"
+
+	"github.com/google/uuid"
+
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 )
 
 type Buyer struct {
-	id           int    `json:"id"`
-	cardNumberId string `json:"card_number_id"`
-	firstName    string `json:"first_name"`
-	lastName     string `json:"last_name"`
+	Id           int    `json:"id"`
+	CardNumberId string `json:"card_number_id"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
 }
 
-type repository struct{}
+type repository struct {
+	db store.Store
+}
 
 type Repository interface {
 	GetAll() ([]Buyer, error)
-	Save(id int, cardNumberId string, firstName string, lastName string) (Buyer, error)
+	Create(cardNumberId string, firstName string, lastName string) (Buyer, error)
+	Update(id int, cardNumberId string, firstName string, lastName string) (Buyer, error)
+	Delete(id int) error
+	GetById(id int) (Buyer, error)
 }
 
 func NewRepository() Repository {
-	return &repository{}
+	db := store.New(store.FileType, "../../internal/buyer/buyers.json")
+	return &repository{db: db}
 }
 
-func (repository) GetAll() ([]Buyer, error) {
-	return getAllBuyersFromJson()
-}
-
-func (repository) Save(id int, cardNumberId string, firstName string, lastName string) (Buyer, error) {
-	newBuyer := Buyer{id, cardNumberId, firstName, lastName}
-
-	savedBuyer, err := saveBuyerJson(newBuyer)
-
-	if err != nil {
-		return newBuyer, err
-	}
-
-	return savedBuyer, nil
-}
-
-func saveBuyerJson(buyer Buyer) (Buyer, error) {
-	text := fmt.Sprintf("%d;%s;%s;%s\n", buyer.id, buyer.cardNumberId, buyer.firstName, buyer.lastName)
-	f, err := os.OpenFile("../../pkg/store/buyers.json",
-		os.O_APPEND|os.O_WRONLY|os.O_CREATE,
-		0600)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	if _, err = f.WriteString(text); err != nil {
-		panic(err)
-	}
-	return buyer, nil
-}
-
-func getAllBuyersFromJson() ([]Buyer, error) {
-	fi := "../../pkg/store/buyers.json"
-	f, err := os.Open(fi)
-	if err != nil {
-		fmt.Printf("error opening file: %v\n", err)
-		os.Exit(1)
-		return nil, err
-	}
-
+func (r *repository) GetAll() ([]Buyer, error) {
 	var buyers []Buyer
+	r.db.Read(&buyers)
 
-	r := bufio.NewReader(f)
-	s, e := r.ReadString('\n')
-	for e == nil {
-		splitedData := strings.Split(s, ";")
-		var buyer Buyer
-		buyer.id, _ = strconv.Atoi(splitedData[0])
-		buyer.cardNumberId = splitedData[1]
-		buyer.firstName = splitedData[2]
-		buyer.lastName = splitedData[3]
-		buyers = append(buyers, buyer)
-		s, e = r.ReadString('\n')
+	if len(buyers) == 0 {
+		return make([]Buyer, 0), nil
 	}
+
 	return buyers, nil
+}
+
+func (r *repository) GetById(id int) (Buyer, error) {
+	var buyerList []Buyer
+	r.db.Read(&buyerList)
+
+	buyerIndex := -1
+
+	for i := range buyerList {
+		if buyerList[i].Id == id {
+			buyerIndex = i
+		}
+	}
+
+	if buyerIndex == -1 {
+		return Buyer{}, fmt.Errorf("buyer with id %d not founded", id)
+	}
+	return buyerList[buyerIndex], nil
+}
+
+func (r *repository) Create(cardNumberId string, firstName string, lastName string) (Buyer, error) {
+	var buyers []Buyer
+	r.db.Read(&buyers)
+	newBuyer := Buyer{int(uuid.New().ID()), cardNumberId, firstName, lastName}
+
+	for i := 0; i < len(buyers); i++ {
+		if buyers[i].Id == newBuyer.Id {
+			newBuyer.Id = int(uuid.New().ID())
+			i = 0
+		}
+		if buyers[i].CardNumberId == newBuyer.CardNumberId {
+			return Buyer{}, fmt.Errorf("the informed Card Number \"%s\" already has been registered", newBuyer.CardNumberId)
+		}
+	}
+
+	buyers = append(buyers, newBuyer)
+	if err := r.db.Write(buyers); err != nil {
+		return Buyer{}, err
+	}
+	return newBuyer, nil
+}
+
+func (r repository) Update(id int, cardNumberId string, firstName string, lastName string) (Buyer, error) {
+	var buyers []Buyer
+	r.db.Read(&buyers)
+
+	index := -1
+	for i := range buyers {
+		if buyers[i].Id == id {
+			index = i
+		}
+	}
+
+	if index != -1 {
+		buyers[index] = Buyer{id, cardNumberId, firstName, lastName}
+		r.db.Write(buyers)
+		return buyers[index], nil
+	}
+	return Buyer{}, fmt.Errorf("buyer with id: %d not found", id)
+}
+
+func (r repository) Delete(id int) error {
+	var buyersList []Buyer
+	r.db.Read(&buyersList)
+
+	for i := range buyersList {
+		if buyersList[i].Id == id {
+			buyersList = append(buyersList[:i], buyersList[i+1:]...)
+			r.db.Write(buyersList)
+			return nil
+		}
+	}
+	return fmt.Errorf("buyer with id : %d not founded", id)
 }

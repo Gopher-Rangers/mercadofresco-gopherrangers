@@ -6,7 +6,7 @@ type Service interface {
 	GetOne(id int) (Seller, error)
 	GetAll() ([]Seller, error)
 	Create(cid int, companyName, address, telephone string) (Seller, error)
-	Update(id int, companyName, address, telephone string) (Seller, error)
+	Update(id, cid int, companyName, address, telephone string) (Seller, error)
 	Delete(id int) error
 }
 
@@ -21,11 +21,9 @@ func NewService(r Repository) Service {
 func (s *service) GetAll() ([]Seller, error) {
 	sellerList, err := s.repository.GetAll()
 
-	fmt.Println("seller", sellerList)
 	if err != nil {
 		return sellerList, err
 	}
-	fmt.Println("seller", err)
 	return sellerList, nil
 }
 
@@ -35,12 +33,11 @@ func (s *service) Create(cid int, companyName, address, telephone string) (Selle
 	if err != nil {
 		return Seller{}, err
 	}
-
 	return newSeller, nil
 }
 
-func (s *service) Update(id int, companyName, address, telephone string) (Seller, error) {
-	updateSeller, err := s.repository.Update(id, companyName, address, telephone)
+func (s *service) Update(id, cid int, companyName, address, telephone string) (Seller, error) {
+	updateSeller, err := s.repository.Update(id, cid, companyName, address, telephone)
 
 	if err != nil {
 		return Seller{}, err
@@ -55,7 +52,6 @@ func (s *service) GetOne(id int) (Seller, error) {
 		fmt.Println(err.Error())
 		return Seller{}, err
 	}
-
 	return oneSeller, nil
 }
 

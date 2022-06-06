@@ -1,15 +1,17 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
 type requestSeller struct {
-	Cid         int    `json:"company_id" binding:"required"`
+	CompanyId   int    `json:"cid" binding:"required"`
 	CompanyName string `json:"company_name" binding:"required"`
 	Address     string `json:"address" binding:"required"`
 	Telephone   string `json:"telephone" binding:"required"`
@@ -28,12 +30,10 @@ func (s *Seller) GetAll(c *gin.Context) {
 	sellerList, err := s.service.GetAll()
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "não há vendedores",
-		})
+		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, sellerList)
+	c.JSON(web.NewResponse(http.StatusOK, sellerList))
 }
 
 func (s *Seller) GetOne(c *gin.Context) {
@@ -41,17 +41,17 @@ func (s *Seller) GetOne(c *gin.Context) {
 
 	idConvertido, err := strconv.Atoi(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
 	}
 
 	oneSeller, err := s.service.GetOne(idConvertido)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, err.Error())
+		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, oneSeller)
+	c.JSON(web.NewResponse(http.StatusOK, oneSeller))
 }
 
 func (s *Seller) Update(c *gin.Context) {
@@ -59,47 +59,46 @@ func (s *Seller) Update(c *gin.Context) {
 
 	idConvertido, err := strconv.Atoi(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
 	}
 
 	var req requestSeller
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, validateFields(req).Error()))
 		return
 	}
 
-	updateSeller, err := s.service.Update(idConvertido, req.CompanyName, req.Address, req.Telephone)
+	updateSeller, err := s.service.Update(idConvertido, req.CompanyId, req.CompanyName, req.Address, req.Telephone)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, updateSeller)
+	c.JSON(web.NewResponse(http.StatusOK, updateSeller))
 }
 
 func (s *Seller) Create(c *gin.Context) {
 	var req requestSeller
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, validateFields(req).Error()))
 		return
 	}
 
-	newSeller, err := s.service.Create(req.Cid, req.CompanyName, req.Address, req.Telephone)
+	if err := validateFields(req); err != nil {
+		c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+	}
+
+	newSeller, err := s.service.Create(req.CompanyId, req.CompanyName, req.Address, req.Telephone)
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusConflict, fmt.Sprintf("error: %s", err.Error()))
+		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 		return
 	}
-
-	c.JSON(http.StatusCreated, newSeller)
+	c.JSON(web.NewResponse(http.StatusCreated, newSeller))
 }
 
 func (s *Seller) Delete(c *gin.Context) {
@@ -108,15 +107,33 @@ func (s *Seller) Delete(c *gin.Context) {
 	idConvertido, err := strconv.Atoi(id)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
 	}
 
 	err = s.service.Delete(idConvertido)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, err.Error())
+		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
 	}
+	c.JSON(web.NewResponse(http.StatusNoContent, fmt.Sprintf("the seller %d was removed", idConvertido)))
+}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("o vendedor %d foi removido", idConvertido))
+func validateFields(req requestSeller) error {
+	if req.CompanyId == 0 {
+		return errors.New("field cid is required")
+	}
+
+	if req.CompanyName == "" {
+		return errors.New("field company_name is required")
+	}
+
+	if req.Address == "" {
+		return errors.New("field address is required")
+	}
+
+	if req.Telephone == "" {
+		return errors.New("field telephone is required")
+	}
+	return nil
 }

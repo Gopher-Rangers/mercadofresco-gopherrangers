@@ -7,12 +7,12 @@ import (
 )
 
 type Warehouse struct {
-	ID              int
-	Warehouse_code  string
-	Address         string
-	Telephone       string
-	Min_Capacity    int
-	Min_Temperature int
+	ID             int    `json:"id"`
+	WarehouseCode  string `json:"warehouse_code" binding:"required"`
+	Address        string `json:"address"`
+	Telephone      string `json:"telephone"`
+	MinCapacity    int    `json:"minimun_capacity"`
+	MinTemperature int    `json:"minimun_temperature"`
 }
 
 type Repository interface {
@@ -58,7 +58,7 @@ func (r *repository) CreateWarehouse(id int, code, address, tel string, minCap, 
 	w := Warehouse{id, code, address, tel, minCap, minTemp}
 
 	for _, warehouse := range ListWarehouse {
-		if warehouse.Warehouse_code == code {
+		if warehouse.WarehouseCode == code {
 			return Warehouse{}, fmt.Errorf("O %s já existe no banco de dados", code)
 		}
 	}
@@ -76,7 +76,7 @@ func (r *repository) UpdatedWarehouseID(id int, code string) (Warehouse, error) 
 
 	for i := range ListWarehouse {
 		if ListWarehouse[i].ID == id {
-			ListWarehouse[i].Warehouse_code = code
+			ListWarehouse[i].WarehouseCode = code
 			r.db.Write(ListWarehouse)
 			return ListWarehouse[i], nil
 		}

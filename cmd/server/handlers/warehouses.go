@@ -10,12 +10,12 @@ import (
 )
 
 type requestWarehouse struct {
-	ID              int    `json:"id"`
-	Warehouse_code  string `json:"warehouse_code" binding:"required"`
-	Address         string `json:"address"`
-	Telephone       string `json:"telephone"`
-	Min_Capacity    int    `json:"minimun_capacity"`
-	Min_Temperature int    `json:"minimun_temperature"`
+	ID             int    `json:"id"`
+	WarehouseCode  string `json:"warehouse_code" binding:"required"`
+	Address        string `json:"address"`
+	Telephone      string `json:"telephone"`
+	MinCapacity    int    `json:"minimun_capacity"`
+	MinTemperature int    `json:"minimun_temperature"`
 }
 
 type Warehouse struct {
@@ -58,8 +58,8 @@ func (w Warehouse) CreateWarehouse(c *gin.Context) {
 		return
 	}
 
-	warehouse, err := w.service.CreateWarehouse(req.ID, req.Warehouse_code, req.Address,
-		req.Telephone, req.Min_Capacity, req.Min_Temperature)
+	warehouse, err := w.service.CreateWarehouse(req.ID, req.WarehouseCode, req.Address,
+		req.Telephone, req.MinCapacity, req.MinTemperature)
 
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
@@ -84,7 +84,7 @@ func (w Warehouse) UpdatedWarehouseID(c *gin.Context) {
 		return
 	}
 
-	warehouse, err := w.service.UpdatedWarehouseID(id, req.Warehouse_code)
+	warehouse, err := w.service.UpdatedWarehouseID(id, req.WarehouseCode)
 
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))

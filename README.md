@@ -76,11 +76,12 @@ $ cd mercadofresco-gopherrangers/cmd/server
 $ go run main.go
 
 # The server will initialize in the <http://localhost:8080>
+# To see the documentation go to <http://localhost:8080/docs/index.html#/>
 ```
 
 ## License ##
 
-This project is under license from MIT. For more details, see the [LICENSE](LICENSE.md) file.
+This project is under license from Apache 2.0. For more details, see the [LICENSE](LICENSE) file.
 
 &#xa0;
 

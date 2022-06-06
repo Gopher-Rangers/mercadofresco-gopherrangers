@@ -27,6 +27,19 @@ const (
 	ERROR_UNIQUE_PRODUCT_CODE = "the product code must be unique"
 )
 
+type requestProduct struct {
+	ProductCode string `json:"product_code"`
+	Description string `json:"description"`
+	Width float64 `json:"width"`
+	Height float64 `json:"height"`
+	Length float64 `json:"length"`
+	NetWeight float64 `json:"net_weight"`
+	ExpirationRate string `json:"expiration_rate"`
+	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature"`
+	FreezingRate float64 `json:"freezing_rate"`
+	ProductTypeTd int `json:"product_type_id"`
+}
+
 type Product struct {
 	service products.Service
 }
@@ -38,7 +51,7 @@ func NewProduct(p products.Service) *Product {
 func (prod *Product) checkBody(req products.Product, c *gin.Context) bool {
 	ps, _ := prod.service.GetAll()
 	for i :=range ps {
-		if ps[i].ProductCode == req.ProductCode {
+		if ps[i].ProductCode == req.ProductCode && ps[i].ID != req.ID {
 			c.JSON(web.DecodeError(
 				http.StatusUnprocessableEntity,
 				ERROR_UNIQUE_PRODUCT_CODE))
@@ -102,6 +115,19 @@ func (prod *Product) checkBody(req products.Product, c *gin.Context) bool {
 	return true
 }
 
+// StoreProducts godoc
+// @Summary Store products
+// @Tags Products
+// @Description store products
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Param product body requestProduct true "Product to store"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 404 {object} web.Response
+// @Failure 422 {object} web.Response "Missing some mandatory field"
+// @Success 201 {object} web.Response
+// @Router /api/v1/products [POST]
 func (prod *Product) Store() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
@@ -127,6 +153,17 @@ func (prod *Product) Store() gin.HandlerFunc {
 	return fn
 }
 
+// ListProducts godoc
+// @Summary List products
+// @Tags Products
+// @Description get products
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 404 {object} web.Response
+// @Success 200 {object} web.Response
+// @Router /api/v1/products [GET]
 func (prod *Product) GetAll() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
@@ -144,6 +181,19 @@ func (prod *Product) GetAll() gin.HandlerFunc {
 	return fn
 }
 
+// ListProductsById godoc
+// @Summary List products by ID
+// @Tags Products
+// @Description list products by ID
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Param some_id path int true "Some ID"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 400 {object} web.Response "We need ID"
+// @Failure 404 {object} web.Response "Can not find ID"
+// @Success 200 {object} web.Response
+// @Router /api/v1/products/{some_id} [GET]
 func (prod *Product) GetById() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
@@ -166,6 +216,21 @@ func (prod *Product) GetById() gin.HandlerFunc {
 	return fn
 }
 
+// UpdateProducts godoc
+// @Summary Update products by ID
+// @Tags Products
+// @Description update products
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Param some_id path int true "Some ID"
+// @Param product body requestProduct true "Product to update"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 400 {object} web.Response "We need ID"
+// @Failure 404 {object} web.Response "Can not find ID"
+// @Failure 422 {object} web.Response "Missing some mandatory field"
+// @Success 200 {object} web.Response
+// @Router /api/v1/products/{some_id} [PATCH]
 func (prod *Product) Update() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		token := c.GetHeader("token")
@@ -197,6 +262,19 @@ func (prod *Product) Update() gin.HandlerFunc {
 	return fn
 }
 
+// DeleteProducts godoc
+// @Summary Delete products by ID
+// @Tags Products
+// @Description delete products by ID
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Param some_id path int true "Some ID"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 400 {object} web.Response "We need ID"
+// @Failure 404 {object} web.Response "Can not find ID"
+// @Success 204 {object} web.Response
+// @Router /api/v1/products/{some_id} [DELETE]
 func (prod *Product) Delete() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		token := c.GetHeader("token")

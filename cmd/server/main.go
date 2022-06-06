@@ -16,15 +16,18 @@ func main() {
 
 	baseRoute := server.Group("/api/v1/")
 	{
-		// sectionRouterGroupproductsRouterGroup := baseRoute.Group("/products")
-		// {
-		// 	productsRouterGroup.POST("/", productHandler.Save())
-		// 	productsRouterGroup.GET("/", productHandler.GetAll())
-		// 	productsRouterGroup.GET("/:id", productHandler.GetById())
-		// 	productsRouterGroup.PUT("/:id", productHandler.Update())
-		// 	productsRouterGroup.DELETE("/:id", productHandler.Delete())
-		// 	productsRouterGroup.PATCH("/:id", productHandler.PatchNamePrice())
-		// }
+		buyerRouterGroup := baseRoute.Group("/buyers")
+		{
+			buyerHandler := handler.NewBuyerHandler()
+
+			buyerRouterGroup.Use(buyerHandler.AuthToken)
+
+			buyerRouterGroup.GET("/", buyerHandler.GetAll)
+			buyerRouterGroup.POST("/", buyerHandler.Create)
+			buyerRouterGroup.GET("/:id", buyerHandler.ValidateID, buyerHandler.GetBuyerById)
+			buyerRouterGroup.PUT("/:id", buyerHandler.ValidateID, buyerHandler.Update)
+			buyerRouterGroup.DELETE("/:id", buyerHandler.ValidateID, buyerHandler.Delete)
+		}
 
 		sectionRouterGroup := baseRoute.Group("/sections")
 		{

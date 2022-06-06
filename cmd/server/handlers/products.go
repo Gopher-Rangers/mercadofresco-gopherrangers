@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"fmt"
@@ -6,38 +6,38 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
+	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	ERROR_PRODUCT_CODE = "product_code is mandatory"
-	ERROR_DESCRIPTION = "description is mandatory"
-	ERROR_WIDTH = "Width is mandatory"
-	ERROR_HEIGHT = "height is mandatory"
-	ERROR_LENGTH = "length is mandatory"
-	ERROR_NET_WEIGHT = "net_weight is mandatory"
-	ERROR_EXPIRATIONN_RATE = "expiration_rate is mandatory"
+	ERROR_PRODUCT_CODE        = "product_code is mandatory"
+	ERROR_DESCRIPTION         = "description is mandatory"
+	ERROR_WIDTH               = "Width is mandatory"
+	ERROR_HEIGHT              = "height is mandatory"
+	ERROR_LENGTH              = "length is mandatory"
+	ERROR_NET_WEIGHT          = "net_weight is mandatory"
+	ERROR_EXPIRATIONN_RATE    = "expiration_rate is mandatory"
 	ERROR_RECOM_FREEZING_TEMP = "recommended_freezing_temperature is mandatory"
-	ERROR_FREEZING_RATE = "freezing_rate is mandatory"
-	ERROR_PRODUCT_TYPE_ID = "product_type_id is mandatory"
-	ERROR_TOKEN = "ivalid token"
-	ERROR_ID = "invalid id"
+	ERROR_FREEZING_RATE       = "freezing_rate is mandatory"
+	ERROR_PRODUCT_TYPE_ID     = "product_type_id is mandatory"
+	ERROR_TOKEN               = "ivalid token"
+	ERROR_ID                  = "invalid id"
 	ERROR_UNIQUE_PRODUCT_CODE = "the product code must be unique"
 )
 
 type requestProduct struct {
-	ProductCode string `json:"product_code"`
-	Description string `json:"description"`
-	Width float64 `json:"width"`
-	Height float64 `json:"height"`
-	Length float64 `json:"length"`
-	NetWeight float64 `json:"net_weight"`
-	ExpirationRate string `json:"expiration_rate"`
+	ProductCode                    string  `json:"product_code"`
+	Description                    string  `json:"description"`
+	Width                          float64 `json:"width"`
+	Height                         float64 `json:"height"`
+	Length                         float64 `json:"length"`
+	NetWeight                      float64 `json:"net_weight"`
+	ExpirationRate                 string  `json:"expiration_rate"`
 	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature"`
-	FreezingRate float64 `json:"freezing_rate"`
-	ProductTypeTd int `json:"product_type_id"`
+	FreezingRate                   float64 `json:"freezing_rate"`
+	ProductTypeTd                  int     `json:"product_type_id"`
 }
 
 type Product struct {
@@ -50,7 +50,7 @@ func NewProduct(p products.Service) *Product {
 
 func (prod *Product) checkBody(req products.Product, c *gin.Context) bool {
 	ps, _ := prod.service.GetAll()
-	for i :=range ps {
+	for i := range ps {
 		if ps[i].ProductCode == req.ProductCode && ps[i].ID != req.ID {
 			c.JSON(web.DecodeError(
 				http.StatusUnprocessableEntity,
@@ -167,7 +167,7 @@ func (prod *Product) Store() gin.HandlerFunc {
 func (prod *Product) GetAll() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
-		if token != os.Getenv("TOKEN"){
+		if token != os.Getenv("TOKEN") {
 			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
 			return
 		}
@@ -197,7 +197,7 @@ func (prod *Product) GetAll() gin.HandlerFunc {
 func (prod *Product) GetById() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
-		if token != os.Getenv("TOKEN"){
+		if token != os.Getenv("TOKEN") {
 			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
 			return
 		}

@@ -3,6 +3,7 @@ package main
 import (
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -40,6 +41,20 @@ func main() {
 			sectionRouterGroup.GET("/:id", sec_p.IdVerificatorMiddleware, sec_p.GetByID())
 			sectionRouterGroup.PATCH("/:id", sec_p.IdVerificatorMiddleware, sec_p.UpdateSecID())
 			sectionRouterGroup.DELETE("/:id", sec_p.IdVerificatorMiddleware, sec_p.DeleteSection())
+		}
+
+		sellerRouterGroup := baseRoute.Group("/sellers")
+		{
+			file := store.New(store.FileType, "../../internal/seller/seller.json")
+			sellerRepository := seller.NewRepository(file)
+			sellerService := seller.NewService(sellerRepository)
+			sellerController := handler.NewSeller(sellerService)
+
+			sellerRouterGroup.GET("/", sellerController.GetAll)
+			sellerRouterGroup.GET("/:id", sellerController.GetOne)
+			sellerRouterGroup.PUT("/:id", sellerController.Update)
+			sellerRouterGroup.POST("/", sellerController.Create)
+			sellerRouterGroup.DELETE("/:id", sellerController.Delete)
 		}
 	}
 	server.Run()

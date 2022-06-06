@@ -6,7 +6,7 @@ import (
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
+	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
@@ -70,7 +70,7 @@ func main() {
 
 		sectionRouterGroup := baseRoute.Group("/sections")
 		{
-			file := store.New(store.FileType, "./internal/section/sections.json")
+			file := store.New(store.FileType, "../../internal/section/sections.json")
 			sec_rep := section.NewRepository(file)
 			sec_service := section.NewService(sec_rep)
 			sec_p := handler.NewSection(sec_service)
@@ -86,7 +86,7 @@ func main() {
 
 		warehouseRouterGroup := baseRoute.Group("/warehouses")
 		{
-			file := store.New(store.FileType, "./internal/warehouse/warehouses.json")
+			file := store.New(store.FileType, "../../internal/warehouse/warehouses.json")
 			warehouseRep := warehouse.NewRepository(file)
 			warehouseService := warehouse.NewService(warehouseRep)
 			warehouse := handler.NewWarehouse(warehouseService)

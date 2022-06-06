@@ -6,38 +6,39 @@ import (
 	"os"
 	"strconv"
 
-	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
+
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	ERROR_PRODUCT_CODE        = "product_code is mandatory"
-	ERROR_DESCRIPTION         = "description is mandatory"
-	ERROR_WIDTH               = "Width is mandatory"
-	ERROR_HEIGHT              = "height is mandatory"
-	ERROR_LENGTH              = "length is mandatory"
-	ERROR_NET_WEIGHT          = "net_weight is mandatory"
-	ERROR_EXPIRATIONN_RATE    = "expiration_rate is mandatory"
+	ERROR_PRODUCT_CODE = "product_code is mandatory"
+	ERROR_DESCRIPTION = "description is mandatory"
+	ERROR_WIDTH = "Width is mandatory"
+	ERROR_HEIGHT = "height is mandatory"
+	ERROR_LENGTH = "length is mandatory"
+	ERROR_NET_WEIGHT = "net_weight is mandatory"
+	ERROR_EXPIRATIONN_RATE = "expiration_rate is mandatory"
 	ERROR_RECOM_FREEZING_TEMP = "recommended_freezing_temperature is mandatory"
-	ERROR_FREEZING_RATE       = "freezing_rate is mandatory"
-	ERROR_PRODUCT_TYPE_ID     = "product_type_id is mandatory"
-	ERROR_TOKEN               = "ivalid token"
-	ERROR_ID                  = "invalid id"
+	ERROR_FREEZING_RATE = "freezing_rate is mandatory"
+	ERROR_PRODUCT_TYPE_ID = "product_type_id is mandatory"
+	ERROR_TOKEN = "invalid token"
+	ERROR_ID = "invalid id"
 	ERROR_UNIQUE_PRODUCT_CODE = "the product code must be unique"
 )
 
 type requestProduct struct {
-	ProductCode                    string  `json:"product_code"`
-	Description                    string  `json:"description"`
-	Width                          float64 `json:"width"`
-	Height                         float64 `json:"height"`
-	Length                         float64 `json:"length"`
-	NetWeight                      float64 `json:"net_weight"`
-	ExpirationRate                 string  `json:"expiration_rate"`
+	ProductCode string `json:"product_code"`
+	Description string `json:"description"`
+	Width float64 `json:"width"`
+	Height float64 `json:"height"`
+	Length float64 `json:"length"`
+	NetWeight float64 `json:"net_weight"`
+	ExpirationRate string `json:"expiration_rate"`
 	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature"`
-	FreezingRate                   float64 `json:"freezing_rate"`
-	ProductTypeTd                  int     `json:"product_type_id"`
+	FreezingRate float64 `json:"freezing_rate"`
+	ProductTypeTd int `json:"product_type_id"`
 }
 
 type Product struct {
@@ -46,6 +47,11 @@ type Product struct {
 
 func NewProduct(p products.Service) *Product {
 	return &Product{service: p}
+}
+
+func NewRequestProduct() requestProduct {
+	p := requestProduct{}
+	return p
 }
 
 func (prod *Product) checkBody(req products.Product, c *gin.Context) bool {

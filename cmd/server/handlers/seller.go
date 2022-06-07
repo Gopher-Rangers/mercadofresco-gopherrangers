@@ -1,13 +1,14 @@
-package handler
+package handlers
 
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 type requestSeller struct {

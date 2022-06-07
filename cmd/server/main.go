@@ -6,8 +6,9 @@ import (
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
+	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 
@@ -97,6 +98,20 @@ func main() {
 			warehouseRouterGroup.POST("/", warehouse.CreateWarehouse)
 			warehouseRouterGroup.PATCH("/:id", warehouse.UpdatedWarehouseID)
 			warehouseRouterGroup.DELETE("/:id", warehouse.DeleteWarehouse)
+		}
+
+		sellerRouterGroup := baseRoute.Group("/sellers")
+		{
+			file := store.New(store.FileType, "../../internal/seller/seller.json")
+			sellerRepository := seller.NewRepository(file)
+			sellerService := seller.NewService(sellerRepository)
+			sellerController := handler.NewSeller(sellerService)
+
+			sellerRouterGroup.GET("/", sellerController.GetAll)
+			sellerRouterGroup.GET("/:id", sellerController.GetOne)
+			sellerRouterGroup.PUT("/:id", sellerController.Update)
+			sellerRouterGroup.POST("/", sellerController.Create)
+			sellerRouterGroup.DELETE("/:id", sellerController.Delete)
 		}
 	}
 	server.Run()

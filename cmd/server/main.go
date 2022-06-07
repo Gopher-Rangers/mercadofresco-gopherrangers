@@ -27,7 +27,7 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
-	err := godotenv.Load("./.env")
+	err := godotenv.Load("../../.env")
 	if err != nil {
 		log.Fatal("failed to load .env")
 	}
@@ -70,7 +70,7 @@ func main() {
 
 		sectionRouterGroup := baseRoute.Group("/sections")
 		{
-			file := store.New(store.FileType, "./internal/section/sections.json")
+			file := store.New(store.FileType, "../../internal/section/sections.json")
 			sec_rep := section.NewRepository(file)
 			sec_service := section.NewService(sec_rep)
 			section := handler.NewSection(sec_service)
@@ -86,7 +86,7 @@ func main() {
 
 		warehouseRouterGroup := baseRoute.Group("/warehouses")
 		{
-			file := store.New(store.FileType, "./internal/warehouse/warehouses.json")
+			file := store.New(store.FileType, "../../internal/warehouse/warehouses.json")
 			warehouseRep := warehouse.NewRepository(file)
 			warehouseService := warehouse.NewService(warehouseRep)
 			warehouse := handler.NewWarehouse(warehouseService)

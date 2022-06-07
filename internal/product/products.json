@@ -1,8 +1,8 @@
 [
     {
-        "id": 2,
-        "product_code": "0005",
-        "description": "alallala",
+        "id": 6,
+        "product_code": "0000006",
+        "description": "cafe",
         "width": 0.5,
         "height": 10.55,
         "length": 20,
@@ -14,8 +14,8 @@
         "seller_id": 2
     },
     {
-        "id": 6,
-        "product_code": "0000006",
+        "id": 7,
+        "product_code": "0000009",
         "description": "cafe",
         "width": 0.5,
         "height": 10.55,

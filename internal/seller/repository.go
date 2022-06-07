@@ -10,7 +10,7 @@ type Repository interface {
 	GetOne(id int) (Seller, error)
 	GetAll() ([]Seller, error)
 	Create(cid int, companyName, address, telephone string) (Seller, error)
-	Update(id, cid int, companyName, address, telephone string) (Seller, error)
+	Update(cid int, companyName, address, telephone string, seller Seller) (Seller, error)
 	Delete(id int) error
 }
 
@@ -81,7 +81,7 @@ func (r *repository) Create(cid int, companyName, address, telephone string) (Se
 	return newSeller, nil
 }
 
-func (r *repository) Update(id, cid int, companyName, address, telephone string) (Seller, error) {
+func (r *repository) Update(cid int, companyName, address, telephone string, seller Seller) (Seller, error) {
 
 	var sellerList []Seller
 
@@ -90,26 +90,14 @@ func (r *repository) Update(id, cid int, companyName, address, telephone string)
 		return Seller{}, err
 	}
 
-	updateSeller, err := r.GetOne(id)
-
-	if err != nil {
-		return Seller{}, err
-	}
-
-	err = r.checkIfCidExists(cid, updateSeller)
-
-	if err != nil {
-		return Seller{}, err
-	}
-
-	updateSeller.CompanyId = cid
-	updateSeller.CompanyName = companyName
-	updateSeller.Address = address
-	updateSeller.Telephone = telephone
+	seller.CompanyId = cid
+	seller.CompanyName = companyName
+	seller.Address = address
+	seller.Telephone = telephone
 
 	for i := range sellerList {
-		if sellerList[i].Id == updateSeller.Id {
-			sellerList[i] = updateSeller
+		if sellerList[i].Id == seller.Id {
+			sellerList[i] = seller
 		}
 	}
 
@@ -117,7 +105,7 @@ func (r *repository) Update(id, cid int, companyName, address, telephone string)
 		return Seller{}, err
 	}
 
-	return updateSeller, nil
+	return seller, nil
 }
 
 func (r *repository) Delete(id int) error {
@@ -165,21 +153,4 @@ func (r repository) generateId(newSeller *Seller) Seller {
 	lastSeller := len(sellerList) - 1
 	newSeller.Id = lastSeller + 1
 	return *newSeller
-}
-
-func (r repository) checkIfCidExists(cid int, seller Seller) error {
-	var sellerList []Seller
-
-	err := r.db.Read(&sellerList)
-
-	if err != nil {
-		fmt.Println("error reading file", err)
-	}
-
-	for i := range sellerList {
-		if sellerList[i].CompanyId == cid && sellerList[i].Id != seller.Id {
-			return errors.New("the cid already exists")
-		}
-	}
-	return nil
 }

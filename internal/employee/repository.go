@@ -19,6 +19,8 @@ type Repository interface {
 	LastID() int
 	AvailableID() int
 	GetAll() []Employee
+	Delete(id int) error
+	GetById(id int) (Employee, error)
 }
 
 type repository struct {
@@ -93,4 +95,30 @@ func (r repository) GetAll() []Employee {
 	r.db.Read(&Employees)
 
 	return Employees
+}
+
+func (r *repository) Delete(id int) error {
+	var Employees []Employee
+	r.db.Read(&Employees)
+
+	for i := range Employees {
+		if Employees[i].ID == id {
+			Employees = append(Employees[:i], Employees[i+1:]...)
+			r.db.Write(Employees)
+			return nil
+		}
+	}
+	return fmt.Errorf("usuário de ID: %d não existe", id)
+}
+
+func (r repository) GetById(id int) (Employee, error) {
+	var Employees []Employee
+	r.db.Read(&Employees)
+
+	for i := range Employees {
+		if Employees[i].ID == id {
+			return Employees[i], nil
+		}
+	}
+	return Employee{}, fmt.Errorf("O funcionário não foi encontrado")
 }

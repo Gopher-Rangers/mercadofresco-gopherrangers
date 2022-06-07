@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
@@ -47,5 +48,38 @@ func (p Employee) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		employees := p.service.GetAll()
 		c.JSON(web.NewResponse(http.StatusOK, employees))
+	}
+}
+
+func (p Employee) Delete() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
+			return
+		}
+		err = p.service.Delete(id)
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+
+		c.JSON(web.NewResponse(http.StatusNoContent, "funcionario deletado"))
+	}
+}
+
+func (p Employee) GetById() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
+			return
+		}
+		employee, err := p.service.GetById(id)
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+		c.JSON(web.NewResponse(http.StatusAccepted, employee))
 	}
 }

@@ -126,9 +126,9 @@ func main() {
 
 			employeeRouterGroup.GET("/", employee.GetAll())
 			employeeRouterGroup.POST("/", employee.Create())
-			// employeeRouterGroup.GET("/:id", employee.GetById())
+			employeeRouterGroup.GET("/:id", employee.GetById())
 			// employeeRouterGroup.PATCH("/:id", employee.Update())
-			// employeeRouterGroup.DELETE("/:id", employee.Delete())
+			employeeRouterGroup.DELETE("/:id", employee.Delete())
 		}
 	}
 	server.Run()

@@ -21,7 +21,7 @@ type Repository interface {
 	GetAll() []Employee
 	Delete(id int) error
 	GetById(id int) (Employee, error)
-	Update(id int, cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
+	Update(emp Employee, id int) (Employee, error)
 }
 
 type repository struct {
@@ -56,8 +56,8 @@ func (r repository) Create(id int, cardNum int, firstName string, lastName strin
 	}
 
 	if id == 1 {
-		sec := []Employee{p}
-		Employees = append(sec, Employees...)
+		emp := []Employee{p}
+		Employees = append(emp, Employees...)
 	}
 	r.db.Write(Employees)
 	return p, nil
@@ -124,27 +124,18 @@ func (r repository) GetById(id int) (Employee, error) {
 	return Employee{}, fmt.Errorf("O funcionário não foi encontrado")
 }
 
-func (r repository) Update(id int, cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
-	var Employees []Employee
-	r.db.Read(&Employees)
+func (r repository) Update(emp Employee, id int) (Employee, error) {
+	var employees []Employee
+	r.db.Read(&employees)
 
-	var flagExist bool
-	var index int
-	for i := range Employees {
-		if Employees[i].ID == id {
-			index = i
-			flagExist = true
-		}
-		if Employees[i].CardNumber == cardNum {
-			return Employee{}, fmt.Errorf("Funcionário com o cartão: %d já existe", cardNum)
+	for i := range employees {
+		if employees[i].ID == id {
+			employees[i] = emp
+			if err := r.db.Write(&employees); err != nil {
+				return Employee{}, err
+			}
+			return emp, nil
 		}
 	}
-
-	if flagExist {
-		Employees[index].CardNumber = cardNum
-		r.db.Write(Employees)
-		return Employees[index], nil
-	}
-	return Employee{}, fmt.Errorf("Funcionário %d não existe", id)
-
+	return Employee{}, fmt.Errorf("Funcionário %d não encontrado", id)
 }

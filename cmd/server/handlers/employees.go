@@ -86,14 +86,14 @@ func (e Employee) GetById() gin.HandlerFunc {
 
 func (e *Employee) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req employeeRequest
+		var req employee.Employee
 		if err := c.Bind(&req); err != nil {
 			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
 			return
 		}
 
 		id, _ := strconv.Atoi(c.Param("id"))
-		employee, err := e.service.Update(id, req.CardNumber, req.FirstName, req.LastName, req.WareHouseID)
+		employee, err := e.service.Update(req, id)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return

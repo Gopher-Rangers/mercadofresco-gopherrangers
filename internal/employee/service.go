@@ -6,7 +6,7 @@ type Services interface {
 	GetAll() []Employee
 	Delete(id int) error
 	GetById(id int) (Employee, error)
-	Update(id int, cardNum int) (Employee, error)
+	Update(id int, cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 }
 
 type service struct {
@@ -51,8 +51,8 @@ func (s service) GetById(id int) (Employee, error) {
 	return employee, nil
 }
 
-func (s *service) Update(id, cardNum int) (Employee, error) {
-	employee, err := s.repository.Update(id, cardNum)
+func (s *service) Update(id int, cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
+	employee, err := s.repository.Update(id, cardNum, firstName, lastName, warehouseId)
 	if err != nil {
 		return Employee{}, err
 	}

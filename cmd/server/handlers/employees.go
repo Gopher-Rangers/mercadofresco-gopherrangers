@@ -21,11 +21,11 @@ type Employee struct {
 	service employee.Services
 }
 
-func NewEmployee(p employee.Services) Employee {
-	return Employee{p}
+func NewEmployee(e employee.Services) Employee {
+	return Employee{e}
 }
 
-func (p *Employee) Create() gin.HandlerFunc {
+func (e *Employee) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req employeeRequest
 		if err := c.Bind(&req); err != nil {
@@ -33,7 +33,7 @@ func (p *Employee) Create() gin.HandlerFunc {
 			return
 		}
 
-		emp, err := p.service.Create(req.CardNumber, req.FirstName, req.LastName,
+		emp, err := e.service.Create(req.CardNumber, req.FirstName, req.LastName,
 			req.WareHouseID)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
@@ -44,21 +44,21 @@ func (p *Employee) Create() gin.HandlerFunc {
 	}
 }
 
-func (p Employee) GetAll() gin.HandlerFunc {
+func (e Employee) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		employees := p.service.GetAll()
+		employees := e.service.GetAll()
 		c.JSON(web.NewResponse(http.StatusOK, employees))
 	}
 }
 
-func (p Employee) Delete() gin.HandlerFunc {
+func (e Employee) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
 			return
 		}
-		err = p.service.Delete(id)
+		err = e.service.Delete(id)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
@@ -68,14 +68,14 @@ func (p Employee) Delete() gin.HandlerFunc {
 	}
 }
 
-func (p Employee) GetById() gin.HandlerFunc {
+func (e Employee) GetById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
 			return
 		}
-		employee, err := p.service.GetById(id)
+		employee, err := e.service.GetById(id)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
@@ -84,7 +84,7 @@ func (p Employee) GetById() gin.HandlerFunc {
 	}
 }
 
-func (p *Employee) Update() gin.HandlerFunc {
+func (e *Employee) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req employeeRequest
 		if err := c.Bind(&req); err != nil {
@@ -93,7 +93,7 @@ func (p *Employee) Update() gin.HandlerFunc {
 		}
 
 		id, _ := strconv.Atoi(c.Param("id"))
-		employee, err := p.service.Update(id, req.CardNumber)
+		employee, err := e.service.Update(id, req.CardNumber, req.FirstName, req.LastName, req.WareHouseID)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return

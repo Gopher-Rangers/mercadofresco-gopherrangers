@@ -21,7 +21,7 @@ type Repository interface {
 	GetAll() []Employee
 	Delete(id int) error
 	GetById(id int) (Employee, error)
-	Update(id int, cardNum int) (Employee, error)
+	Update(id int, cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 }
 
 type repository struct {
@@ -124,7 +124,7 @@ func (r repository) GetById(id int) (Employee, error) {
 	return Employee{}, fmt.Errorf("O funcionário não foi encontrado")
 }
 
-func (r repository) Update(id, cardNum int) (Employee, error) {
+func (r repository) Update(id int, cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
 	var Employees []Employee
 	r.db.Read(&Employees)
 
@@ -146,4 +146,5 @@ func (r repository) Update(id, cardNum int) (Employee, error) {
 		return Employees[index], nil
 	}
 	return Employee{}, fmt.Errorf("Funcionário %d não existe", id)
+
 }

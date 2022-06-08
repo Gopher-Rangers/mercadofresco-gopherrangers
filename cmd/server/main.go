@@ -122,12 +122,10 @@ func main() {
 			employee_service := employee.NewService(employee_rep)
 			employee := handler.NewEmployee(employee_service)
 
-			// employeeRouterGroup.Use(employee.Validations)
-
 			employeeRouterGroup.GET("/", employee.GetAll())
 			employeeRouterGroup.POST("/", employee.Create())
 			employeeRouterGroup.GET("/:id", employee.GetById())
-			// employeeRouterGroup.PATCH("/:id", employee.Update())
+			employeeRouterGroup.PATCH("/:id", employee.Update())
 			employeeRouterGroup.DELETE("/:id", employee.Delete())
 		}
 	}

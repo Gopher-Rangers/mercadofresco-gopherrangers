@@ -77,7 +77,7 @@ func (s *service) DeleteSection(id int) error {
 func (s *service) AvailableID() int {
 	ListSections := s.repository.GetAll()
 
-	if len(ListSections) == 0 {
+	if len(ListSections) == 0 || ListSections[0].ID != 1 {
 		return 1
 	}
 
@@ -94,8 +94,9 @@ func (s *service) AvailableID() int {
 func (s *service) LastID() int {
 	ListSections := s.repository.GetAll()
 
-	if len(ListSections) == 0 || ListSections[0].ID != 1 {
+	if len(ListSections) == 0 {
 		return 1
 	}
+
 	return ListSections[len(ListSections)-1].ID + 1
 }

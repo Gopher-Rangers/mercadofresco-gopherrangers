@@ -121,21 +121,29 @@ func (r repository) GetById(id int) (Employee, error) {
 			return Employees[i], nil
 		}
 	}
-	return Employee{}, fmt.Errorf("O funcionário não foi encontrado")
+	return Employee{}, fmt.Errorf("o funcionário não foi encontrado")
 }
 
 func (r repository) Update(emp Employee, id int) (Employee, error) {
 	var employees []Employee
 	r.db.Read(&employees)
 
+	if emp.ID == 0 {
+		emp.ID = employees[id-1].ID
+	} else if employees[id-1].ID != emp.ID {
+		return Employee{}, fmt.Errorf("você não pode trocar o ID do funcionário")
+	}
+
 	for i := range employees {
 		if employees[i].ID == id {
-			employees[i] = emp
+			employees[i].FirstName = emp.FirstName
+			employees[i].LastName = emp.LastName
+			employees[i].WareHouseID = emp.WareHouseID
 			if err := r.db.Write(&employees); err != nil {
 				return Employee{}, err
 			}
 			return emp, nil
 		}
 	}
-	return Employee{}, fmt.Errorf("Funcionário %d não encontrado", id)
+	return Employee{}, fmt.Errorf("funcionário %d não encontrado", id)
 }

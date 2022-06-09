@@ -12,6 +12,7 @@ import (
 const (
 	ERROR_UNIQUE_ID    = "não insira id"
 	ERROR_ALLMANDATORY = "preencha todos os campos"
+	ERROR_NOTFOUND     = "funcionario nao encontrado"
 )
 
 type employeeRequest struct {

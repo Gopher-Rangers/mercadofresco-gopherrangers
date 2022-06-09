@@ -128,12 +128,6 @@ func (r repository) Update(emp Employee, id int) (Employee, error) {
 	var employees []Employee
 	r.db.Read(&employees)
 
-	if emp.ID == 0 {
-		emp.ID = employees[id-1].ID
-	} else if employees[id-1].ID != emp.ID {
-		return Employee{}, fmt.Errorf("você não pode trocar o ID do funcionário")
-	}
-
 	for i := range employees {
 		if employees[i].ID == id {
 			employees[i].FirstName = emp.FirstName
@@ -145,5 +139,5 @@ func (r repository) Update(emp Employee, id int) (Employee, error) {
 			return emp, nil
 		}
 	}
-	return Employee{}, fmt.Errorf("funcionário %d não encontrado", id)
+	return Employee{}, fmt.Errorf("funcionário não foi encontrado")
 }

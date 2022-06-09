@@ -9,6 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	ERROR_UNIQUE_ID    = "não insira id"
+	ERROR_ALLMANDATORY = "preencha todos os campos"
+)
+
 type employeeRequest struct {
 	ID          int    `json:"id"`
 	CardNumber  int    `json:"card_number_id"`
@@ -25,11 +30,53 @@ func NewEmployee(e employee.Services) Employee {
 	return Employee{e}
 }
 
+func (emp *Employee) checkBody(req employeeRequest, c *gin.Context) bool {
+	employees := emp.service.GetAll()
+	for i := range employees {
+		// if employees[i].ID == req.ID {
+		if employees[i].ID == req.ID || req.ID != 0 {
+			c.JSON(web.DecodeError(
+				http.StatusUnprocessableEntity,
+				ERROR_UNIQUE_ID))
+			return false
+		}
+	}
+	if req.CardNumber == 0 {
+		c.JSON(web.DecodeError(
+			http.StatusUnprocessableEntity,
+			ERROR_ALLMANDATORY))
+		return false
+	}
+	if req.FirstName == "" {
+		c.JSON(web.DecodeError(
+			http.StatusUnprocessableEntity,
+			ERROR_ALLMANDATORY))
+		return false
+	}
+	if req.LastName == "" {
+		c.JSON(web.DecodeError(
+			http.StatusUnprocessableEntity,
+			ERROR_ALLMANDATORY))
+		return false
+	}
+	if req.WareHouseID == 0 {
+		c.JSON(web.DecodeError(
+			http.StatusUnprocessableEntity,
+			ERROR_ALLMANDATORY))
+		return false
+	}
+
+	return true
+}
+
 func (e *Employee) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req employeeRequest
 		if err := c.Bind(&req); err != nil {
 			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
+			return
+		}
+		if !e.checkBody(req, c) {
 			return
 		}
 

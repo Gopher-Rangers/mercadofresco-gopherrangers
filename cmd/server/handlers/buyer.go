@@ -153,7 +153,7 @@ func (b *Buyer) Update(c *gin.Context) {
 
 	newBuyer, err := b.service.Update(id, req.CardNumberId, req.FirstName, req.LastName)
 	if err != nil {
-		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 		return
 	}
 

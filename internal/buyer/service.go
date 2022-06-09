@@ -43,7 +43,7 @@ func validateCardNumber(cardNumberId string, s *service) error {
 
 	for i := 0; i < len(entities); i++ {
 		if entities[i].CardNumberId == cardNumberId {
-			return fmt.Errorf("buyer with cardNumberId %s already exists", cardNumberId)
+			return fmt.Errorf("buyer with card_number_id %s already exists", cardNumberId)
 		}
 	}
 

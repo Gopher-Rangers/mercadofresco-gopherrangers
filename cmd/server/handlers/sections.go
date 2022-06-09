@@ -116,9 +116,10 @@ func (p *Section) UpdateSecID() gin.HandlerFunc {
 		}
 
 		id, _ := strconv.Atoi(c.Param("id"))
+
 		sec, err := p.service.UpdateSecID(id, req.SectionNumber)
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		if err.Code != 0 {
+			c.JSON(web.DecodeError(err.Code, err.Message.Error()))
 			return
 		}
 

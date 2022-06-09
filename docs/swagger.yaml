@@ -1,5 +1,20 @@
 definitions:
-  handler.requestProduct:
+  handlers.buyerRequest:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+    required:
+    - card_number_id
+    - first_name
+    - last_name
+    type: object
+  handlers.requestProduct:
     properties:
       description:
         type: string
@@ -44,6 +59,186 @@ info:
   title: Mercado Fresco
   version: "1.0"
 paths:
+  /api/v1/buyers:
+    get:
+      consumes:
+      - application/json
+      description: get all buyers
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+        "401":
+          description: We need token
+          schema:
+            $ref: '#/definitions/web.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: List buyers
+      tags:
+      - Buyers
+    post:
+      consumes:
+      - application/json
+      description: store a new buyer
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: Product to store
+        in: body
+        name: buyer
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.buyerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/web.Response'
+        "401":
+          description: We need token
+          schema:
+            $ref: '#/definitions/web.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.Response'
+        "422":
+          description: Missing some mandatory field
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: Create buyer
+      tags:
+      - Buyers
+  /api/v1/buyers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete buyer by ID
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: Some ID
+        in: path
+        name: some_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/web.Response'
+        "400":
+          description: We need ID
+          schema:
+            $ref: '#/definitions/web.Response'
+        "401":
+          description: We need token
+          schema:
+            $ref: '#/definitions/web.Response'
+        "404":
+          description: Can not find ID
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: Delete buyers by ID
+      tags:
+      - Buyers
+    get:
+      consumes:
+      - application/json
+      description: get a especific buyer by id
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+        "401":
+          description: We need token
+          schema:
+            $ref: '#/definitions/web.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: List buyer
+      tags:
+      - Buyers
+    put:
+      consumes:
+      - application/json
+      description: update buyer
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: Some ID
+        in: path
+        name: some_id
+        required: true
+        type: integer
+      - description: Buyer to update
+        in: body
+        name: buyer
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.buyerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+        "400":
+          description: We need ID
+          schema:
+            $ref: '#/definitions/web.Response'
+        "401":
+          description: We need token
+          schema:
+            $ref: '#/definitions/web.Response'
+        "404":
+          description: Can not find ID
+          schema:
+            $ref: '#/definitions/web.Response'
+        "422":
+          description: Missing some mandatory field
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: Update buyer by ID
+      tags:
+      - Buyers
   /api/v1/products:
     get:
       consumes:
@@ -88,7 +283,7 @@ paths:
         name: product
         required: true
         schema:
-          $ref: '#/definitions/handler.requestProduct'
+          $ref: '#/definitions/handlers.requestProduct'
       produces:
       - application/json
       responses:
@@ -206,7 +401,7 @@ paths:
         name: product
         required: true
         schema:
-          $ref: '#/definitions/handler.requestProduct'
+          $ref: '#/definitions/handlers.requestProduct'
       produces:
       - application/json
       responses:

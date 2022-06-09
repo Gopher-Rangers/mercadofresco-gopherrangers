@@ -26,7 +26,7 @@ func NewBuyerHandler() Buyer {
 	return Buyer{buyer.NewService()}
 }
 
-func (p *Buyer) AuthToken(context *gin.Context) {
+func (Buyer) AuthToken(context *gin.Context) {
 	privateToken := os.Getenv("TOKEN")
 
 	providedToken := context.GetHeader("token")
@@ -39,7 +39,7 @@ func (p *Buyer) AuthToken(context *gin.Context) {
 	context.Next()
 }
 
-func (p *Buyer) ValidateID(ctx *gin.Context) {
+func (Buyer) ValidateID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id < 0 {
 		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusBadRequest, "Id need to be a valid integer"))
@@ -49,6 +49,17 @@ func (p *Buyer) ValidateID(ctx *gin.Context) {
 	ctx.Next()
 }
 
+// ListBuyers godoc
+// @Summary List buyers
+// @Tags Buyers
+// @Description get all buyers
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 404 {object} web.Response
+// @Success 200 {object} web.Response
+// @Router /api/v1/buyers [GET]
 func (b *Buyer) GetAll(c *gin.Context) {
 
 	data, err := b.service.GetAll()
@@ -61,6 +72,17 @@ func (b *Buyer) GetAll(c *gin.Context) {
 	c.JSON(web.NewResponse(http.StatusOK, data))
 }
 
+// GetBuyer godoc
+// @Summary List buyer
+// @Tags Buyers
+// @Description get a especific buyer by id
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 404 {object} web.Response
+// @Success 200 {object} web.Response
+// @Router /api/v1/buyers/{id} [GET]
 func (b *Buyer) GetBuyerById(c *gin.Context) {
 
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -75,7 +97,20 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 	c.JSON(web.NewResponse(http.StatusOK, data))
 }
 
-func (p *Buyer) Create(c *gin.Context) {
+// CreateBuyer godoc
+// @Summary Create buyer
+// @Tags Buyers
+// @Description store a new buyer
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Param buyer body buyerRequest true "Product to store"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 404 {object} web.Response
+// @Failure 422 {object} web.Response "Missing some mandatory field"
+// @Success 201 {object} web.Response
+// @Router /api/v1/buyers [POST]
+func (b *Buyer) Create(c *gin.Context) {
 
 	var req buyerRequest
 	if err := c.Bind(&req); err != nil {
@@ -83,25 +118,7 @@ func (p *Buyer) Create(c *gin.Context) {
 		return
 	}
 
-	newBuyer, err := p.service.Create(req.CardNumberId, req.FirstName, req.LastName)
-	if err != nil {
-		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
-		return
-	}
-
-	c.JSON(web.NewResponse(http.StatusCreated, newBuyer))
-}
-
-func (p *Buyer) Update(c *gin.Context) {
-	var req buyerRequest
-	if err := c.Bind(&req); err != nil {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
-		return
-	}
-
-	id, _ := strconv.Atoi(c.Param("id"))
-
-	newBuyer, err := p.service.Update(id, req.CardNumberId, req.FirstName, req.LastName)
+	newBuyer, err := b.service.Create(req.CardNumberId, req.FirstName, req.LastName)
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
@@ -110,7 +127,22 @@ func (p *Buyer) Update(c *gin.Context) {
 	c.JSON(web.NewResponse(http.StatusCreated, newBuyer))
 }
 
-func (p *Buyer) Delete(c *gin.Context) {
+// UpdateBuyers godoc
+// @Summary Update buyer by ID
+// @Tags Buyers
+// @Description update buyer
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Param some_id path int true "Some ID"
+// @Param buyer body buyerRequest true "Buyer to update"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 400 {object} web.Response "We need ID"
+// @Failure 404 {object} web.Response "Can not find ID"
+// @Failure 422 {object} web.Response "Missing some mandatory field"
+// @Success 200 {object} web.Response
+// @Router /api/v1/buyers/{id} [PUT]
+func (b *Buyer) Update(c *gin.Context) {
 	var req buyerRequest
 	if err := c.Bind(&req); err != nil {
 		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
@@ -119,7 +151,38 @@ func (p *Buyer) Delete(c *gin.Context) {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	err := p.service.Delete(id)
+	newBuyer, err := b.service.Update(id, req.CardNumberId, req.FirstName, req.LastName)
+	if err != nil {
+		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+		return
+	}
+
+	c.JSON(web.NewResponse(http.StatusCreated, newBuyer))
+}
+
+// DeleteBuyers godoc
+// @Summary Delete buyers by ID
+// @Tags Buyers
+// @Description delete buyer by ID
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Param some_id path int true "Some ID"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 400 {object} web.Response "We need ID"
+// @Failure 404 {object} web.Response "Can not find ID"
+// @Success 204 {object} web.Response
+// @Router /api/v1/buyers/{id} [DELETE]
+func (b *Buyer) Delete(c *gin.Context) {
+	var req buyerRequest
+	if err := c.Bind(&req); err != nil {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
+		return
+	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	err := b.service.Delete(id)
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return

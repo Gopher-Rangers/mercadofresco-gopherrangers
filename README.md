@@ -51,7 +51,7 @@ It was made for the Mercado Livre's Go Bootcamp
 - /sellers `[POST]`: Create a Seller
 - /sellers `[GET]`: List all Seller (READ)
 - /sellers/:id `[GET]`: List a Seller (READ)
-- /sellers/:id `[PATCH]`: Modify Seller (UPDATE)
+- /sellers/:id `[PUT]`: Modify Seller (UPDATE)
 - /sellers/:id `[DELETE]`: Delete Seller (DELETE)
 
 2. Warehouses:<br>
@@ -126,7 +126,7 @@ cd /cmd/server
 # Run the project
 go run main.go
 
-# The server will initialize in the <http://localhost:8080>
+# The server will initialize in the <http://localhost:8080/api/v1/>
 # To see the documentation go to <http://localhost:8080/docs/index.html#/>
 ```
 

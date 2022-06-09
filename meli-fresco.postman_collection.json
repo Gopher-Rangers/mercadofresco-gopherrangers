@@ -1,0 +1,701 @@
+{
+	"info": {
+		"_postman_id": "16b60108-c557-4059-9a96-2142cd6b38ed",
+		"name": "meli-fresco",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21224036"
+	},
+	"item": [
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "post",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "mafagafo"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"product_code\": \"0000009\",\n    \"description\": \"cafe\",\n    \"width\": 0.5,\n    \"height\": 10.55,\n    \"length\": 20,\n    \"net_weight\": 10,\n    \"expiration_rate\": \"20/08/2022\",\n    \"recommended_freezing_temperature\": 1.3,\n    \"freezing_rate\": 2,\n    \"product_type_id\": 2,\n    \"seller_id\": 2\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/products",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getall",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "mafagafo"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getbyid",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "mafagafo"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080:8080/api/v1/products/2",
+							"host": [
+								"localhost:8080"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "patch",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "token",
+								"value": "mafagafo"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"product_code\": \"0006\",\n    \"description\": \"alallala\",\n    \"width\": 0.5,\n    \"height\": 10.55,\n    \"length\": 20,\n    \"net_weight\": 10,\n    \"expiration_rate\": \"20/08/2022\",\n    \"recommended_freezing_temperature\": 1.3,\n    \"freezing_rate\": 2,\n    \"product_type_id\": 2,\n    \"seller_id\": 2\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/products/2",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "mafagafo"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/v1/products/2",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"products",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Seller",
+			"item": [
+				{
+					"name": "GetAll - Seller",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sellers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sellers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create - Seller",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cid\":3,\n    \"company_name\": \"Meli\",\n    \"address\": \"Melicidade\",\n    \"telephone\": \"55011999999999\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sellers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sellers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetOne - Seller",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sellers/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sellers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update - Seller",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cid\": 5,\n    \"company_name\":\"Test\",\n    \"address\":\"China\",\n    \"telephone\":\"5501154545454\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sellers/0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sellers",
+								"0"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete - Seller",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sellers/0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sellers",
+								"0"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Warehouses",
+			"item": [
+				{
+					"name": "POST /create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"address\": \"Rua das acacias\",\n\"telephone\": \"6660000\",\n\"warehouse_code\": \"hsh\",\n\"minimun_capacity\": 100,\n\"minimun_temperature\": 10\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/warehouses",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"warehouses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /getall",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "123456"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/v1/warehouses",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"warehouses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /getbyId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/warehouses/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"warehouses",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH /updateID",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"Warehouse_code\": \"tig\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/warehouses/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"warehouses",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/DELETE deleteWarehouse",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/warehouses/2",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"warehouses",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sections",
+			"item": [
+				{
+					"name": "GetAll Sections",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "TOKEN",
+								"value": "12345"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/v1/sections",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetByID Sections",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "TOKEN",
+								"value": "12345"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/v1/sections/2",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sections",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sections",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "12345"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"section_number\": 10,\n    \"current_temperature\": 41,\n    \"minimum_temperature\": 15,\n    \"current_capacity\": 800,\n    \"minimum_capacity\": 10,\n    \"maximum_capacity\": 2000,\n    \"warehouse_id\": 51423,\n    \"product_type_id\": 42840\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/sections",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateSecID Sections",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "token",
+								"value": "12345"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"section_number\": 321,\n  \"current_temperature\": 41,\n  \"minimum_temperature\": 15,\n  \"current_capacity\": 800,\n  \"minimum_capacity\": 10,\n  \"maximum_capacity\": 2000,\n  \"warehouse_id\": 51423,\n  \"product_type_id\": 42840\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/sections/4",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sections",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Section",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "TOKEN",
+								"value": "12345"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/v1/sections/3",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sections",
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Buyers",
+			"item": [
+				{
+					"name": "GetAll - Buyers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "TOKEN",
+								"value": "mafagafo"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/v1/buyers",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"buyers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create - Buyers",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "TOKEN",
+								"value": "mafagafo"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"card_number_id\": \"Card11\",\n    \"first_name\": \"Victor Hugoo\",\n    \"last_name\": \"Grabowski Beltramini\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/buyers",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"buyers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete - Buyers",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "TOKEN",
+								"value": "mafagafo",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/v1/buyers/1823565335",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"buyers",
+								"1823565335"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update - Buyers",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "TOKEN",
+								"value": "mafagafo"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"card_number_id\": \"Card11\",\n    \"first_name\": \"Victor Hugoo\",\n    \"last_name\": \"Grabowski Beltramini\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/buyers/3809393133",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"buyers",
+								"3809393133"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

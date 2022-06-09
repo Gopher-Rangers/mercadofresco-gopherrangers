@@ -8,7 +8,7 @@ import (
 
 type Employee struct {
 	ID          int    `json:"id"`
-	CardNumber  int    `json:"card_number"`
+	CardNumber  int    `json:"card_number_id"`
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
 	WareHouseID int    `json:"warehouse_id"`

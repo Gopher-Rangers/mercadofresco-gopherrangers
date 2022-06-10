@@ -60,8 +60,8 @@ func (p *Section) IdVerificatorMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	if 0 > id || id > p.service.LastID() {
-		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusNotFound, "id menor que 0 ou maior que o ultimo id"))
+	if id < 0 {
+		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusNotFound, "id negativo inválido"))
 		return
 	}
 

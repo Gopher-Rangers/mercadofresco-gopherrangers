@@ -153,7 +153,7 @@ func (b *Buyer) Update(c *gin.Context) {
 
 	newBuyer, err := b.service.Update(id, req.CardNumberId, req.FirstName, req.LastName)
 	if err != nil {
-		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 		return
 	}
 
@@ -174,12 +174,6 @@ func (b *Buyer) Update(c *gin.Context) {
 // @Success 204 {object} web.Response
 // @Router /api/v1/buyers/{id} [DELETE]
 func (b *Buyer) Delete(c *gin.Context) {
-	var req buyerRequest
-	if err := c.Bind(&req); err != nil {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
-		return
-	}
-
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	err := b.service.Delete(id)

@@ -129,6 +129,9 @@ func (r repository) Update(emp Employee, id int) (Employee, error) {
 	r.db.Read(&employees)
 
 	for i := range employees {
+		if emp.ID == 0 {
+			employees[i].ID = id
+		}
 		if employees[i].ID == id {
 			employees[i].FirstName = emp.FirstName
 			employees[i].LastName = emp.LastName
@@ -136,7 +139,7 @@ func (r repository) Update(emp Employee, id int) (Employee, error) {
 			if err := r.db.Write(&employees); err != nil {
 				return Employee{}, err
 			}
-			return emp, nil
+			return employees[i], nil
 		}
 	}
 	return Employee{}, fmt.Errorf("funcionário não foi encontrado")

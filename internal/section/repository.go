@@ -22,11 +22,17 @@ type Repository interface {
 	GetAll() []Section
 	GetByID(id int) (Section, error)
 	Create(id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error)
-	UpdateSecID(id, secNum int) (Section, error)
+	UpdateSecID(id, secNum int) (Section, CodeError)
 	DeleteSection(id int) error
+}
 
-	LastID() int
-	AvailableID() int
+type CodeError struct {
+	Code    int
+	Message error
+}
+
+func (c CodeError) Error() error {
+	return c.Message
 }
 
 type repository struct {
@@ -62,12 +68,6 @@ func (r repository) Create(id, secNum, curTemp, minTemp, curCap, minCap, maxCap,
 	p := Section{id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID}
 
 	for i := range ListSections {
-		if ListSections[i].SectionNumber == secNum {
-			return Section{}, fmt.Errorf("seção com sectionNumber: %d já existe no banco de dados", secNum)
-		}
-	}
-
-	for i := range ListSections {
 		if ListSections[i].ID+1 == id {
 			post := make([]Section, len(ListSections[i+1:]))
 			copy(post, ListSections[i+1:])
@@ -86,28 +86,19 @@ func (r repository) Create(id, secNum, curTemp, minTemp, curCap, minCap, maxCap,
 	return p, nil
 }
 
-func (r repository) UpdateSecID(id, secNum int) (Section, error) {
+func (r repository) UpdateSecID(id, secNum int) (Section, CodeError) {
 	var ListSections []Section
 	r.db.Read(&ListSections)
 
-	var flagExist bool
-	var index int
 	for i := range ListSections {
 		if ListSections[i].ID == id {
-			index = i
-			flagExist = true
-		}
-		if ListSections[i].SectionNumber == secNum {
-			return Section{}, fmt.Errorf("seção com section_number: %d já existe no banco de dados", secNum)
+			ListSections[i].SectionNumber = secNum
+			r.db.Write(ListSections)
+			return ListSections[i], CodeError{0, nil}
 		}
 	}
 
-	if flagExist {
-		ListSections[index].SectionNumber = secNum
-		r.db.Write(ListSections)
-		return ListSections[index], nil
-	}
-	return Section{}, fmt.Errorf("seção %d não encontrada", id)
+	return Section{}, CodeError{404, fmt.Errorf("seção %d não encontrada", id)}
 }
 
 func (r repository) DeleteSection(id int) error {
@@ -122,32 +113,4 @@ func (r repository) DeleteSection(id int) error {
 		}
 	}
 	return fmt.Errorf("seção %d não encontrada", id)
-}
-
-func (r repository) AvailableID() int {
-	var ListSections []Section
-	r.db.Read(&ListSections)
-
-	if len(ListSections) == 0 {
-		return 1
-	}
-
-	for prevI := range ListSections[:len(ListSections)-1] {
-		i := prevI + 1
-		if ListSections[i].ID != (ListSections[prevI].ID + 1) {
-			id := ListSections[prevI].ID + 1
-			return id
-		}
-	}
-	return r.LastID()
-}
-
-func (r repository) LastID() int {
-	var ListSections []Section
-	r.db.Read(&ListSections)
-
-	if len(ListSections) == 0 || ListSections[0].ID != 1 {
-		return 1
-	}
-	return ListSections[len(ListSections)-1].ID + 1
 }

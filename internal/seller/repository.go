@@ -150,7 +150,7 @@ func (r repository) generateId(newSeller *Seller) Seller {
 		return *newSeller
 	}
 
-	lastSeller := len(sellerList) - 1
-	newSeller.Id = lastSeller + 1
+	lastSeller := sellerList[len(sellerList)-1]
+	newSeller.Id = lastSeller.Id + 1
 	return *newSeller
 }

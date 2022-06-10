@@ -1,6 +1,7 @@
 .env
 .idea
 .DS_store
+ngrok
 
 # Binaries for programs and plugins
 *.exe

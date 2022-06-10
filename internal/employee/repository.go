@@ -124,18 +124,33 @@ func (r repository) GetById(id int) (Employee, error) {
 	return Employee{}, fmt.Errorf("o funcionário não foi encontrado")
 }
 
-func (r repository) Update(emp Employee, id int) (Employee, error) {
+func (r *repository) Update(emp Employee, id int) (Employee, error) {
 	var employees []Employee
 	r.db.Read(&employees)
 
 	for i := range employees {
 		if emp.ID == 0 {
-			employees[i].ID = id
+			emp.ID = id
 		}
 		if employees[i].ID == id {
-			employees[i].FirstName = emp.FirstName
-			employees[i].LastName = emp.LastName
-			employees[i].WareHouseID = emp.WareHouseID
+			if emp.FirstName == "" {
+				emp.FirstName = employees[i].FirstName
+			} else {
+				employees[i].FirstName = emp.FirstName
+			}
+
+			if emp.LastName == "" {
+				emp.LastName = employees[i].LastName
+			} else {
+				employees[i].LastName = emp.LastName
+			}
+
+			if emp.WareHouseID == 0 {
+				emp.WareHouseID = employees[i].WareHouseID
+			} else {
+				employees[i].WareHouseID = emp.WareHouseID
+			}
+
 			if err := r.db.Write(&employees); err != nil {
 				return Employee{}, err
 			}

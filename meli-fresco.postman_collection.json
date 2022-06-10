@@ -189,7 +189,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"cid\":3,\n    \"company_name\": \"Meli\",\n    \"address\": \"Melicidade\",\n    \"telephone\": \"55011999999999\"\n  }",
+							"raw": "{\n    \"cid\":51,\n    \"company_name\": \"Meli\",\n    \"address\": \"Melicidade\",\n    \"telephone\": \"55011999999999\"\n  }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -271,7 +271,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/v1/sellers/0",
+							"raw": "http://localhost:8080/api/v1/sellers/2",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -281,7 +281,7 @@
 								"api",
 								"v1",
 								"sellers",
-								"0"
+								"2"
 							]
 						}
 					},
@@ -690,6 +690,220 @@
 								"v1",
 								"buyers",
 								"3809393133"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Employe",
+			"item": [
+				{
+					"name": "DEL",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080:8080/api/v1/employees/10",
+							"protocol": "http",
+							"host": [
+								"localhost:8080"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"employees",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch 404",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"card_number_id\": 111,\n    \"first_name\": \"Tarkovsky\",\n    \"last_name\": \"Santana\",\n    \"warehouse_id\": 6665\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080:8080/api/v1/employees/17",
+							"protocol": "http",
+							"host": [
+								"localhost:8080"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"employees",
+								"17"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n      \"card_number_id\": 56,\n      \"first_name\": \"Marquinho\",\n      \"last_name\": \"Do pneu\",\n      \"warehouse_id\": 74541\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080:8080/api/v1/employees",
+							"protocol": "http",
+							"host": [
+								"localhost:8080"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080:8080/api/v1/employees",
+							"protocol": "http",
+							"host": [
+								"localhost:8080"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post 409",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n      \"card_number_id\": 45,\n      \"first_name\": \"Novo\",\n      \"last_name\": \"Nome\",\n      \"warehouse_id\": 788\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080:8080/api/v1/employees",
+							"protocol": "http",
+							"host": [
+								"localhost:8080"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get One",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080:8080/api/v1/employees/6",
+							"protocol": "http",
+							"host": [
+								"localhost:8080"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"employees",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Jason\",\n    \"last_name\": \"Cabeção\",\n    \"warehouse_id\": 784512\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080:8080/api/v1/employees/8",
+							"protocol": "http",
+							"host": [
+								"localhost:8080"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"employees",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get One 404",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080:8080/api/v1/employees/15",
+							"protocol": "http",
+							"host": [
+								"localhost:8080"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"employees",
+								"15"
 							]
 						}
 					},

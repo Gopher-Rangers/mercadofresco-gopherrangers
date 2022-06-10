@@ -6,7 +6,8 @@ import (
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
+	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
@@ -112,6 +113,20 @@ func main() {
 			sellerRouterGroup.PUT("/:id", sellerController.Update)
 			sellerRouterGroup.POST("/", sellerController.Create)
 			sellerRouterGroup.DELETE("/:id", sellerController.Delete)
+		}
+
+		employeeRouterGroup := baseRoute.Group("/employees")
+		{
+			file := store.New(store.FileType, "../../internal/employee/employees.json")
+			employee_rep := employee.NewRepository(file)
+			employee_service := employee.NewService(employee_rep)
+			employee := handler.NewEmployee(employee_service)
+
+			employeeRouterGroup.GET("/", employee.GetAll())
+			employeeRouterGroup.POST("/", employee.Create())
+			employeeRouterGroup.GET("/:id", employee.GetById())
+			employeeRouterGroup.PATCH("/:id", employee.Update())
+			employeeRouterGroup.DELETE("/:id", employee.Delete())
 		}
 	}
 	server.Run()

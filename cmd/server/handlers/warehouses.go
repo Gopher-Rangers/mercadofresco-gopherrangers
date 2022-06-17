@@ -58,7 +58,7 @@ func (w Warehouse) CreateWarehouse(c *gin.Context) {
 		return
 	}
 
-	warehouse, err := w.service.CreateWarehouse(req.ID, req.WarehouseCode, req.Address,
+	warehouse, err := w.service.CreateWarehouse(req.WarehouseCode, req.Address,
 		req.Telephone, req.MinCapacity, req.MinTemperature)
 
 	if err != nil {

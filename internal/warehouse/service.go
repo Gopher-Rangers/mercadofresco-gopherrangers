@@ -3,7 +3,12 @@ package warehouse
 type Service interface {
 	GetAll() []Warehouse
 	GetByID(id int) (Warehouse, error)
-	CreateWarehouse(id int, code, address, tel string, minCap, minTemp int) (Warehouse, error)
+	CreateWarehouse(
+		code,
+		address,
+		tel string,
+		minCap,
+		minTemp int) (Warehouse, error)
 	UpdatedWarehouseID(id int, code string) (Warehouse, error)
 	DeleteWarehouse(id int) error
 }
@@ -31,9 +36,9 @@ func (s service) GetByID(id int) (Warehouse, error) {
 
 }
 
-func (s service) CreateWarehouse(id int, code, address, tel string, minCap, minTemp int) (Warehouse, error) {
+func (s service) CreateWarehouse(code, address, tel string, minCap, minTemp int) (Warehouse, error) {
 
-	id = s.repository.IncrementID()
+	id := s.repository.IncrementID()
 
 	warehouse, err := s.repository.CreateWarehouse(id, code, address, tel, minCap, minTemp)
 

@@ -23,7 +23,7 @@ func (s service) LastID() int {
 }
 
 func (s *service) Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
-	id := s.repository.AvailableID()
+	id := s.repository.LastID()
 	ps, err := s.repository.Create(id, cardNum, firstName, lastName, warehouseId)
 	if err != nil {
 		return Employee{}, err

@@ -17,7 +17,6 @@ type Employee struct {
 type Repository interface {
 	Create(id int, cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 	LastID() int
-	// AvailableID() int
 	GetAll() []Employee
 	Delete(id int) error
 	GetById(id int) (Employee, error)
@@ -40,7 +39,7 @@ func (r repository) Create(id int, cardNum int, firstName string, lastName strin
 
 	for i := range Employees {
 		if Employees[i].CardNumber == cardNum {
-			return Employee{}, fmt.Errorf("seção com cartão nº: %d já existe no banco de dados", cardNum)
+			return Employee{}, fmt.Errorf("funcionário com cartão nº: %d já existe no banco de dados", cardNum)
 		}
 	}
 
@@ -62,24 +61,6 @@ func (r repository) Create(id int, cardNum int, firstName string, lastName strin
 	r.db.Write(Employees)
 	return p, nil
 }
-
-// func (r repository) AvailableID() int {
-// 	var Employees []Employee
-// 	r.db.Read(&Employees)
-
-// 	if len(Employees) == 0 {
-// 		return 1
-// 	}
-
-// 	for prevI := range Employees[:len(Employees)-1] {
-// 		i := prevI + 1
-// 		if Employees[i].ID != (Employees[prevI].ID + 1) {
-// 			id := Employees[prevI].ID + 1
-// 			return id
-// 		}
-// 	}
-// 	return r.LastID()
-// }
 
 func (r repository) LastID() int {
 	var Employees []Employee

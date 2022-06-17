@@ -4,6 +4,7 @@ type Services interface {
 	Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 	LastID() int
 	GetAll() []Employee
+	// validateCardNum(cardNum int) []Employee
 	Delete(id int) error
 	GetById(id int) (Employee, error)
 	Update(emp Employee, id int) (Employee, error)
@@ -21,6 +22,15 @@ func NewService(r Repository) Services {
 func (s service) LastID() int {
 	return s.repository.LastID()
 }
+
+// func (s service) validateCardNum(cardNum int) (cardNum, error) {
+// 	Employees := s.repository.GetAll()
+// 	for i := range Employees {
+// 		if Employees[i].CardNumber == cardNum {
+// 			return cardNum, fmt.Errorf("Funcionário com o cartao nº: %d já existe no sistema", cardNum)
+// 		}
+// 	}
+// }
 
 func (s *service) Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
 	id := s.repository.LastID()

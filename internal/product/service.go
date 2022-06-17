@@ -5,7 +5,7 @@ type Service interface {
 	GetAll() ([]Product, error)
 	GetById(id int) (Product, error)
 	Update(prod Product, id int) (Product, error)
-	Delete(id int) (error)
+	Delete(id int) error
 }
 
 type service struct {
@@ -53,7 +53,7 @@ func (s *service) Update(prod Product, id int) (Product, error) {
 	return product, nil
 }
 
-func (s *service) Delete(id int) (error) {
+func (s *service) Delete(id int) error {
 	err := s.repository.Delete(id)
 	if err != nil {
 		return err

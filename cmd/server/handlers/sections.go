@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type requestSections struct {
+type sectionRequest struct {
 	ID             int `json:"id"`
 	SectionNumber  int `json:"section_number" binding:"required"`
 	CurTemperature int `json:"current_temperature" binding:"required"`
@@ -29,8 +29,7 @@ type Section struct {
 }
 
 func NewSection(p section.Services) Section {
-	new := Section{p}
-	return new
+	return Section{p}
 }
 
 func (p *Section) TokenAuthMiddleware(ctx *gin.Context) {
@@ -61,8 +60,8 @@ func (p *Section) IdVerificatorMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	if 0 > id || id > p.service.LastID() {
-		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusNotFound, "id menor que 0 ou maior que o ultimo id"))
+	if id < 0 {
+		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusNotFound, "id negativo inválido"))
 		return
 	}
 
@@ -89,9 +88,9 @@ func (p *Section) GetByID() gin.HandlerFunc {
 	}
 }
 
-func (p *Section) CreateProduct() gin.HandlerFunc {
+func (p *Section) CreateSection() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req requestSections
+		var req sectionRequest
 		if err := c.Bind(&req); err != nil {
 			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
 			return
@@ -110,16 +109,17 @@ func (p *Section) CreateProduct() gin.HandlerFunc {
 
 func (p *Section) UpdateSecID() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req requestSections
+		var req sectionRequest
 		if err := c.Bind(&req); err != nil {
 			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
 			return
 		}
 
 		id, _ := strconv.Atoi(c.Param("id"))
+
 		sec, err := p.service.UpdateSecID(id, req.SectionNumber)
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		if err.Code != 0 {
+			c.JSON(web.DecodeError(err.Code, err.Message.Error()))
 			return
 		}
 
@@ -137,7 +137,7 @@ func (p *Section) DeleteSection() gin.HandlerFunc {
 			return
 		}
 
-		sec := fmt.Sprintf("O produto %d foi removido", id)
+		sec := fmt.Sprintf("O section %d foi removido", id)
 		c.JSON(web.NewResponse(http.StatusNoContent, sec))
 	}
 }

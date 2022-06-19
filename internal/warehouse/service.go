@@ -1,5 +1,7 @@
 package warehouse
 
+import "fmt"
+
 type Service interface {
 	GetAll() []Warehouse
 	GetByID(id int) (Warehouse, error)
@@ -37,6 +39,14 @@ func (s service) GetByID(id int) (Warehouse, error) {
 }
 
 func (s service) CreateWarehouse(code, address, tel string, minCap, minTemp int) (Warehouse, error) {
+
+	warehouses := s.repository.GetAll()
+
+	for _, warehouse := range warehouses {
+		if warehouse.WarehouseCode == code {
+			return Warehouse{}, fmt.Errorf("o warehouse_code: %s já existe no banco de dados", code)
+		}
+	}
 
 	id := s.repository.IncrementID()
 

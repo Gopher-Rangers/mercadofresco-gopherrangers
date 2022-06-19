@@ -18,7 +18,13 @@ type Warehouse struct {
 type Repository interface {
 	GetAll() []Warehouse
 	GetByID(id int) (Warehouse, error)
-	CreateWarehouse(id int, code, address, tel string, minCap, minTemp int) (Warehouse, error)
+	CreateWarehouse(
+		id int,
+		code,
+		address,
+		tel string,
+		minCap,
+		minTemp int) (Warehouse, error)
 	UpdatedWarehouseID(id int, code string) (Warehouse, error)
 	DeleteWarehouse(id int) error
 	IncrementID() int
@@ -48,20 +54,20 @@ func (r repository) GetByID(id int) (Warehouse, error) {
 			return warehouse, nil
 		}
 	}
-	return Warehouse{}, fmt.Errorf("O %d não foi encontrado", id)
+	return Warehouse{}, fmt.Errorf("o %d não foi encontrado", id)
 }
 
-func (r *repository) CreateWarehouse(id int, code, address, tel string, minCap, minTemp int) (Warehouse, error) {
+func (r *repository) CreateWarehouse(
+	id int,
+	code,
+	address,
+	tel string,
+	minCap,
+	minTemp int) (Warehouse, error) {
 	var ListWarehouse []Warehouse
 	r.db.Read(&ListWarehouse)
 
 	w := Warehouse{id, code, address, tel, minCap, minTemp}
-
-	for _, warehouse := range ListWarehouse {
-		if warehouse.WarehouseCode == code {
-			return Warehouse{}, fmt.Errorf("O %s já existe no banco de dados", code)
-		}
-	}
 
 	ListWarehouse = append(ListWarehouse, w)
 
@@ -81,7 +87,7 @@ func (r *repository) UpdatedWarehouseID(id int, code string) (Warehouse, error) 
 			return ListWarehouse[i], nil
 		}
 	}
-	return Warehouse{}, fmt.Errorf("O %d informado não existe", id)
+	return Warehouse{}, fmt.Errorf("o %d informado não existe", id)
 }
 
 func (r *repository) DeleteWarehouse(id int) error {
@@ -95,7 +101,7 @@ func (r *repository) DeleteWarehouse(id int) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("Não foi achado warehouse com esse %d", id)
+	return fmt.Errorf("não foi achado warehouse com esse %d", id)
 }
 
 func (r repository) IncrementID() int {

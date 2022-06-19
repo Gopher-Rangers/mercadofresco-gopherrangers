@@ -62,7 +62,9 @@ func (r *repository) Store(prod Product, id int) (Product, error) {
 
 func (r *repository) GetAll() ([]Product, error) {
 	var ps []Product
+
 	r.db.Read(&ps)
+
 	return ps, nil
 }
 

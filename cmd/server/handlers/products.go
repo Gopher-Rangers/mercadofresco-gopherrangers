@@ -145,10 +145,9 @@ func (prod *Product) Store() gin.HandlerFunc {
 			if err.Error() == ERROR_UNIQUE_PRODUCT_CODE {
 				c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 				return
-			} else {
-				c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-				return
 			}
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
 		}
 		c.JSON(web.NewResponse(http.StatusCreated, p))
 	}
@@ -259,10 +258,9 @@ func (prod *Product) Update() gin.HandlerFunc {
 			if err.Error() == ERROR_UNIQUE_PRODUCT_CODE {
 				c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 				return
-			} else {
-				c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-				return
 			}
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
 		}
 		c.JSON(web.NewResponse(http.StatusOK, p))
 	}

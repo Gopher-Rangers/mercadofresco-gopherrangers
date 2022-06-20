@@ -57,12 +57,24 @@ func TestStore(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, expected, prod)
 	})
-
 	t.Run("create_conflict", func (t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
 		ps := createProductsArray()
-		expected := ps[0]
+		expected := products.Product {
+			ID: 3,
+			ProductCode: "02",
+			Description: "queijo",
+			Width: 0.1,
+			Height: 0.1,
+			Length: 0.1,
+			NetWeight: 0.1,
+			ExpirationRate: "10/10/2022",
+			RecommendedFreezingTemperature: 1.1,
+			FreezingRate: 1.1,
+			ProductTypeId: 01,
+			SellerId: 01,
+		}
 		mockRepository.On("GetAll").Return(ps, nil)
 		mockRepository.On("LastID").Return(0, nil)
 		mockRepository.On("Store", expected, 1).Return(products.Product{}, fmt.Errorf("the product code must be unique"))
@@ -129,7 +141,6 @@ func TestUpdate(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, prod, expected)
 	})
-
 	t.Run("update_non_existent", func (t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
@@ -158,7 +169,20 @@ func TestUpdate(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
 		ps := createProductsArray()
-		expected := ps[0]
+		expected := products.Product {
+			ID: 1,
+			ProductCode: "02",
+			Description: "queijo",
+			Width: 0.1,
+			Height: 0.1,
+			Length: 0.1,
+			NetWeight: 0.1,
+			ExpirationRate: "10/10/2022",
+			RecommendedFreezingTemperature: 1.1,
+			FreezingRate: 1.1,
+			ProductTypeId: 01,
+			SellerId: 01,
+		}
 		mockRepository.On("GetAll").Return(ps, nil)
 		mockRepository.On("Update", expected, 1).Return(products.Product{}, fmt.Errorf("the product code must be unique"))
 		prod, err := service.Update(expected, 1)

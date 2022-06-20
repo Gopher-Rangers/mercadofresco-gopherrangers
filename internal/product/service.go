@@ -51,10 +51,7 @@ func (s *service) Store(prod Product) (Product, error) {
 }
 
 func (s *service) GetAll() ([]Product, error) {
-	ps, err := s.repository.GetAll()
-	if err != nil {
-		return nil, err
-	}
+	ps, _ := s.repository.GetAll()
 	return ps, nil
 }
 

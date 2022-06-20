@@ -46,7 +46,7 @@ func (r *repository) LastID() (int, error) {
 	if len(ps) == 0 {
 		return 0, nil
 	}
-	return ps[len(ps)-1].ID, nil
+	return ps[len(ps) - 1].ID, nil
 }
 
 func (r *repository) Store(prod Product, id int) (Product, error) {

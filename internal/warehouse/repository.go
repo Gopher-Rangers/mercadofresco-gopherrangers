@@ -69,7 +69,11 @@ func (r *repository) CreateWarehouse(
 
 	var ListWarehouse []Warehouse
 
-	r.db.Read(&ListWarehouse)
+	err := r.db.Read(&ListWarehouse)
+
+	if err != nil {
+		return Warehouse{}, fmt.Errorf("não foi possível ler o arquivo")
+	}
 
 	w := Warehouse{id, code, address, tel, minCap, minTemp}
 
@@ -87,7 +91,9 @@ func (r *repository) UpdatedWarehouseID(id int, code string) (Warehouse, error) 
 
 	for i := range ListWarehouse {
 		if ListWarehouse[i].ID == id {
+
 			ListWarehouse[i].WarehouseCode = code
+
 			r.db.Write(ListWarehouse)
 			return ListWarehouse[i], nil
 		}
@@ -97,12 +103,16 @@ func (r *repository) UpdatedWarehouseID(id int, code string) (Warehouse, error) 
 
 func (r *repository) DeleteWarehouse(id int) error {
 	var ListWarehouse []Warehouse
+
 	r.db.Read(&ListWarehouse)
 
 	for i := range ListWarehouse {
 		if ListWarehouse[i].ID == id {
+
 			ListWarehouse = append(ListWarehouse[:i], ListWarehouse[i+1:]...)
+
 			r.db.Write(ListWarehouse)
+
 			return nil
 		}
 	}
@@ -111,6 +121,7 @@ func (r *repository) DeleteWarehouse(id int) error {
 
 func (r repository) IncrementID() int {
 	var ListWarehouse []Warehouse
+
 	r.db.Read(&ListWarehouse)
 
 	return len(ListWarehouse) + 1

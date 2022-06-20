@@ -47,6 +47,27 @@ func (_m *Repository) DeleteWarehouse(id int) error {
 	return r0
 }
 
+// FindByWarehouseCode provides a mock function with given fields: code
+func (_m *Repository) FindByWarehouseCode(code string) (warehouse.Warehouse, error) {
+	ret := _m.Called(code)
+
+	var r0 warehouse.Warehouse
+	if rf, ok := ret.Get(0).(func(string) warehouse.Warehouse); ok {
+		r0 = rf(code)
+	} else {
+		r0 = ret.Get(0).(warehouse.Warehouse)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(code)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetAll provides a mock function with given fields:
 func (_m *Repository) GetAll() []warehouse.Warehouse {
 	ret := _m.Called()

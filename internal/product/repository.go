@@ -76,7 +76,7 @@ func (r *repository) GetById(id int) (Product, error) {
 			return ps[i], nil
 		}
 	}
-	return Product{}, fmt.Errorf("produto %d não encontrado", id)
+	return Product{}, fmt.Errorf("produto %d não encontrado.", id)
 }
 
 func (r *repository) Update(prod Product, id int) (Product, error) {

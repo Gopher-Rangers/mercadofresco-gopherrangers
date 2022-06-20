@@ -59,6 +59,12 @@ func (s service) CreateWarehouse(code, address, tel string, minCap, minTemp int)
 }
 
 func (s service) UpdatedWarehouseID(id int, code string) (Warehouse, error) {
+	_, err := s.repository.FindByWarehouseCode(code)
+
+	if err == nil {
+		return Warehouse{}, fmt.Errorf("o `warehouse_code` já está em uso")
+	}
+
 	warehouse, err := s.repository.UpdatedWarehouseID(id, code)
 
 	if err != nil {

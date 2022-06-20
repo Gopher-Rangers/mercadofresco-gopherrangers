@@ -73,7 +73,7 @@ func (s *Seller) Update(c *gin.Context) {
 	updateSeller, err := s.service.Update(idConvertido, req.CompanyId, req.CompanyName, req.Address, req.Telephone)
 
 	if err != nil {
-		c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
 	}
 
@@ -90,6 +90,7 @@ func (s *Seller) Create(c *gin.Context) {
 
 	if err := validateFields(req); err != nil {
 		c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+		return
 	}
 
 	newSeller, err := s.service.Create(req.CompanyId, req.CompanyName, req.Address, req.Telephone)

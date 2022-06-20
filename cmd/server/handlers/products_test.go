@@ -2,6 +2,7 @@ package handlers_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -9,7 +10,7 @@ import (
 	"testing"
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
-	//"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +20,12 @@ const (
 	URL = "/api/v1/products/"
 )
 
-/*func createProductsArray() []products.Product {
+type response struct {
+	Code int
+	Data []products.Product
+}
+
+func createProductsArray() []products.Product {
 	var ps []products.Product
 	prod1 := products.Product {
 		ID: 1,
@@ -51,7 +57,7 @@ const (
 	}
 	ps = append(ps, prod1, prod2)
 	return ps
-}*/
+}
 
 func createRequestTest(method string, url string, body string) (*http.Request, *httptest.ResponseRecorder) {
 	req := httptest.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
@@ -66,7 +72,45 @@ func createRequestTestIvalidToken(method string, url string, body string) (*http
 	req.Header.Add("TOKEN", "invalid_token")
 	return req, httptest.NewRecorder()
 }
+func TestGetAll(t *testing.T) {
+	t.Run("find_all", func (t *testing.T) {
+		mockService := mocks.NewService(t)
+		handlerProduct := handler.NewProduct(mockService)
 
+		server := gin.Default()
+		productRouterGroup := server.Group(URL)
+
+		ps := createProductsArray()
+		req, rr := createRequestTest(http.MethodGet, URL, "")
+	
+		mockService.On("GetAll").Return(ps, nil)
+		productRouterGroup.GET("/", handlerProduct.GetAll())
+		server.ServeHTTP(rr, req)
+
+		resp := response{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusOK, rr.Code)
+		assert.Equal(t, ps, resp.Data)
+	})
+	t.Run("find_all_invalid_token", func (t *testing.T) {
+		mockService := mocks.NewService(t)
+		handlerProduct := handler.NewProduct(mockService)
+
+		server := gin.Default()
+		productRouterGroup := server.Group(URL)
+
+		req, rr := createRequestTestIvalidToken(http.MethodGet, URL, "")
+
+		productRouterGroup.GET("/", handlerProduct.GetAll())
+		server.ServeHTTP(rr, req)
+
+		resp := response{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusUnauthorized, rr.Code)
+	})
+}
 
 func TestDelete(t *testing.T) {
 	t.Run("delete_ok", func (t *testing.T) {
@@ -82,7 +126,7 @@ func TestDelete(t *testing.T) {
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)
 
-		assert.Equal(t, 204, rr.Code)
+		assert.Equal(t, http.StatusNoContent, rr.Code)
 	})
 	t.Run("delete_non_existent", func (t *testing.T) {
 		mockService := mocks.NewService(t)
@@ -97,7 +141,7 @@ func TestDelete(t *testing.T) {
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)
 
-		assert.Equal(t, 404, rr.Code)
+		assert.Equal(t, http.StatusNotFound, rr.Code)
 	})
 	t.Run("delete_id_non_number", func (t *testing.T) {
 		mockService := mocks.NewService(t)
@@ -111,7 +155,7 @@ func TestDelete(t *testing.T) {
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)
 
-		assert.Equal(t, 400, rr.Code)
+		assert.Equal(t, http.StatusBadRequest, rr.Code)
 	})
 	t.Run("delete_invalid_token", func (t *testing.T) {
 		mockService := mocks.NewService(t)
@@ -125,6 +169,6 @@ func TestDelete(t *testing.T) {
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)
 
-		assert.Equal(t, 401, rr.Code)
+		assert.Equal(t, http.StatusUnauthorized, rr.Code)
 	})
 }

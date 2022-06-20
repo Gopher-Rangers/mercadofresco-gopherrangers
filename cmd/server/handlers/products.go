@@ -172,11 +172,7 @@ func (prod *Product) GetAll() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
 			return
 		}
-		p, err := prod.service.GetAll()
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
-		}
+		p, _ := prod.service.GetAll()
 		c.JSON(web.NewResponse(http.StatusOK, p))
 	}
 	return fn

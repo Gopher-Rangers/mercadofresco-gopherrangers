@@ -106,14 +106,15 @@ func Test_GetAll(t *testing.T) {
 		mockRepository := mock_repository.NewRepository(t)
 		service := warehouse.NewService(mockRepository)
 
-		expected := []warehouse.Warehouse{}
+		w := makeValidDBWarehouse()
+		expected := []warehouse.Warehouse{w}
 
 		mockRepository.On("GetAll").Return(expected)
 
 		result := service.GetAll()
 
 		assert.Equal(t, result, expected)
-		assert.Empty(t, result)
+		assert.NotEmpty(t, result)
 	})
 
 }

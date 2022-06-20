@@ -182,3 +182,19 @@ func Test_UpdateWarehouseID(t *testing.T) {
 		assert.Equal(t, result, warehouse.Warehouse{})
 	})
 }
+
+func Test_DeleteWarehouse(t *testing.T) {
+	t.Run("Deve deletar um Warehouse com sucesso passando um id válido.", func(t *testing.T) {
+		mockRepository := mock_repository.NewRepository(t)
+		service := warehouse.NewService(mockRepository)
+
+		expected := makeValidDBWarehouse()
+
+		mockRepository.On("DeleteWarehouse", expected.ID).Return(nil)
+
+		err := service.DeleteWarehouse(expected.ID)
+
+		assert.Nil(t, err)
+		assert.Equal(t, err, nil)
+	})
+}

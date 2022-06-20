@@ -32,8 +32,8 @@ func Test_CreateWarehouse(t *testing.T) {
 		}
 
 		mockRepository.On("GetAll").Return([]warehouse.Warehouse{})
-		mockRepository.On("CreateWarehouse", 1, data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature).Return(expected, nil)
 		mockRepository.On("IncrementID").Return(1)
+		mockRepository.On("CreateWarehouse", 1, data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature).Return(expected, nil)
 
 		result, err := service.CreateWarehouse(data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature)
 

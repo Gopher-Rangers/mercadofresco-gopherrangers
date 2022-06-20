@@ -28,6 +28,7 @@ type Repository interface {
 	UpdatedWarehouseID(id int, code string) (Warehouse, error)
 	DeleteWarehouse(id int) error
 	IncrementID() int
+	FindByWarehouseCode(code string) (Warehouse, error)
 }
 
 type repository struct {
@@ -67,6 +68,7 @@ func (r *repository) CreateWarehouse(
 	minTemp int) (Warehouse, error) {
 
 	var ListWarehouse []Warehouse
+
 	r.db.Read(&ListWarehouse)
 
 	w := Warehouse{id, code, address, tel, minCap, minTemp}
@@ -80,6 +82,7 @@ func (r *repository) CreateWarehouse(
 
 func (r *repository) UpdatedWarehouseID(id int, code string) (Warehouse, error) {
 	var ListWarehouse []Warehouse
+
 	r.db.Read(&ListWarehouse)
 
 	for i := range ListWarehouse {
@@ -111,4 +114,18 @@ func (r repository) IncrementID() int {
 	r.db.Read(&ListWarehouse)
 
 	return len(ListWarehouse) + 1
+}
+
+func (r repository) FindByWarehouseCode(code string) (Warehouse, error) {
+	var ListWarehouse []Warehouse
+
+	r.db.Read(&ListWarehouse)
+
+	for _, warehouse := range ListWarehouse {
+		if warehouse.WarehouseCode == code {
+			return warehouse, nil
+		}
+	}
+	return Warehouse{},
+		fmt.Errorf("o warehouse com esse `warehouse_code`: %s não foi encontrado", code)
 }

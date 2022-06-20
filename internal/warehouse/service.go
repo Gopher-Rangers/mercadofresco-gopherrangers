@@ -41,12 +41,10 @@ func (s service) GetByID(id int) (Warehouse, error) {
 
 func (s service) CreateWarehouse(code, address, tel string, minCap, minTemp int) (Warehouse, error) {
 
-	warehouses := s.repository.GetAll()
+	_, err := s.repository.FindByWarehouseCode(code)
 
-	for _, warehouse := range warehouses {
-		if warehouse.WarehouseCode == code {
-			return Warehouse{}, fmt.Errorf("o warehouse_code: %s já existe no banco de dados", code)
-		}
+	if err == nil {
+		return Warehouse{}, fmt.Errorf("o `warehouse_code` já está em uso")
 	}
 
 	id := s.repository.IncrementID()

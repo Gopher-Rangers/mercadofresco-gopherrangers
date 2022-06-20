@@ -98,4 +98,63 @@ func Test_GetById(t *testing.T) {
 		assert.Empty(t, result)
 	})
 
+	t.Run("Deve retornar um Warehouse, com o id solicitado.", func(t *testing.T) {
+		mockRepository := mock_repository.NewRepository(t)
+		service := warehouse.NewService(mockRepository)
+
+		expected := warehouse.Warehouse{
+			ID:             1,
+			WarehouseCode:  "j753",
+			Address:        "Rua das Margaridas",
+			Telephone:      "4833334444",
+			MinCapacity:    100,
+			MinTemperature: 10,
+		}
+
+		mockRepository.On("GetByID", 1).Return(expected, nil)
+
+		result, err := service.GetByID(1)
+
+		assert.Nil(t, err)
+		assert.Equal(t, result, expected)
+		assert.NotEmpty(t, result)
+	})
+}
+
+func Test_UpdateWarehouseID(t *testing.T) {
+	t.Run("", func(t *testing.T) {
+		mockRepository := mock_repository.NewRepository(t)
+		service := warehouse.NewService(mockRepository)
+
+		mockRepository.On("UpdateWarehouseID", 1).Return(warehouse.Warehouse{}, fmt.Errorf("produto %d não encontrado", 1))
+
+		result, err := service.UpdatedWarehouseID(1, "j753")
+
+		assert.NotNil(t, err)
+		assert.Error(t, err)
+		assert.Equal(t, result, warehouse.Warehouse{})
+		assert.Empty(t, result)
+	})
+
+	t.Run("", func(t *testing.T) {
+		mockRepository := mock_repository.NewRepository(t)
+		service := warehouse.NewService(mockRepository)
+
+		expected := warehouse.Warehouse{
+			ID:             1,
+			WarehouseCode:  "j753",
+			Address:        "Rua das Margaridas",
+			Telephone:      "4833334444",
+			MinCapacity:    100,
+			MinTemperature: 10,
+		}
+
+		mockRepository.On("UpdateWarehouseID", 1).Return(expected, nil)
+
+		result, err := service.UpdatedWarehouseID(1, "j753")
+
+		assert.Nil(t, err)
+		assert.Equal(t, result, expected)
+		assert.NotEmpty(t, result)
+	})
 }

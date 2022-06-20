@@ -12,20 +12,20 @@ type Service struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: cardNumberId, firstName, lastName
-func (_m *Service) Create(cardNumberId string, firstName string, lastName string) (buyer.Buyer, error) {
-	ret := _m.Called(cardNumberId, firstName, lastName)
+// Create provides a mock function with given fields: _a0
+func (_m *Service) Create(_a0 buyer.Buyer) (buyer.Buyer, error) {
+	ret := _m.Called(_a0)
 
 	var r0 buyer.Buyer
-	if rf, ok := ret.Get(0).(func(string, string, string) buyer.Buyer); ok {
-		r0 = rf(cardNumberId, firstName, lastName)
+	if rf, ok := ret.Get(0).(func(buyer.Buyer) buyer.Buyer); ok {
+		r0 = rf(_a0)
 	} else {
 		r0 = ret.Get(0).(buyer.Buyer)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
-		r1 = rf(cardNumberId, firstName, lastName)
+	if rf, ok := ret.Get(1).(func(buyer.Buyer) error); ok {
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -91,20 +91,20 @@ func (_m *Service) GetById(id int) (buyer.Buyer, error) {
 	return r0, r1
 }
 
-// Update provides a mock function with given fields: id, cardNumberId, firstName, lastName
-func (_m *Service) Update(id int, cardNumberId string, firstName string, lastName string) (buyer.Buyer, error) {
-	ret := _m.Called(id, cardNumberId, firstName, lastName)
+// Update provides a mock function with given fields: _a0
+func (_m *Service) Update(_a0 buyer.Buyer) (buyer.Buyer, error) {
+	ret := _m.Called(_a0)
 
 	var r0 buyer.Buyer
-	if rf, ok := ret.Get(0).(func(int, string, string, string) buyer.Buyer); ok {
-		r0 = rf(id, cardNumberId, firstName, lastName)
+	if rf, ok := ret.Get(0).(func(buyer.Buyer) buyer.Buyer); ok {
+		r0 = rf(_a0)
 	} else {
 		r0 = ret.Get(0).(buyer.Buyer)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, string, string, string) error); ok {
-		r1 = rf(id, cardNumberId, firstName, lastName)
+	if rf, ok := ret.Get(1).(func(buyer.Buyer) error); ok {
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"log"
 	"os"
 
@@ -58,18 +59,7 @@ func main() {
 			productRouterGroup.DELETE("/:id", prod.Delete())
 		}
 
-		buyerRouterGroup := baseRoute.Group("/buyers")
-		{
-			buyerHandler := handler.NewBuyerHandler()
-
-			buyerRouterGroup.Use(buyerHandler.AuthToken)
-
-			buyerRouterGroup.GET("/", buyerHandler.GetAll)
-			buyerRouterGroup.POST("/", buyerHandler.Create)
-			buyerRouterGroup.GET("/:id", buyerHandler.ValidateID, buyerHandler.GetBuyerById)
-			buyerRouterGroup.PUT("/:id", buyerHandler.ValidateID, buyerHandler.Update)
-			buyerRouterGroup.DELETE("/:id", buyerHandler.ValidateID, buyerHandler.Delete)
-		}
+		routes.Buyers(baseRoute)
 
 		sectionRouterGroup := baseRoute.Group("/sections")
 		{

@@ -22,8 +22,8 @@ type Buyer struct {
 	service buyer.Service
 }
 
-func NewBuyerHandler() Buyer {
-	return Buyer{buyer.NewService()}
+func NewBuyerHandler(s buyer.Service) Buyer {
+	return Buyer{s}
 }
 
 func (Buyer) AuthToken(context *gin.Context) {
@@ -118,7 +118,7 @@ func (b *Buyer) Create(c *gin.Context) {
 		return
 	}
 
-	newBuyer, err := b.service.Create(req.CardNumberId, req.FirstName, req.LastName)
+	newBuyer, err := b.service.Create(buyer.Buyer(req))
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
@@ -149,9 +149,9 @@ func (b *Buyer) Update(c *gin.Context) {
 		return
 	}
 
-	id, _ := strconv.Atoi(c.Param("id"))
+	req.Id, _ = strconv.Atoi(c.Param("id"))
 
-	newBuyer, err := b.service.Update(id, req.CardNumberId, req.FirstName, req.LastName)
+	newBuyer, err := b.service.Update(buyer.Buyer(req))
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 		return

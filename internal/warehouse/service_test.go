@@ -215,4 +215,18 @@ func Test_DeleteWarehouse(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, err, nil)
 	})
+
+	t.Run("Deve retornar um erro se não achar um Warehouse com o id passado.", func(t *testing.T) {
+		mockRepository := mock_repository.NewRepository(t)
+		service := warehouse.NewService(mockRepository)
+
+		expected := makeValidDBWarehouse()
+
+		mockRepository.On("DeleteWarehouse", expected.ID).Return(fmt.Errorf("não foi achado warehouse com esse id: %d", expected.ID))
+
+		err := service.DeleteWarehouse(expected.ID)
+
+		assert.NotNil(t, err)
+		assert.Equal(t, err, fmt.Errorf("não foi achado warehouse com esse id: %d", expected.ID))
+	})
 }

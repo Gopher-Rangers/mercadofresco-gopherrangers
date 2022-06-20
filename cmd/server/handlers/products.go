@@ -38,7 +38,7 @@ type requestProduct struct {
 	ExpirationRate string  `json:"expiration_rate"`
 	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature"`
 	FreezingRate float64 `json:"freezing_rate"`
-	ProductTypeTd int `json:"product_type_id"`
+	ProductTypeId int `json:"product_type_id"`
 }
 
 type Product struct {
@@ -142,8 +142,13 @@ func (prod *Product) Store() gin.HandlerFunc {
 		}
 		p, err := prod.service.Store(req)
 		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
+			if err.Error() == ERROR_UNIQUE_PRODUCT_CODE {
+				c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+				return
+			} else {
+				c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+				return
+			}
 		}
 		c.JSON(web.NewResponse(http.StatusCreated, p))
 	}
@@ -251,8 +256,13 @@ func (prod *Product) Update() gin.HandlerFunc {
 		}
 		p, err := prod.service.Update(req, int(id))
 		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
+			if err.Error() == ERROR_UNIQUE_PRODUCT_CODE {
+				c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+				return
+			} else {
+				c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+				return
+			}
 		}
 		c.JSON(web.NewResponse(http.StatusOK, p))
 	}

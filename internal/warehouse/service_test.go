@@ -181,6 +181,24 @@ func Test_UpdateWarehouseID(t *testing.T) {
 		assert.Equal(t, err, fmt.Errorf("o `warehouse_code` já está em uso"))
 		assert.Equal(t, result, warehouse.Warehouse{})
 	})
+
+	t.Run("Deve retornar um erro caso UpdatedWarehouseID, retorne um error", func(t *testing.T) {
+		mockRepository := mock_repository.NewRepository(t)
+		service := warehouse.NewService(mockRepository)
+
+		expected := makeValidDBWarehouse()
+
+		mockRepository.On("FindByWarehouseCode", mock.AnythingOfType("string")).Return(warehouse.Warehouse{}, fmt.Errorf("o warehouse com esse `warehouse_code`: %s não foi encontrado", expected.WarehouseCode))
+
+		mockRepository.On("UpdatedWarehouseID", 1, "j753").Return(warehouse.Warehouse{}, fmt.Errorf("o id: %d informado não existe", expected.ID))
+
+		result, err := service.UpdatedWarehouseID(1, expected.WarehouseCode)
+
+		assert.NotNil(t, err)
+		assert.Equal(t, result, warehouse.Warehouse{})
+		assert.Equal(t, err, fmt.Errorf("o id: %d informado não existe", expected.ID))
+		assert.Error(t, err)
+	})
 }
 
 func Test_DeleteWarehouse(t *testing.T) {

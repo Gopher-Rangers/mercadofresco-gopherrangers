@@ -34,7 +34,6 @@ func NewEmployee(e employee.Services) Employee {
 func (emp *Employee) checkBody(req employeeRequest, c *gin.Context) bool {
 	employees := emp.service.GetAll()
 	for i := range employees {
-		// if employees[i].ID == req.ID {
 		if employees[i].ID == req.ID || req.ID != 0 {
 			c.JSON(web.DecodeError(
 				http.StatusUnprocessableEntity,

@@ -38,12 +38,6 @@ func (r repository) Create(id int, cardNum int, firstName string, lastName strin
 	p := Employee{id, cardNum, firstName, lastName, warehouseId}
 
 	for i := range Employees {
-		if Employees[i].CardNumber == cardNum {
-			return Employee{}, fmt.Errorf("funcionário com cartão nº: %d já existe no banco de dados", cardNum)
-		}
-	}
-
-	for i := range Employees {
 		if Employees[i].ID+1 == id {
 			post := make([]Employee, len(Employees[i+1:]))
 			copy(post, Employees[i+1:])

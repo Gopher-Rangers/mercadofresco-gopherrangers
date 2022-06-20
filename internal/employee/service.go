@@ -1,10 +1,11 @@
 package employee
 
+import "fmt"
+
 type Services interface {
 	Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 	LastID() int
 	GetAll() []Employee
-	// validateCardNum(cardNum int) []Employee
 	Delete(id int) error
 	GetById(id int) (Employee, error)
 	Update(emp Employee, id int) (Employee, error)
@@ -23,16 +24,20 @@ func (s service) LastID() int {
 	return s.repository.LastID()
 }
 
-// func (s service) validateCardNum(cardNum int) (cardNum, error) {
-// 	Employees := s.repository.GetAll()
-// 	for i := range Employees {
-// 		if Employees[i].CardNumber == cardNum {
-// 			return cardNum, fmt.Errorf("Funcionário com o cartao nº: %d já existe no sistema", cardNum)
-// 		}
-// 	}
-// }
+func (s *service) validateCardNumber(cardNum int) bool {
+	employees := s.GetAll()
+	for i := range employees {
+		if employees[i].CardNumber == cardNum {
+			return false
+		}
+	}
+	return true
+}
 
 func (s *service) Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
+	if !s.validateCardNumber(cardNum) {
+		return Employee{}, fmt.Errorf("funcionário com cartão nº: %d já existe no banco de dados", cardNum)
+	}
 	id := s.repository.LastID()
 	ps, err := s.repository.Create(id, cardNum, firstName, lastName, warehouseId)
 	if err != nil {

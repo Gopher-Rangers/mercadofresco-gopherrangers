@@ -47,6 +47,7 @@ func (r repository) GetAll() []Warehouse {
 
 func (r repository) GetByID(id int) (Warehouse, error) {
 	var ListWarehouse []Warehouse
+
 	r.db.Read(&ListWarehouse)
 
 	for _, warehouse := range ListWarehouse {
@@ -54,7 +55,7 @@ func (r repository) GetByID(id int) (Warehouse, error) {
 			return warehouse, nil
 		}
 	}
-	return Warehouse{}, fmt.Errorf("o %d não foi encontrado", id)
+	return Warehouse{}, fmt.Errorf("o id %d não foi encontrado", id)
 }
 
 func (r *repository) CreateWarehouse(
@@ -64,6 +65,7 @@ func (r *repository) CreateWarehouse(
 	tel string,
 	minCap,
 	minTemp int) (Warehouse, error) {
+
 	var ListWarehouse []Warehouse
 	r.db.Read(&ListWarehouse)
 
@@ -87,7 +89,7 @@ func (r *repository) UpdatedWarehouseID(id int, code string) (Warehouse, error) 
 			return ListWarehouse[i], nil
 		}
 	}
-	return Warehouse{}, fmt.Errorf("o %d informado não existe", id)
+	return Warehouse{}, fmt.Errorf("o id%d informado não existe", id)
 }
 
 func (r *repository) DeleteWarehouse(id int) error {
@@ -101,12 +103,12 @@ func (r *repository) DeleteWarehouse(id int) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("não foi achado warehouse com esse %d", id)
+	return fmt.Errorf("não foi achado warehouse com esse id: %d", id)
 }
 
 func (r repository) IncrementID() int {
 	var ListWarehouse []Warehouse
 	r.db.Read(&ListWarehouse)
 
-	return len(ListWarehouse)
+	return len(ListWarehouse) + 1
 }

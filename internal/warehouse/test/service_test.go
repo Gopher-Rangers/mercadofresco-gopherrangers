@@ -65,3 +65,37 @@ func Test_CreateWarehouse(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
+
+func Test_GetAll(t *testing.T) {
+	t.Run("Deve retornar todos os elementos que estão na lista de warehouses", func(t *testing.T) {
+		mockRepository := mock_repository.NewRepository(t)
+		service := warehouse.NewService(mockRepository)
+
+		expected := []warehouse.Warehouse{}
+
+		mockRepository.On("GetAll").Return(expected)
+
+		result := service.GetAll()
+
+		assert.Equal(t, result, expected)
+		assert.Empty(t, result)
+	})
+
+}
+
+func Test_GetById(t *testing.T) {
+	t.Run("Deve retornar warehouse vazio e um erro, se um elemento com o id especifíco não existir.", func(t *testing.T) {
+		mockRepository := mock_repository.NewRepository(t)
+		service := warehouse.NewService(mockRepository)
+
+		mockRepository.On("GetByID", 1).Return(warehouse.Warehouse{}, fmt.Errorf("produto %d não encontrado", 1))
+
+		result, err := service.GetByID(1)
+
+		assert.NotNil(t, err)
+		assert.Error(t, err)
+		assert.Equal(t, result, warehouse.Warehouse{})
+		assert.Empty(t, result)
+	})
+
+}

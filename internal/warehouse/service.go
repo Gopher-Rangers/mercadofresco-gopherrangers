@@ -28,6 +28,7 @@ func (s service) GetAll() []Warehouse {
 }
 
 func (s service) GetByID(id int) (Warehouse, error) {
+
 	warehouse, err := s.repository.GetByID(id)
 
 	if err != nil {

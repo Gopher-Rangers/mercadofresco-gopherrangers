@@ -23,6 +23,7 @@ const (
 type response struct {
 	Code int
 	Data []products.Product
+	Error string
 }
 
 func createProductsArray() []products.Product {
@@ -90,8 +91,9 @@ func TestGetAll(t *testing.T) {
 		resp := response{}
 		json.Unmarshal(rr.Body.Bytes(), &resp)
 
-		assert.Equal(t, http.StatusOK, rr.Code)
+		assert.Equal(t, http.StatusOK, rr.Code, resp.Code)
 		assert.Equal(t, ps, resp.Data)
+		assert.Equal(t, resp.Error, "")
 	})
 	t.Run("find_all_invalid_token", func (t *testing.T) {
 		mockService := mocks.NewService(t)
@@ -108,7 +110,9 @@ func TestGetAll(t *testing.T) {
 		resp := response{}
 		json.Unmarshal(rr.Body.Bytes(), &resp)
 
-		assert.Equal(t, http.StatusUnauthorized, rr.Code)
+		assert.Equal(t, http.StatusUnauthorized, rr.Code, resp.Code)
+		assert.Equal(t, resp.Data, []products.Product([]products.Product(nil)))
+		assert.Equal(t, resp.Error, handler.ERROR_TOKEN)
 	})
 }
 
@@ -126,7 +130,12 @@ func TestDelete(t *testing.T) {
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)
 
-		assert.Equal(t, http.StatusNoContent, rr.Code)
+		resp := response{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusNoContent, rr.Code, resp.Code)
+		assert.Equal(t, resp.Data, []products.Product([]products.Product(nil)))
+		assert.Equal(t, resp.Error, "")
 	})
 	t.Run("delete_non_existent", func (t *testing.T) {
 		mockService := mocks.NewService(t)
@@ -141,7 +150,12 @@ func TestDelete(t *testing.T) {
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)
 
+		resp := response{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
 		assert.Equal(t, http.StatusNotFound, rr.Code)
+		assert.Equal(t, resp.Data, []products.Product([]products.Product(nil)))
+		assert.Equal(t, resp.Error, "produto 1 não encontrado")
 	})
 	t.Run("delete_id_non_number", func (t *testing.T) {
 		mockService := mocks.NewService(t)
@@ -155,7 +169,12 @@ func TestDelete(t *testing.T) {
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)
 
+		resp := response{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		assert.Equal(t, resp.Data, []products.Product([]products.Product(nil)))
+		assert.Equal(t, resp.Error, handler.ERROR_ID)
 	})
 	t.Run("delete_invalid_token", func (t *testing.T) {
 		mockService := mocks.NewService(t)
@@ -169,6 +188,11 @@ func TestDelete(t *testing.T) {
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)
 
+		resp := response{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
 		assert.Equal(t, http.StatusUnauthorized, rr.Code)
+		assert.Equal(t, resp.Data, []products.Product([]products.Product(nil)))
+		assert.Equal(t, resp.Error, handler.ERROR_TOKEN)
 	})
 }

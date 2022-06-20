@@ -55,7 +55,7 @@ func (r repository) GetByID(id int) (Warehouse, error) {
 			return warehouse, nil
 		}
 	}
-	return Warehouse{}, fmt.Errorf("o id %d não foi encontrado", id)
+	return Warehouse{}, fmt.Errorf("o id: %d não foi encontrado", id)
 }
 
 func (r *repository) CreateWarehouse(
@@ -89,7 +89,7 @@ func (r *repository) UpdatedWarehouseID(id int, code string) (Warehouse, error) 
 			return ListWarehouse[i], nil
 		}
 	}
-	return Warehouse{}, fmt.Errorf("o id%d informado não existe", id)
+	return Warehouse{}, fmt.Errorf("o id: %d informado não existe", id)
 }
 
 func (r *repository) DeleteWarehouse(id int) error {

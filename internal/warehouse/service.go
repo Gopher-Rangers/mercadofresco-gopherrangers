@@ -79,7 +79,3 @@ func (s service) DeleteWarehouse(id int) error {
 
 	return nil
 }
-
-func (s service) IncrementID() int {
-	return s.repository.IncrementID()
-}

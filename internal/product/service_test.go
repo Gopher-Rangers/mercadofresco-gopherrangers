@@ -64,7 +64,7 @@ func TestStore(t *testing.T) {
 		expected := products.Product {
 			ID: 3,
 			ProductCode: "02",
-			Description: "queijo",
+			Description: "leite",
 			Width: 0.1,
 			Height: 0.1,
 			Length: 0.1,
@@ -76,9 +76,8 @@ func TestStore(t *testing.T) {
 			SellerId: 01,
 		}
 		mockRepository.On("GetAll").Return(ps, nil)
-		mockRepository.On("LastID").Return(0, nil)
-		mockRepository.On("Store", expected, 1).Return(products.Product{}, fmt.Errorf("the product code must be unique"))
 		prod, err := service.Store(expected)
+		fmt.Println(err)
 		assert.Equal(t, err, fmt.Errorf("the product code must be unique"))
 		assert.Equal(t, products.Product{}, prod)
 	})
@@ -172,7 +171,7 @@ func TestUpdate(t *testing.T) {
 		expected := products.Product {
 			ID: 1,
 			ProductCode: "02",
-			Description: "queijo",
+			Description: "leite",
 			Width: 0.1,
 			Height: 0.1,
 			Length: 0.1,
@@ -184,7 +183,6 @@ func TestUpdate(t *testing.T) {
 			SellerId: 01,
 		}
 		mockRepository.On("GetAll").Return(ps, nil)
-		mockRepository.On("Update", expected, 1).Return(products.Product{}, fmt.Errorf("the product code must be unique"))
 		prod, err := service.Update(expected, 1)
 		assert.Equal(t, err, fmt.Errorf("the product code must be unique"))
 		assert.Equal(t, products.Product{}, prod)

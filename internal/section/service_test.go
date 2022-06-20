@@ -40,15 +40,17 @@ func createSectionArray() []section.Section {
 }
 
 func TestCreate(t *testing.T) {
+	mockRepository := mocks.NewRepository(t)
+	service := section.NewService(mockRepository)
+
 	t.Run("create_ok", func(t *testing.T) {
-		mockRepository := mocks.NewRepository(t)
-		service := section.NewService(mockRepository)
 		secs := createSectionArray()
 		exp := secs[0]
-		secs = append([]section.Section{}, secs[1:]...)
+		exp.ID = 3
+		exp.SectionNumber = 50
 
 		mockRepository.On("GetAll").Return(secs)
-		mockRepository.On("Create", 1, exp.SectionNumber, exp.CurCapacity, exp.MinTemperature,
+		mockRepository.On("Create", 3, exp.SectionNumber, exp.CurCapacity, exp.MinTemperature,
 			exp.CurCapacity, exp.MinCapacity, exp.MaxCapacity, exp.WareHouseID, exp.ProductTypeID).Return(exp, nil)
 
 		prod, err := service.Create(exp.SectionNumber, exp.CurCapacity, exp.MinTemperature,
@@ -58,13 +60,10 @@ func TestCreate(t *testing.T) {
 	})
 
 	t.Run("create_conflict", func(t *testing.T) {
-		mockRepository := mocks.NewRepository(t)
-		service := section.NewService(mockRepository)
 		secs := createSectionArray()
 		exp := secs[0]
 
 		mockRepository.On("GetAll").Return(secs)
-
 		prod, err := service.Create(exp.SectionNumber, exp.CurCapacity, exp.MinTemperature,
 			exp.CurCapacity, exp.MinCapacity, exp.MaxCapacity, exp.WareHouseID, exp.ProductTypeID)
 		assert.Equal(t, section.Section{}, prod)

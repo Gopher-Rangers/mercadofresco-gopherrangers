@@ -66,6 +66,14 @@ func getNewValidId(s *service) int {
 }
 
 func (s *service) Update(id int, cardNumberId string, firstName string, lastName string) (Buyer, error) {
+	entities, _ := s.repository.GetAll()
+
+	for i := 0; i < len(entities); i++ {
+		if entities[i].CardNumberId == cardNumberId && entities[i].Id != id {
+			return Buyer{}, fmt.Errorf("buyer with card_number_id %s already exists", cardNumberId)
+		}
+	}
+
 	updatedBuyer, err := s.repository.Update(id, cardNumberId, firstName, lastName)
 	if err != nil {
 		return Buyer{}, err

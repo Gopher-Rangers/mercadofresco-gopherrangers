@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -82,17 +81,16 @@ func (prod *Product) Store() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
-		err := validate.Struct(req)
-		if err != nil {
-			if _, ok := err.(*validator.InvalidValidationError); ok {
-				fmt.Println(err)
+		errValidate := validate.Struct(req)
+		if errValidate != nil {
+			if _, ok := errValidate.(*validator.InvalidValidationError); ok {
+				c.JSON(web.DecodeError(http.StatusNotFound, errValidate.Error()))
 				return
 			}
-			for _, err := range err.(validator.ValidationErrors) {
-				if err != nil {
-					s := fmt.Sprintf("%s is mandatory", err.Field())
-					log.Println(s)
-					c.JSON(http.StatusUnprocessableEntity, gin.H{"error": s,})
+			for _, errValidate := range errValidate.(validator.ValidationErrors) {
+				if errValidate != nil {
+					s := fmt.Sprintf("%s is mandatory", errValidate.Field())
+					c.JSON(web.DecodeError(http.StatusUnprocessableEntity, s))
 					return
 				}
 			}
@@ -207,14 +205,13 @@ func (prod *Product) Update() gin.HandlerFunc {
 		errValidate := validate.Struct(req)
 		if errValidate != nil {
 			if _, ok := errValidate.(*validator.InvalidValidationError); ok {
-				fmt.Println(errValidate)
+				c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 				return
 			}
 			for _, errValidate := range errValidate.(validator.ValidationErrors) {
 				if errValidate != nil {
 					s := fmt.Sprintf("%s is mandatory", errValidate.Field())
-					log.Println(s)
-					c.JSON(http.StatusBadRequest, gin.H{"error": s,})
+					c.JSON(web.DecodeError(http.StatusUnprocessableEntity, s))
 					return
 				}
 			}

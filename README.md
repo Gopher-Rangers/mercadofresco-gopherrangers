@@ -103,6 +103,9 @@ The following tools were used in this project:
 - [Swagger](https://swagger.io/)
 - [Validator](https://pkg.go.dev/github.com/go-playground/validator/v10)
 - [UUID](https://pkg.go.dev/github.com/google/UUID)
+- [Godotenv](https://github.com/joho/godotenv)
+- [Testify](https://github.com/stretchr/testify)
+- [Mockery](https://github.com/vektra/mockery)
 
 ## Requirements ##
 
@@ -125,6 +128,16 @@ cd /cmd/server
 
 # Run the project
 go run main.go
+
+# To run the tests
+cd ../..
+go test ./... 
+
+# To see the tests coverage
+go test -coverprofile=coverage.out ./...
+
+# To see the tests coverage in each function
+go tool cover -func=coverage.out 
 
 # The server will initialize in the <http://localhost:8080/api/v1/>
 # To see the documentation go to <http://localhost:8080/docs/index.html#/>

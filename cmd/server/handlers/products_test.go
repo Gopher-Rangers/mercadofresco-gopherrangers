@@ -487,6 +487,66 @@ func TestUpdate(t *testing.T) {
 		assert.Equal(t, products.Product{}, resp.Data)
 		assert.Equal(t, resp.Error, handler.ERROR_ID)
 	})
+	t.Run("create_invalid_token", func (t *testing.T) {
+		mockService := mocks.NewService(t)
+		handlerProduct := handler.NewProduct(mockService)
+
+		server := gin.Default()
+		productRouterGroup := server.Group(URL)
+
+		expected := `{"id": 1,
+					"product_code": "01",
+					"description": "leite",
+					"width": 0.1,
+					"height": 0.1,
+					"length": 0.1,
+					"net_weight": 0.1,
+					"expiration_rate": "01/01/2022",
+					"recommended_freezing_temperature": 1.1,
+					"freezing_rate": 1.1,
+					"product_type_id": 1,
+					"seller_id": 1}`
+		req, rr := createRequestTestIvalidToken(http.MethodPost, URL + "1", expected)
+		productRouterGroup.POST("/:id", handlerProduct.Update())
+		server.ServeHTTP(rr, req)
+
+		resp := responseId{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusUnauthorized, rr.Code, resp.Code)
+		assert.Equal(t, products.Product{}, resp.Data)
+		assert.Equal(t, resp.Error, handler.ERROR_TOKEN)
+	})
+	t.Run("update_wrong_body", func (t *testing.T) {
+		mockService := mocks.NewService(t)
+		handlerProduct := handler.NewProduct(mockService)
+
+		server := gin.Default()
+		productRouterGroup := server.Group(URL)
+
+		expected := `{"id": 0,
+					"product_code": "",
+					"description": "",
+					"width": 0,
+					"height": 0,
+					"length": 0,
+					"net_weight": 0,
+					"expiration_rate": "",
+					"recommended_freezing_temperature": 0,
+					"freezing_rate": 0,
+					"product_type_id": 0,
+					"seller_id": 0}`
+		req, rr := createRequestTest(http.MethodPatch, URL + "1", expected)
+		productRouterGroup.PATCH("/:id", handlerProduct.Update())
+		server.ServeHTTP(rr, req)
+
+		resp := responseId{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusUnprocessableEntity, rr.Code, resp.Code)
+		assert.Equal(t, products.Product{}, resp.Data)
+		assert.Equal(t, resp.Error, handler.ERROR_PRODUCT_CODE)
+	})
 }
 
 func TestDelete(t *testing.T) {
@@ -567,5 +627,13 @@ func TestDelete(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, rr.Code)
 		assert.Equal(t, resp.Data, []products.Product([]products.Product(nil)))
 		assert.Equal(t, resp.Error, handler.ERROR_TOKEN)
+	})
+}
+
+func TestNewRequestProduct(t *testing.T) {
+	t.Run("fake_test_new_request_product_for_swag", func (t *testing.T) {
+		handlerProduct := handler.NewRequestProduct()
+
+		assert.Equal(t, handlerProduct, handler.NewRequestProduct())
 	})
 }

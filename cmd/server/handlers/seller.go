@@ -88,11 +88,6 @@ func (s *Seller) Create(c *gin.Context) {
 		return
 	}
 
-	if err := validateFields(req); err != nil {
-		c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
-		return
-	}
-
 	newSeller, err := s.service.Create(req.CompanyId, req.CompanyName, req.Address, req.Telephone)
 
 	if err != nil {

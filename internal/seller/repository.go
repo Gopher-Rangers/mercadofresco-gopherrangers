@@ -48,6 +48,10 @@ func (r *repository) GetAll() ([]Seller, error) {
 		fmt.Println("error reading file", err)
 	}
 
+	if len(sellerList) < 0 {
+		return sellerList, errors.New("erro ao inicializar a lista")
+	}
+
 	if len(sellerList) == 0 {
 		sellerList = make([]Seller, 0)
 	}

@@ -19,6 +19,18 @@ const (
 	URL = "/api/v1/sellers/"
 )
 
+type responseArray struct {
+	Code  int
+	Data  []seller.Seller
+	Error string
+}
+
+type responseId struct {
+	Code  int
+	Data  seller.Seller
+	Error string
+}
+
 func TestSeller_Update(t *testing.T) {
 	t.Run("Se o tipo de vendedor a ser atualizado não existir, um código 404 será devolvido.", func(t *testing.T) {
 		var id int = 2
@@ -73,6 +85,26 @@ func TestSeller_Update(t *testing.T) {
 		server.ServeHTTP(rr, req)
 
 		assert.Equal(t, 200, rr.Code)
+	})
+
+	t.Run("Se o campo a ser atualizado estiver não conforme, um código 422 será devolvido.", func(t *testing.T) {
+
+		mockService := mocks.NewService(t)
+		handlerSeller := NewSeller(mockService)
+
+		expected := seller.Seller{Id: 1, CompanyName: "Expected", Address: "BR", Telephone: "5501154545454"}
+
+		dataJson, _ := json.Marshal(expected)
+
+		server := gin.Default()
+		serverSellerGroup := server.Group(URL)
+
+		serverSellerGroup.PUT("/:id", handlerSeller.Update)
+
+		req, rr := createRequestTest(http.MethodPut, URL+"1", string(dataJson))
+		server.ServeHTTP(rr, req)
+
+		assert.Equal(t, 422, rr.Code)
 	})
 }
 
@@ -195,11 +227,64 @@ func TestSeller_GetOne(t *testing.T) {
 
 		server.ServeHTTP(rr, req)
 
-		assert.Equal(t, 200, rr.Code)
+		var response responseId
+
+		json.Unmarshal(rr.Body.Bytes(), &response)
+
+		assert.Equal(t, 200, response.Code)
+		assert.Equal(t, sellerOne, response.Data)
+	})
+
+	t.Run("Quando a solicitação for bem-sucedida, o back-end retornará as informações solicitadas do vendedor", func(t *testing.T) {
+
+		mockService := mocks.NewService(t)
+		handlerSeller := NewSeller(mockService)
+
+		sellerOne := seller.Seller{Id: 1, CompanyId: 5, CompanyName: "TestGetOne", Address: "BR", Telephone: "5501154545454"}
+
+		expectedJson, _ := json.Marshal(sellerOne)
+
+		req, rr := createRequestTest(http.MethodGet, URL+"1", string(expectedJson))
+		mockService.On("GetOne", 1).Return(sellerOne, nil)
+
+		server := gin.Default()
+		sellerServerGroup := server.Group(URL)
+		sellerServerGroup.GET("/:id", handlerSeller.GetOne)
+
+		server.ServeHTTP(rr, req)
+
+		var response responseId
+
+		json.Unmarshal(rr.Body.Bytes(), &response)
+
+		assert.Equal(t, 200, response.Code)
+		//assert.Equal(t, sellerOne, response.Data)
 	})
 }
 
 func TestSeller_GetAll(t *testing.T) {
+	t.Run("Deverá retornar erro quando a solicitação for mal sucedida", func(t *testing.T) {
+		mockService := mocks.NewService(t)
+		handlerSeller := NewSeller(mockService)
+
+		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454"},
+			{Id: 2, CompanyId: 6, CompanyName: "TestGetAll", Address: "BR", Telephone: "5501154545454"}}
+
+		dataJson, _ := json.Marshal(sellerList)
+
+		expectedError := errors.New("erro ao inicializar a lista")
+
+		req, rr := createRequestTest(http.MethodGet, URL, string(dataJson))
+		mockService.On("GetAll").Return([]seller.Seller{}, expectedError)
+
+		server := gin.Default()
+		sellerServerGroup := server.Group(URL)
+		sellerServerGroup.GET("/", handlerSeller.GetAll)
+
+		server.ServeHTTP(rr, req)
+
+		assert.Equal(t, 404, rr.Code)
+	})
 	t.Run("Quando a solicitação for bem-sucedida, o back-end retornará uma lista de todos os vendedores existentes.", func(t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerSeller := NewSeller(mockService)
@@ -216,9 +301,14 @@ func TestSeller_GetAll(t *testing.T) {
 		sellerServerGroup := server.Group(URL)
 		sellerServerGroup.GET("/", handlerSeller.GetAll)
 
+		var response responseArray
+
 		server.ServeHTTP(rr, req)
+		json.Unmarshal(rr.Body.Bytes(), &response)
 
 		assert.Equal(t, 200, rr.Code)
+		assert.Equal(t, sellerList, response.Data)
+		assert.Equal(t, "", response.Error)
 	})
 }
 
@@ -263,4 +353,32 @@ func createRequestTest(method string, url string, body string) (*http.Request, *
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("TOKEN", os.Getenv("TOKEN"))
 	return req, httptest.NewRecorder()
+}
+
+func TestSeller_ValidateFields(t *testing.T) {
+
+	t.Run("Deve retornar a mensagem de erro do campo inválido", func(t *testing.T) {
+		sellerCompanyId := requestSeller{CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454"}
+		sellerCompanyName := requestSeller{CompanyId: 5, Address: "BR", Telephone: "5501154545454"}
+		sellerAddress := requestSeller{CompanyId: 5, CompanyName: "TestUpdate", Telephone: "5501154545454"}
+		sellerTelephone := requestSeller{CompanyId: 5, CompanyName: "TestUpdate", Address: "BR"}
+
+		errSellerCompanyId := validateFields(sellerCompanyId)
+		errSellerCompanyName := validateFields(sellerCompanyName)
+		errSellersellerAddress := validateFields(sellerAddress)
+		errSellerTelephone := validateFields(sellerTelephone)
+
+		assert.NotEqual(t, "field cid is required", errSellerCompanyId)
+		assert.NotEqual(t, "field company_name is required", errSellerCompanyName)
+		assert.NotEqual(t, "field address is required", errSellersellerAddress)
+		assert.NotEqual(t, "field telephone is required", errSellerTelephone)
+	})
+
+	t.Run("Deve retornar nil quando não houver erro", func(t *testing.T) {
+		sellerOk := requestSeller{CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454"}
+		errSellerOk := validateFields(sellerOk)
+
+		assert.Nil(t, errSellerOk)
+	})
+
 }

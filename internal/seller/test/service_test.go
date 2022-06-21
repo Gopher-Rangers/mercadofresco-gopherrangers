@@ -1,8 +1,9 @@
-package seller
+package test
 
 import (
 	"errors"
 	"fmt"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller/mocks"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -14,14 +15,14 @@ func TestService_Delete(t *testing.T) {
 
 		var id int = 1
 
-		sellerList := []Seller{{Id: 1, CompanyId: 5, CompanyName: "TestDelete", Address: "BR", Telephone: "5501154545454"},
+		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestDelete", Address: "BR", Telephone: "5501154545454"},
 			{Id: 3, CompanyId: 6, CompanyName: "TestDelete", Address: "BR", Telephone: "5501154545454"},
 			{Id: 4, CompanyId: 6, CompanyName: "TestDelete", Address: "BR", Telephone: "5501154545454"}}
 
 		mockRepo.On("GetOne", id).Return(sellerList[0], nil)
 		mockRepo.On("Delete", 1).Return(nil)
 
-		service := NewService(mockRepo)
+		service := seller.NewService(mockRepo)
 		err := service.Delete(id)
 
 		assert.Nil(t, err)
@@ -34,10 +35,10 @@ func TestService_Delete(t *testing.T) {
 
 		expectedError := fmt.Errorf("the id %d does not exists", id)
 
-		mockRepo.On("GetOne", id).Return(Seller{}, expectedError)
+		mockRepo.On("GetOne", id).Return(seller.Seller{}, expectedError)
 		mockRepo.On("Delete", id).Return(expectedError)
 
-		service := NewService(mockRepo)
+		service := seller.NewService(mockRepo)
 		err := service.Delete(id)
 
 		assert.Equal(t, expectedError, err)
@@ -49,16 +50,16 @@ func TestService_Update(t *testing.T) {
 
 		mockRepo := &mocks.MockRepository{}
 
-		sellerList := []Seller{{Id: 1, CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454"},
-			{Id: 3, CompanyId: 6, CompanyName: "TestGetAll", Address: "BR", Telephone: "5501154545454"}}
+		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454"},
+			{Id: 3, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454"}}
 
-		expectedResult := Seller{Id: 1, CompanyId: 5, CompanyName: "Meli", Address: "América do Sul", Telephone: "5501154545454"}
+		expectedResult := seller.Seller{Id: 1, CompanyId: 5, CompanyName: "Meli", Address: "América do Sul", Telephone: "5501154545454"}
 
 		mockRepo.On("GetOne", 1).Return(sellerList[0], nil)
 		mockRepo.On("GetAll").Return(sellerList, nil)
 		mockRepo.On("Update", expectedResult.CompanyId, expectedResult.CompanyName, expectedResult.Address, expectedResult.Telephone, sellerList[0]).Return(expectedResult, nil)
 
-		service := NewService(mockRepo)
+		service := seller.NewService(mockRepo)
 		response, _ := service.Update(1, 5, "Meli", "América do Sul", "5501154545454")
 
 		assert.Equal(t, expectedResult, response)
@@ -69,17 +70,17 @@ func TestService_Update(t *testing.T) {
 
 		var id int = 2
 
-		sellerList := []Seller{{Id: 1, CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454"},
-			{Id: 3, CompanyId: 6, CompanyName: "TestGetAll", Address: "BR", Telephone: "5501154545454"}}
+		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454"},
+			{Id: 3, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454"}}
 
-		expectedResult := Seller{}
+		expectedResult := seller.Seller{}
 		expectedError := fmt.Errorf("the id %d does not exists", id)
 
-		mockRepo.On("GetOne", id).Return(Seller{}, expectedError)
+		mockRepo.On("GetOne", id).Return(seller.Seller{}, expectedError)
 		mockRepo.On("GetAll").Return(sellerList, nil)
-		mockRepo.On("Update", expectedResult.CompanyId, expectedResult.CompanyName, expectedResult.Address, expectedResult.Telephone, sellerList[0]).Return(Seller{}, expectedError)
+		mockRepo.On("Update", expectedResult.CompanyId, expectedResult.CompanyName, expectedResult.Address, expectedResult.Telephone, sellerList[0]).Return(seller.Seller{}, expectedError)
 
-		service := NewService(mockRepo)
+		service := seller.NewService(mockRepo)
 		response, err := service.Update(id, 5, "Meli", "América do Sul", "5501154545454")
 
 		assert.Equal(t, expectedResult, response)
@@ -91,12 +92,12 @@ func TestService_GetOne(t *testing.T) {
 	t.Run("Se o elemento procurado por id existir, ele retornará as informações do elemento solicitado", func(t *testing.T) {
 		mockrepo := mocks.MockRepository{}
 
-		sellerList := []Seller{{Id: 1, CompanyId: 5, CompanyName: "TestGetOne", Address: "BR", Telephone: "5501154545454"},
-			{Id: 3, CompanyId: 5, CompanyName: "TestGetAll", Address: "BR", Telephone: "5501154545454"}}
+		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestGetOne", Address: "BR", Telephone: "5501154545454"},
+			{Id: 3, CompanyId: 5, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454"}}
 
 		mockrepo.On("GetOne", 1).Return(sellerList[0], nil)
 
-		service := NewService(&mockrepo)
+		service := seller.NewService(&mockrepo)
 		response1, _ := service.GetOne(sellerList[0].Id)
 		assert.Equal(t, sellerList[0], response1)
 
@@ -112,9 +113,9 @@ func TestService_GetOne(t *testing.T) {
 
 		expectedError := fmt.Errorf("the id %d does not exists", id)
 
-		mockRepo.On("GetOne", id).Return(Seller{}, expectedError)
+		mockRepo.On("GetOne", id).Return(seller.Seller{}, expectedError)
 
-		service := NewService(mockRepo)
+		service := seller.NewService(mockRepo)
 		_, err := service.GetOne(id)
 
 		assert.Equal(t, expectedError, err)
@@ -126,13 +127,13 @@ func TestService_Create(t *testing.T) {
 	t.Run("Se contiver os campos necessários, o vendedor será criado", func(t *testing.T) {
 		mockRepo := &mocks.MockRepository{}
 
-		expected := Seller{Id: 1, CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454"}
-		input := Seller{CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454"}
+		expected := seller.Seller{Id: 1, CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454"}
+		input := seller.Seller{CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454"}
 
-		mockRepo.On("GetAll").Return([]Seller{}, nil)
+		mockRepo.On("GetAll").Return([]seller.Seller{}, nil)
 		mockRepo.On("Create", expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).Return(expected, nil)
 
-		service := NewService(mockRepo)
+		service := seller.NewService(mockRepo)
 		response, _ := service.Create(input.CompanyId, input.CompanyName, input.Address, input.Telephone)
 
 		assert.Equal(t, expected, response)
@@ -141,34 +142,34 @@ func TestService_Create(t *testing.T) {
 	t.Run("Se o cid já existir, o vendedor não pode ser criado", func(t *testing.T) {
 		mockRepo := &mocks.MockRepository{}
 
-		sellerList := []Seller{{Id: 1, CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454"}}
-		input := Seller{CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454"}
+		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454"}}
+		input := seller.Seller{CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454"}
 		expectedError := errors.New("the cid already exists")
 
 		mockRepo.On("GetAll").Return(sellerList, nil)
 		mockRepo.On("Create", input.CompanyId, input.CompanyName, input.Address, input.Telephone).Return(expectedError)
 
-		service := NewService(mockRepo)
+		service := seller.NewService(mockRepo)
 		response, err := service.Create(input.CompanyId, input.CompanyName, input.Address, input.Telephone)
 
 		assert.NotNil(t, err)
 		assert.Equal(t, expectedError, err)
-		assert.Equal(t, Seller{}, response)
+		assert.Equal(t, seller.Seller{}, response)
 	})
 }
 
 func TestService_GetAll(t *testing.T) {
 	t.Run("Se a lista tiver n elementos, retornará uma quantidade do total de elementos", func(t *testing.T) {
 
-		mockRepository := &mocks.MockRepository{}
-		expectedResult := []Seller{
-			{Id: 1, CompanyId: 5, CompanyName: "TestGetAll", Address: "BR", Telephone: "5501154545454"},
-			{Id: 2, CompanyId: 6, CompanyName: "TestGetAll", Address: "BR", Telephone: "5501154545454"},
+		mockRepository := mocks.NewRepository(t)
+		expectedResult := []seller.Seller{
+			{Id: 1, CompanyId: 5, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454"},
+			{Id: 2, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454"},
 		}
 
 		mockRepository.On("GetAll").Return(expectedResult, nil)
 
-		service := NewService(mockRepository)
+		service := seller.NewService(mockRepository)
 		response, _ := service.GetAll()
 
 		assert.Equal(t, 2, len(response))

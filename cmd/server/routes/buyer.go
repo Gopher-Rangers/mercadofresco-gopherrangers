@@ -12,7 +12,7 @@ func Buyers(routerGroup *gin.RouterGroup) {
 	storeBuyers := store.New(store.FileType, "../../internal/buyer/buyers.json")
 	repo := buyer.NewRepository(storeBuyers)
 	buyersService := buyer.NewService(repo)
-	buyerHandler := handler.NewBuyerHandler(buyersService)
+	buyerHandler := handler.NewBuyer(buyersService)
 
 	buyerRouterGroup := routerGroup.Group("/buyers")
 	{

@@ -4,10 +4,10 @@ import (
 	"log"
 	"os"
 
-	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
+	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
@@ -44,19 +44,7 @@ func main() {
 
 	baseRoute := server.Group("/api/v1/")
 	{
-		productRouterGroup := baseRoute.Group("/products")
-		{
-			file := store.New(store.FileType, "../../internal/product/products.json")
-			prod_rep := products.NewRepository(file)
-			prod_service := products.NewService(prod_rep)
-			prod := handler.NewProduct(prod_service)
-
-			productRouterGroup.POST("/", prod.Store())
-			productRouterGroup.GET("/", prod.GetAll())
-			productRouterGroup.GET("/:id", prod.GetById())
-			productRouterGroup.PATCH("/:id", prod.Update())
-			productRouterGroup.DELETE("/:id", prod.Delete())
-		}
+		routes.Products(baseRoute)
 
 		buyerRouterGroup := baseRoute.Group("/buyers")
 		{

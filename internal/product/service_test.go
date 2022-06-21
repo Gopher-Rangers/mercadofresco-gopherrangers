@@ -216,8 +216,8 @@ func TestDelete(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
 		e := fmt.Errorf("produto 3 não encontrado")
-		mockRepository.On("Delete", 1).Return(e)
-		err := service.Delete(1)
+		mockRepository.On("Delete", 3).Return(e)
+		err := service.Delete(3)
 		assert.Equal(t, e, err)
 	})
 }

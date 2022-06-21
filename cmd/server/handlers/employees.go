@@ -32,7 +32,7 @@ func NewEmployee(e employee.Services) Employee {
 }
 
 func (emp *Employee) checkBody(req employeeRequest, c *gin.Context) bool {
-	employees := emp.service.GetAll()
+	employees, _ := emp.service.GetAll()
 	for i := range employees {
 		if employees[i].ID == req.ID || req.ID != 0 {
 			c.JSON(web.DecodeError(
@@ -93,7 +93,7 @@ func (e *Employee) Create() gin.HandlerFunc {
 
 func (e Employee) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		employees := e.service.GetAll()
+		employees, _ := e.service.GetAll()
 		c.JSON(web.NewResponse(http.StatusOK, employees))
 	}
 }

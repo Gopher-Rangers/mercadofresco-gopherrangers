@@ -96,7 +96,7 @@ func (r repository) GetById(id int) (Employee, error) {
 			return Employees[i], nil
 		}
 	}
-	return Employee{}, fmt.Errorf("o funcionário não foi encontrado")
+	return Employee{}, fmt.Errorf("o funcionário não existe")
 }
 
 func (r *repository) Update(emp Employee, id int) (Employee, error) {

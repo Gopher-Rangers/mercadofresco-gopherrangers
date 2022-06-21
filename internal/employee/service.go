@@ -5,7 +5,7 @@ import "fmt"
 type Services interface {
 	Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 	LastID() int
-	GetAll() []Employee
+	GetAll() ([]Employee, error)
 	Delete(id int) error
 	GetById(id int) (Employee, error)
 	Update(emp Employee, id int) (Employee, error)
@@ -25,7 +25,7 @@ func (s service) LastID() int {
 }
 
 func (s *service) validateCardNumber(cardNum int) bool {
-	employees := s.GetAll()
+	employees, _ := s.GetAll()
 	for i := range employees {
 		if employees[i].CardNumber == cardNum {
 			return false
@@ -46,8 +46,8 @@ func (s *service) Create(cardNum int, firstName string, lastName string, warehou
 	return ps, nil
 }
 
-func (s service) GetAll() []Employee {
-	return s.repository.GetAll()
+func (s service) GetAll() ([]Employee, error) {
+	return s.repository.GetAll(), nil
 }
 
 func (s service) Delete(id int) error {

@@ -18,6 +18,11 @@
   <a href="https://github.com/Gopher-Rangers/mercadofresco-gopherrangers/actions/workflows/test.yml">
     <img src="https://github.com/Gopher-Rangers/mercadofresco-gopherrangers/actions/workflows/test.yml/badge.svg">
   </a>
+
+  <a href="https://codecov.io/gh/Gopher-Rangers/mercadofresco-gopherrangers" > 
+    <img scr="https://codecov.io/gh/Gopher-Rangers/mercadofresco-gopherrangers/branch/feature-product-4/graph/badge.svg?token=NUUR12FFLR"/> 
+  </a>
+
 </p>
 
 <h4 align="center"> 

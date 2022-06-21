@@ -8,16 +8,16 @@ import (
 
 type Product struct {
 	ID int `json:"id"`
-	ProductCode  string `json:"product_code"`
-	Description string `json:"description"`
-	Width float64 `json:"width"`
-	Height float64 `json:"height"`
-	Length float64 `json:"length"`
-	NetWeight float64 `json:"net_weight"`
-	ExpirationRate string `json:"expiration_rate"`
-	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature"`
-	FreezingRate float64 `json:"freezing_rate"`
-	ProductTypeId int `json:"product_type_id"`
+	ProductCode  string `json:"product_code" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	Width float64 `json:"width" validate:"required,gt=0"`
+	Height float64 `json:"height" validate:"required,gt=0"`
+	Length float64 `json:"length" validate:"required,gt=0"`
+	NetWeight float64 `json:"net_weight" validate:"required,gt=0"`
+	ExpirationRate string `json:"expiration_rate" validate:"required"`
+	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature" validate:"required,gt=0"`
+	FreezingRate float64 `json:"freezing_rate" validate:"required,gt=0"`
+	ProductTypeId int `json:"product_type_id" validate:"required,gt=0"`
 	SellerId int `json:"seller_id"`
 }
 

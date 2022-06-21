@@ -110,7 +110,7 @@ func (p *Section) CreateSection() gin.HandlerFunc {
 func (p *Section) UpdateSecID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req sectionRequest
-		if err := c.Bind(&req); err != nil {
+		if err := c.ShouldBind(&req); err != nil {
 			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
 			return
 		}

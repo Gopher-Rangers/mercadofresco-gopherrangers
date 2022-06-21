@@ -147,7 +147,6 @@ func TestUpdateSecID(t *testing.T) {
 func TestDelete(t *testing.T) {
 	mockRepository := mocks.NewRepository(t)
 	service := section.NewService(mockRepository)
-	//secs := createSectionArray()
 
 	t.Run("delete_non_existent", func(t *testing.T) {
 		mockRepository.On("DeleteSection", 99).Return(errors.New("seção 99 não encontrada"))

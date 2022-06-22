@@ -263,6 +263,24 @@ func Test_UpdatedWarehouseID(t *testing.T) {
 		assert.Contains(t, rr.Body.String(), "\"error\":")
 	})
 
+	t.Run("Deve retornar um código 400, e uma mensagem de erro, quando o id passado não for um número.", func(t *testing.T) {
+
+		data := makeValidDBWarehouse()
+
+		dataJSON, _ := json.Marshal(data)
+
+		body := strings.NewReader(string(dataJSON))
+
+		rr := httptest.NewRecorder()
+
+		req, _ := http.NewRequest(http.MethodPatch, URL+"/casa", body)
+
+		server.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		assert.Contains(t, rr.Body.String(), "O id passado não é um número!")
+	})
+
 	t.Run("Deve retornar um código 404, se o Warehouse a ser atualizado não existir.", func(t *testing.T) {
 
 		data := makeValidDBWarehouse()

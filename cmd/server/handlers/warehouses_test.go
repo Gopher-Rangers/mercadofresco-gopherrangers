@@ -76,11 +76,11 @@ func Test_CreateWarehouse(t *testing.T) {
 	t.Run("Deve retornar um status code 422, se o objeto JSON não contiver os campos necessários", func(t *testing.T) {
 
 		invalidBody := bytes.NewBuffer([]byte(`
-    {
+		{
 			"warehouse_code": "valid_code",
 			"minimum_capacity": 10,
 			"minimum_temperature": 8
-    }
+		}
 		`))
 
 		rr := httptest.NewRecorder()
@@ -171,7 +171,7 @@ func Test_GetByID(t *testing.T) {
 		assert.Contains(t, "O warehouse não foi encontrado!", respBody.Error)
 	})
 
-	t.Run("Deve retornar um código 400, quando o id passado não for um número.", func(t *testing.T) {
+	t.Run("Deve retornar um código 400, e uma mensagem de erro, quando o id passado não for um número.", func(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
@@ -185,5 +185,25 @@ func Test_GetByID(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
 		assert.Contains(t, "O id passado não é um número!", respBody.Error)
+	})
+
+	t.Run("Deve retornar um código 200, e um Warehouse quando o id passado for o mesmo do Warehouse no BD.", func(t *testing.T) {
+
+		data := makeValidDBWarehouse()
+
+		service.On("GetByID", 1).Return(data, nil).Once()
+
+		rr := httptest.NewRecorder()
+
+		req, _ := http.NewRequest(http.MethodGet, URL+"/1", nil)
+
+		server.ServeHTTP(rr, req)
+
+		respBody := warehouseResponseBody{}
+
+		json.Unmarshal(rr.Body.Bytes(), &respBody)
+
+		assert.Equal(t, http.StatusOK, respBody.Code)
+		assert.Equal(t, data, respBody.Data)
 	})
 }

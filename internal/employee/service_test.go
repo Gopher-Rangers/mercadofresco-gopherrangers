@@ -84,14 +84,14 @@ func TestGetById(t *testing.T) {
 	})
 }
 
-func TestStore(t *testing.T) {
+func TestCreate(t *testing.T) {
 	t.Run("create_ok", func(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := employee.NewService(mockRepository)
 		employees := createEmployeeArray()
 		expected := employee.Employee{
 			CardNumber:  98765431,
-			FirstName:   "Novo ",
+			FirstName:   "Novo",
 			LastName:    "Func",
 			WareHouseID: 1174,
 		}
@@ -108,12 +108,43 @@ func TestStore(t *testing.T) {
 		employees := createEmployeeArray()
 		expected := employee.Employee{
 			CardNumber:  7878447,
-			FirstName:   "Novo ",
+			FirstName:   "Novo",
 			LastName:    "Func",
 			WareHouseID: 1174,
 		}
 		mockRepository.On("GetAll").Return(employees, nil)
 		_, err := service.Create(expected.CardNumber, expected.FirstName, expected.LastName, expected.WareHouseID)
 		assert.Equal(t, err, fmt.Errorf("funcionário com cartão nº: 7878447 já existe no banco de dados"))
+	})
+}
+
+func TestUpdate(t *testing.T) {
+	t.Run("update_existent", func(t *testing.T) {
+		mockRepository := mocks.NewRepository(t)
+		service := employee.NewService(mockRepository)
+		expected := employee.Employee{
+			FirstName:   "Nome",
+			LastName:    "Diferente",
+			WareHouseID: 76657665445,
+		}
+		mockRepository.On("Update", expected, 2).Return(expected, nil)
+		employee, err := service.Update(expected, 2)
+		assert.Nil(t, err)
+		assert.Equal(t, expected, employee)
+	})
+	t.Run("update_non_existent", func(t *testing.T) {
+		mockRespository := mocks.NewRepository(t)
+		service := employee.NewService(mockRespository)
+		expected := employee.Employee{
+			FirstName:   "Nome",
+			LastName:    "Diferente",
+			WareHouseID: 76657665445,
+		}
+		e := fmt.Errorf("funcionário não foi encontrado")
+		mockRespository.On("Update", expected, 15).Return(expected, e)
+		_, err := service.Update(expected, 15)
+		assert.Equal(t, e, err)
+		// tenho que retornar nil
+		// assert.Nil(t, employee)
 	})
 }

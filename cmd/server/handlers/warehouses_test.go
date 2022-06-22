@@ -207,3 +207,79 @@ func Test_GetByID(t *testing.T) {
 		assert.Equal(t, data, respBody.Data)
 	})
 }
+
+func Test_UpdatedWarehouseID(t *testing.T) {
+
+	service := mock_service.NewService(t)
+	controller := handlers.NewWarehouse(service)
+	server := gin.Default()
+
+	gin.SetMode(gin.TestMode)
+
+	server.PATCH(URL+"/:id", controller.UpdatedWarehouseID)
+
+	t.Run("Deve retornar um status code 200, e o Warehouse atualizado, quando a solicitação for bem sucedida.", func(t *testing.T) {
+
+		data := makeValidDBWarehouse()
+
+		service.On("UpdatedWarehouseID", mock.AnythingOfType("int"), mock.AnythingOfType("string")).Return(data, nil).Once()
+
+		dataJSON, _ := json.Marshal(data)
+
+		body := strings.NewReader(string(dataJSON))
+
+		rr := httptest.NewRecorder()
+
+		req, _ := http.NewRequest(http.MethodPatch, URL+"/1", body)
+
+		server.ServeHTTP(rr, req)
+
+		respBody := warehouseResponseBody{}
+
+		json.Unmarshal(rr.Body.Bytes(), &respBody)
+
+		assert.Equal(t, http.StatusOK, rr.Code)
+		assert.Equal(t, data, respBody.Data)
+		// assert.Empty(t, respBody.Error)
+	})
+
+	// t.Run("", func(t *testing.T) {
+
+	// 	invalidBody := bytes.NewBuffer([]byte(`
+	// 	{
+	// 		"warehouse_code": "valid_code",
+	// 		"minimum_capacity": 10,
+	// 		"minimum_temperature": 8
+	// 	}
+	// 	`))
+
+	// 	rr := httptest.NewRecorder()
+
+	// 	req, _ := http.NewRequest(http.MethodPost, URL, invalidBody)
+
+	// 	server.ServeHTTP(rr, req)
+
+	// 	assert.Equal(t, http.StatusUnprocessableEntity, rr.Code)
+	// 	assert.Contains(t, rr.Body.String(), "\"error\":")
+	// })
+
+	// t.Run("", func(t *testing.T) {
+
+	// 	service.On("UptadedWarehouseID", mock.AnythingOfType("int"), mock.AnythingOfType("string")).Return().Once()
+
+	// 	data := makeValidDBWarehouse()
+
+	// 	dataJSON, _ := json.Marshal(data)
+
+	// 	body := strings.NewReader(string(dataJSON))
+
+	// 	rr := httptest.NewRecorder()
+
+	// 	req, _ := http.NewRequest(http.MethodPost, URL, body)
+
+	// 	server.ServeHTTP(rr, req)
+
+	// 	assert.Equal(t, http.StatusConflict, rr.Code)
+	// 	assert.Contains(t, rr.Body.String(), "o `warehouse_code` já está em uso")
+	// })
+}

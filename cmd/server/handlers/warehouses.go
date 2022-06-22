@@ -81,7 +81,7 @@ func (w Warehouse) CreateWarehouse(c *gin.Context) {
 func (w Warehouse) UpdatedWarehouseID(c *gin.Context) {
 	var req requestPatchWarehouse
 
-	if err := c.Bind(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
 		return
 	}

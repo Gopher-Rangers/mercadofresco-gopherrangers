@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -240,46 +241,49 @@ func Test_UpdatedWarehouseID(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, rr.Code)
 		assert.Equal(t, data, respBody.Data)
-		// assert.Empty(t, respBody.Error)
+		assert.Empty(t, respBody.Error)
 	})
 
-	// t.Run("", func(t *testing.T) {
+	t.Run("Deve retornar um status code 422, se o objeto JSON não contiver os campos necessários", func(t *testing.T) {
 
-	// 	invalidBody := bytes.NewBuffer([]byte(`
-	// 	{
-	// 		"warehouse_code": "valid_code",
-	// 		"minimum_capacity": 10,
-	// 		"minimum_temperature": 8
-	// 	}
-	// 	`))
+		invalidBody := bytes.NewBuffer([]byte(`
+		{
+			"minimum_capacity": 10,
+			"minimum_temperature": 8
+		}
+		`))
 
-	// 	rr := httptest.NewRecorder()
+		rr := httptest.NewRecorder()
 
-	// 	req, _ := http.NewRequest(http.MethodPost, URL, invalidBody)
+		req, _ := http.NewRequest(http.MethodPatch, URL+"/1", invalidBody)
 
-	// 	server.ServeHTTP(rr, req)
+		server.ServeHTTP(rr, req)
 
-	// 	assert.Equal(t, http.StatusUnprocessableEntity, rr.Code)
-	// 	assert.Contains(t, rr.Body.String(), "\"error\":")
-	// })
+		assert.Equal(t, http.StatusUnprocessableEntity, rr.Code)
+		assert.Contains(t, rr.Body.String(), "\"error\":")
+	})
 
-	// t.Run("", func(t *testing.T) {
+	t.Run("Deve retornar um código 404, se o Warehouse a ser atualizado não existir.", func(t *testing.T) {
 
-	// 	service.On("UptadedWarehouseID", mock.AnythingOfType("int"), mock.AnythingOfType("string")).Return().Once()
+		data := makeValidDBWarehouse()
 
-	// 	data := makeValidDBWarehouse()
+		service.On("UpdatedWarehouseID", mock.AnythingOfType("int"), mock.AnythingOfType("string")).Return(warehouse.Warehouse{}, fmt.Errorf("o id: %d informado não existe", 1)).Once()
 
-	// 	dataJSON, _ := json.Marshal(data)
+		dataJSON, _ := json.Marshal(data)
 
-	// 	body := strings.NewReader(string(dataJSON))
+		body := strings.NewReader(string(dataJSON))
 
-	// 	rr := httptest.NewRecorder()
+		rr := httptest.NewRecorder()
 
-	// 	req, _ := http.NewRequest(http.MethodPost, URL, body)
+		req, _ := http.NewRequest(http.MethodPatch, URL+"/1", body)
 
-	// 	server.ServeHTTP(rr, req)
+		respBody := warehouseResponseBody{}
 
-	// 	assert.Equal(t, http.StatusConflict, rr.Code)
-	// 	assert.Contains(t, rr.Body.String(), "o `warehouse_code` já está em uso")
-	// })
+		json.Unmarshal(rr.Body.Bytes(), &respBody)
+
+		server.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusNotFound, rr.Code)
+		assert.Contains(t, "o id: 1 informado não existe", respBody.Error)
+	})
 }

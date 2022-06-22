@@ -300,7 +300,7 @@ func Test_DeleteWarehouse(t *testing.T) {
 
 	t.Run("Deve retornar um código 404, se o Warehouse não existir.", func(t *testing.T) {
 
-		service.On("DeleteWarehouse", 1).Return(fmt.Errorf("não foi achado warehouse com esse id: %d", 1))
+		service.On("DeleteWarehouse", 1).Return(fmt.Errorf("não foi achado warehouse com esse id: %d", 1)).Once()
 
 		rr := httptest.NewRecorder()
 
@@ -312,17 +312,29 @@ func Test_DeleteWarehouse(t *testing.T) {
 		assert.Contains(t, rr.Body.String(), "não foi achado warehouse com esse id")
 	})
 
-	// t.Run("Deve retornar um código 204, se o Warehouse for deletado com sucesso.", func(t *testing.T) {
+	t.Run("Deve retornar um código 400, e uma mensagem de erro, quando o id passado não for um número.", func(t *testing.T) {
 
-	// 	service.On("DeleteWarehouse").Return(nil)
+		rr := httptest.NewRecorder()
 
-	// 	rr := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodDelete, URL+"/casa", nil)
 
-	// 	req, _ := http.NewRequest(http.MethodDelete, URL+"/1", nil)
+		server.ServeHTTP(rr, req)
 
-	// 	server.ServeHTTP(rr, req)
+		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		assert.Contains(t, rr.Body.String(), "O id passado não é um número!")
+	})
 
-	// 	assert.Equal(t, http.StatusOK, rr.Code)
-	// 	assert.Nil(t, rr.Body)
-	// })
+	t.Run("Deve retornar um código 204, se o Warehouse for deletado com sucesso.", func(t *testing.T) {
+
+		service.On("DeleteWarehouse", 1).Return(nil).Once()
+
+		rr := httptest.NewRecorder()
+
+		req, _ := http.NewRequest(http.MethodDelete, URL+"/1", nil)
+
+		server.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusNoContent, rr.Code)
+		assert.Empty(t, rr.Body.String())
+	})
 }

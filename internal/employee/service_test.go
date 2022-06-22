@@ -79,5 +79,41 @@ func TestGetById(t *testing.T) {
 		mockRepository.On("GetById", id).Return(employee.Employee{}, expectedError)
 		_, err := service.GetById(id)
 		assert.Equal(t, expectedError, err)
+		// tenho que retornar NIL
+		// assert.Nil(t, employee)
+	})
+}
+
+func TestStore(t *testing.T) {
+	t.Run("create_ok", func(t *testing.T) {
+		mockRepository := mocks.NewRepository(t)
+		service := employee.NewService(mockRepository)
+		employees := createEmployeeArray()
+		expected := employee.Employee{
+			CardNumber:  98765431,
+			FirstName:   "Novo ",
+			LastName:    "Func",
+			WareHouseID: 1174,
+		}
+		mockRepository.On("GetAll").Return(employees, nil)
+		mockRepository.On("LastID").Return(3, nil)
+		mockRepository.On("Create", 3, expected.CardNumber, expected.FirstName, expected.LastName, expected.WareHouseID).Return(expected, nil)
+		employee, err := service.Create(expected.CardNumber, expected.FirstName, expected.LastName, expected.WareHouseID)
+		assert.Nil(t, err)
+		assert.Equal(t, expected, employee)
+	})
+	t.Run("create_conflict", func(t *testing.T) {
+		mockRepository := mocks.NewRepository(t)
+		service := employee.NewService(mockRepository)
+		employees := createEmployeeArray()
+		expected := employee.Employee{
+			CardNumber:  7878447,
+			FirstName:   "Novo ",
+			LastName:    "Func",
+			WareHouseID: 1174,
+		}
+		mockRepository.On("GetAll").Return(employees, nil)
+		_, err := service.Create(expected.CardNumber, expected.FirstName, expected.LastName, expected.WareHouseID)
+		assert.Equal(t, err, fmt.Errorf("funcionário com cartão nº: 7878447 já existe no banco de dados"))
 	})
 }

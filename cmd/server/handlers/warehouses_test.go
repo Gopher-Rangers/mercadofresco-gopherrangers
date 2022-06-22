@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/mock/mock_service"
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,6 @@ import (
 
 func makeValidDBWarehouse() warehouse.Warehouse {
 	return warehouse.Warehouse{
-		ID:             1,
 		WarehouseCode:  "j753",
 		Address:        "Rua das Margaridas",
 		Telephone:      "4833334444",
@@ -32,6 +32,12 @@ const (
 	URL = "/api/v1/warehouse"
 )
 
+type warehouseResponseBody struct {
+	Code  int                 `json:"code"`
+	Data  warehouse.Warehouse `json:"data"`
+	Error string              `json:"error"`
+}
+
 func Test_CreateWarehouse(t *testing.T) {
 
 	service := mock_service.NewService(t)
@@ -42,7 +48,7 @@ func Test_CreateWarehouse(t *testing.T) {
 
 	server.POST(URL, controller.CreateWarehouse)
 
-	t.Run("Deve retornar um status code 201, quando a entra de dados for bem-sucedida e retornará um warehouse.", func(t *testing.T) {
+	t.Run("Deve retornar um status code 201, quando a entrada de dados for bem-sucedida e retornará um warehouse.", func(t *testing.T) {
 
 		data := makeValidDBWarehouse()
 
@@ -58,8 +64,13 @@ func Test_CreateWarehouse(t *testing.T) {
 
 		server.ServeHTTP(rr, req) // gerenciador de requisições
 
+		respBody := warehouseResponseBody{}
+
+		json.Unmarshal(rr.Body.Bytes(), &respBody)
+
 		assert.Equal(t, http.StatusCreated, rr.Code)
-		assert.Equal(t, "{\"code\":201,\"data\":{\"id\":1,\"warehouse_code\":\"j753\",\"address\":\"Rua das Margaridas\",\"telephone\":\"4833334444\",\"minimun_capacity\":100,\"minimun_temperature\":10}}", rr.Body.String())
+		assert.Equal(t, data, respBody.Data)
+		assert.Empty(t, respBody.Error)
 	})
 
 	t.Run("Deve retornar um status code 422, se o objeto JSON não contiver os campos necessários", func(t *testing.T) {
@@ -127,5 +138,32 @@ func Test_GetAll(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, rr.Code)
 		assert.Equal(t, "{\"code\":200,\"data\":[{\"id\":1,\"warehouse_code\":\"j753\",\"address\":\"Rua das Margaridas\",\"telephone\":\"4833334444\",\"minimun_capacity\":100,\"minimun_temperature\":10}]}", rr.Body.String())
+	})
+}
+
+func Test_GetByID(t *testing.T) {
+
+	service := mock_service.NewService(t)
+	controller := handlers.NewWarehouse(service)
+	server := gin.Default()
+
+	server.GET(URL+"/:id", controller.GetByID)
+
+	t.Run("Deve retornar um código 404, quando o Warehouse não existir.", func(t *testing.T) {
+
+		service.On("GetByID", 1).Return(warehouse.Warehouse{}, errors.New("O warehouse não foi encontrado!")).Once()
+
+		rr := httptest.NewRecorder()
+
+		req, _ := http.NewRequest(http.MethodGet, URL+"/1", nil)
+
+		server.ServeHTTP(rr, req)
+
+		respBody := warehouseResponseBody{}
+
+		json.Unmarshal(rr.Body.Bytes(), &respBody)
+
+		assert.Equal(t, http.StatusNotFound, rr.Code)
+		assert.Contains(t, "O warehouse não foi encontrado!", respBody.Error)
 	})
 }

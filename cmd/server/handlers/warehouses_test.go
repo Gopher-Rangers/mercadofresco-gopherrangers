@@ -136,8 +136,12 @@ func Test_GetAll(t *testing.T) {
 
 		server.ServeHTTP(rr, req)
 
+		respBody := warehouseResponseBody{}
+
+		json.Unmarshal(rr.Body.Bytes(), &respBody)
+
 		assert.Equal(t, http.StatusOK, rr.Code)
-		assert.Equal(t, "{\"code\":200,\"data\":[{\"id\":1,\"warehouse_code\":\"j753\",\"address\":\"Rua das Margaridas\",\"telephone\":\"4833334444\",\"minimun_capacity\":100,\"minimun_temperature\":10}]}", rr.Body.String())
+		assert.Equal(t, data, respBody)
 	})
 }
 
@@ -165,5 +169,21 @@ func Test_GetByID(t *testing.T) {
 
 		assert.Equal(t, http.StatusNotFound, rr.Code)
 		assert.Contains(t, "O warehouse não foi encontrado!", respBody.Error)
+	})
+
+	t.Run("Deve retornar um código 400, quando o id passado não for um número.", func(t *testing.T) {
+
+		rr := httptest.NewRecorder()
+
+		req, _ := http.NewRequest(http.MethodGet, URL+"/casa", nil)
+
+		server.ServeHTTP(rr, req)
+
+		respBody := warehouseResponseBody{}
+
+		json.Unmarshal(rr.Body.Bytes(), &respBody)
+
+		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		assert.Contains(t, "O id passado não é um número!", respBody.Error)
 	})
 }

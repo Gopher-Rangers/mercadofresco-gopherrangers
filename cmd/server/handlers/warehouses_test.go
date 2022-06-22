@@ -287,3 +287,42 @@ func Test_UpdatedWarehouseID(t *testing.T) {
 		assert.Contains(t, "o id: 1 informado não existe", respBody.Error)
 	})
 }
+
+func Test_DeleteWarehouse(t *testing.T) {
+
+	service := mock_service.NewService(t)
+	controller := handlers.NewWarehouse(service)
+	server := gin.Default()
+
+	gin.SetMode(gin.TestMode)
+
+	server.DELETE(URL+"/:id", controller.DeleteWarehouse)
+
+	t.Run("Deve retornar um código 404, se o Warehouse não existir.", func(t *testing.T) {
+
+		service.On("DeleteWarehouse", 1).Return(fmt.Errorf("não foi achado warehouse com esse id: %d", 1))
+
+		rr := httptest.NewRecorder()
+
+		req, _ := http.NewRequest(http.MethodDelete, URL+"/1", nil)
+
+		server.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusNotFound, rr.Code)
+		assert.Contains(t, rr.Body.String(), "não foi achado warehouse com esse id")
+	})
+
+	// t.Run("Deve retornar um código 204, se o Warehouse for deletado com sucesso.", func(t *testing.T) {
+
+	// 	service.On("DeleteWarehouse").Return(nil)
+
+	// 	rr := httptest.NewRecorder()
+
+	// 	req, _ := http.NewRequest(http.MethodDelete, URL+"/1", nil)
+
+	// 	server.ServeHTTP(rr, req)
+
+	// 	assert.Equal(t, http.StatusOK, rr.Code)
+	// 	assert.Nil(t, rr.Body)
+	// })
+}

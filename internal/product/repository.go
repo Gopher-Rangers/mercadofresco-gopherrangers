@@ -97,7 +97,7 @@ func (r *repository) Delete(id int) error {
 	r.db.Read(&ps)
 	for i := range ps {
 		if ps[i].ID == id {
-			ps = append(ps[:i], ps[i+1:]...)
+			ps = append(ps[:i], ps[i + 1:]...)
 			if err := r.db.Write(ps); err != nil {
 				return err
 			}

@@ -79,8 +79,6 @@ func TestGetById(t *testing.T) {
 		mockRepository.On("GetById", id).Return(employee.Employee{}, expectedError)
 		_, err := service.GetById(id)
 		assert.Equal(t, expectedError, err)
-		// tenho que retornar NIL
-		// assert.Nil(t, employee)
 	})
 }
 
@@ -144,7 +142,5 @@ func TestUpdate(t *testing.T) {
 		mockRespository.On("Update", expected, 15).Return(expected, e)
 		_, err := service.Update(expected, 15)
 		assert.Equal(t, e, err)
-		// tenho que retornar nil
-		// assert.Nil(t, employee)
 	})
 }

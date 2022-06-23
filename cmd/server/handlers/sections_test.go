@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
@@ -16,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const URL = "/api/v1/sections/"
+const URL_SECTIONS = "/api/v1/sections/"
 
 func createSectionArray() []section.Section {
 	var sec []section.Section
@@ -78,14 +79,14 @@ type ExpectedJSON struct {
 	Data section.Section `json:"data"`
 }
 
-func TestGetAll(t *testing.T) {
+func TestSectionGetAll(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
 	exp := createSectionArray()
-	router.GET(URL, sec.GetAll())
+	router.GET(URL_SECTIONS, sec.GetAll())
 	mockRepository.On("GetAll").Return(exp)
 
 	t.Run("find_all", func(t *testing.T) {
-		req, w := InitServer(http.MethodGet, URL, nil)
+		req, w := InitServer(http.MethodGet, URL_SECTIONS, nil)
 		router.ServeHTTP(w, req)
 
 		exp := ExpectedAllJSON{200, exp}
@@ -95,14 +96,14 @@ func TestGetAll(t *testing.T) {
 	})
 }
 
-func TestGetByID(t *testing.T) {
+func TestSectionGetByID(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
 	exp := createSectionArray()
-	router.GET(URL+":id", sec.GetByID())
+	router.GET(URL_SECTIONS+":id", sec.GetByID())
 
 	t.Run("find_by_id_non_existent", func(t *testing.T) {
 		mockRepository.On("GetByID", 90).Return(section.Section{}, errors.New("seção 90 não encontrada"))
-		req, w := InitServer(http.MethodGet, URL+"90", nil)
+		req, w := InitServer(http.MethodGet, URL_SECTIONS+"90", nil)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusNotFound, w.Code)
@@ -111,7 +112,7 @@ func TestGetByID(t *testing.T) {
 
 	t.Run("find_by_id_existent", func(t *testing.T) {
 		mockRepository.On("GetByID", 1).Return(exp[0], nil)
-		req, w := InitServer(http.MethodGet, URL+"1", nil)
+		req, w := InitServer(http.MethodGet, URL_SECTIONS+"1", nil)
 		router.ServeHTTP(w, req)
 
 		expJSON := ExpectedJSON{200, exp[0]}
@@ -122,9 +123,9 @@ func TestGetByID(t *testing.T) {
 	})
 }
 
-func TestCreate(t *testing.T) {
+func TestSectionCreate(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
-	router.POST(URL, sec.CreateSection())
+	router.POST(URL_SECTIONS, sec.CreateSection())
 	secs := createSectionArray()
 	exp := secs[0]
 	secs = append([]section.Section{}, secs[1:]...)
@@ -135,7 +136,7 @@ func TestCreate(t *testing.T) {
 			exp.MinCapacity, exp.MaxCapacity, exp.WareHouseID, exp.ProductTypeID).Return(exp, nil)
 
 		expected, _ := json.Marshal(exp)
-		req, w := InitServer(http.MethodPost, URL, expected)
+		req, w := InitServer(http.MethodPost, URL_SECTIONS, expected)
 		router.ServeHTTP(w, req)
 
 		expJSON := ExpectedJSON{201, exp}
@@ -149,7 +150,7 @@ func TestCreate(t *testing.T) {
 		mockRepository.On("GetAll").Return(secs)
 
 		expJSON, _ := json.Marshal(exp)
-		req, w := InitServer(http.MethodPost, URL, expJSON)
+		req, w := InitServer(http.MethodPost, URL_SECTIONS, expJSON)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 409, w.Code)
@@ -160,7 +161,7 @@ func TestCreate(t *testing.T) {
 		exp.ProductTypeID = 0
 
 		expJSON, _ := json.Marshal(exp)
-		req, w := InitServer(http.MethodPost, URL, expJSON)
+		req, w := InitServer(http.MethodPost, URL_SECTIONS, expJSON)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 422, w.Code)
@@ -169,9 +170,9 @@ func TestCreate(t *testing.T) {
 	})
 }
 
-func TestUpdateSecID(t *testing.T) {
+func TestSectionUpdateSecID(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
-	router.PATCH(URL+":id", sec.UpdateSecID())
+	router.PATCH(URL_SECTIONS+":id", sec.UpdateSecID())
 
 	secs := createSectionArray()
 	exp := secs[0]
@@ -184,7 +185,7 @@ func TestUpdateSecID(t *testing.T) {
 		mockRepository.On("UpdateSecID", 1, exp.SectionNumber).Return(exp, section.CodeError{})
 
 		expected, _ := json.Marshal(exp)
-		req, w := InitServer(http.MethodPatch, URL+"1", expected)
+		req, w := InitServer(http.MethodPatch, URL_SECTIONS+"1", expected)
 		router.ServeHTTP(w, req)
 
 		expJSON := ExpectedJSON{200, exp}
@@ -201,7 +202,7 @@ func TestUpdateSecID(t *testing.T) {
 			section.CodeError{Code: 404, Message: errors.New("seção 99 não encontrada")})
 
 		expJSON, _ := json.Marshal(exp)
-		req, w := InitServer(http.MethodPatch, URL+"99", expJSON)
+		req, w := InitServer(http.MethodPatch, URL_SECTIONS+"99", expJSON)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 404, w.Code)
@@ -212,7 +213,7 @@ func TestUpdateSecID(t *testing.T) {
 		exp.SectionNumber = 40
 
 		expJSON, _ := json.Marshal(exp)
-		req, w := InitServer(http.MethodPatch, URL+"1", expJSON)
+		req, w := InitServer(http.MethodPatch, URL_SECTIONS+"1", expJSON)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 409, w.Code)
@@ -223,7 +224,7 @@ func TestUpdateSecID(t *testing.T) {
 		exp.SectionNumber = 0
 
 		expJSON, _ := json.Marshal(exp)
-		req, w := InitServer(http.MethodPatch, URL+"1", expJSON)
+		req, w := InitServer(http.MethodPatch, URL_SECTIONS+"1", expJSON)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 422, w.Code)
@@ -232,14 +233,14 @@ func TestUpdateSecID(t *testing.T) {
 	})
 }
 
-func TestDelete(t *testing.T) {
+func TestSectionDelete(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
-	router.DELETE(URL+":id", sec.DeleteSection())
+	router.DELETE(URL_SECTIONS+":id", sec.DeleteSection())
 
 	t.Run("delete_non_existent", func(t *testing.T) {
 		mockRepository.On("DeleteSection", 99).Return(errors.New("seção 99 não encontrada"))
 
-		req, w := InitServer(http.MethodDelete, URL+"99", nil)
+		req, w := InitServer(http.MethodDelete, URL_SECTIONS+"99", nil)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 404, w.Code)
@@ -249,7 +250,7 @@ func TestDelete(t *testing.T) {
 	t.Run("delete_ok", func(t *testing.T) {
 		mockRepository.On("DeleteSection", 1).Return(nil)
 
-		req, w := InitServer(http.MethodDelete, URL+"1", nil)
+		req, w := InitServer(http.MethodDelete, URL_SECTIONS+"1", nil)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 204, w.Code)
@@ -260,14 +261,14 @@ func TestTokenAuth(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
 	exp := createSectionArray()
 	router.Use(sec.TokenAuthMiddleware)
-	router.GET(URL, sec.GetAll())
+	router.GET(URL_SECTIONS, sec.GetAll())
 	godotenv.Load("../../../.env")
 
 	mockRepository.On("GetAll").Return(exp)
 
 	t.Run("token_ok", func(t *testing.T) {
-		req, w := InitServer(http.MethodGet, URL, nil)
-		req.Header.Add("Token", "12345")
+		req, w := InitServer(http.MethodGet, URL_SECTIONS, nil)
+		req.Header.Add("Token", os.Getenv("TOKEN"))
 
 		router.ServeHTTP(w, req)
 
@@ -278,7 +279,7 @@ func TestTokenAuth(t *testing.T) {
 	})
 
 	t.Run("token_invalid", func(t *testing.T) {
-		req, w := InitServer(http.MethodGet, URL, nil)
+		req, w := InitServer(http.MethodGet, URL_SECTIONS, nil)
 		req.Header.Add("Token", "XXXXXX")
 
 		router.ServeHTTP(w, req)
@@ -288,7 +289,7 @@ func TestTokenAuth(t *testing.T) {
 	})
 
 	t.Run("token_empty", func(t *testing.T) {
-		req, w := InitServer(http.MethodGet, URL, nil)
+		req, w := InitServer(http.MethodGet, URL_SECTIONS, nil)
 		req.Header.Add("Token", "")
 
 		router.ServeHTTP(w, req)
@@ -301,13 +302,13 @@ func TestTokenAuth(t *testing.T) {
 func TestVerificatorID(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
 	router.Use(sec.IdVerificatorMiddleware)
-	router.DELETE(URL+":id", sec.DeleteSection())
+	router.DELETE(URL_SECTIONS+":id", sec.DeleteSection())
 	godotenv.Load("../../../.env")
 
 	t.Run("id_ok", func(t *testing.T) {
 		mockRepository.On("DeleteSection", 1).Return(nil)
 
-		req, w := InitServer(http.MethodDelete, URL+"1", nil)
+		req, w := InitServer(http.MethodDelete, URL_SECTIONS+"1", nil)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 204, w.Code)
@@ -316,7 +317,7 @@ func TestVerificatorID(t *testing.T) {
 	t.Run("id_invalid", func(t *testing.T) {
 		mockRepository.On("DeleteSection", 1).Return(nil)
 
-		req, w := InitServer(http.MethodDelete, URL+"XXXXX", nil)
+		req, w := InitServer(http.MethodDelete, URL_SECTIONS+"XXXXX", nil)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 400, w.Code)
@@ -326,7 +327,7 @@ func TestVerificatorID(t *testing.T) {
 	t.Run("id_negative", func(t *testing.T) {
 		mockRepository.On("DeleteSection", 1).Return(nil)
 
-		req, w := InitServer(http.MethodDelete, URL+"-99", nil)
+		req, w := InitServer(http.MethodDelete, URL_SECTIONS+"-99", nil)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 404, w.Code)

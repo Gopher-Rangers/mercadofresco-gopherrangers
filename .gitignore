@@ -1,7 +1,9 @@
 .env
 .idea
 .DS_store
+.vscode
 ngrok
+codecov
 
 # Binaries for programs and plugins
 *.exe

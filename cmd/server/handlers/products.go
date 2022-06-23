@@ -14,32 +14,32 @@ import (
 )
 
 const (
-	ERROR_PRODUCT_CODE = "ProductCode is mandatory"
-	ERROR_DESCRIPTION = "Description is mandatory"
-	ERROR_WIDTH = "Width is mandatory"
-	ERROR_HEIGHT = "Height is mandatory"
-	ERROR_LENGTH = "Length is mandatory"
-	ERROR_NET_WEIGHT  = "NetWeight is mandatory"
-	ERROR_EXPIRATIONN_RATE = "ExpirationRate is mandatory"
+	ERROR_PRODUCT_CODE        = "ProductCode is mandatory"
+	ERROR_DESCRIPTION         = "Description is mandatory"
+	ERROR_WIDTH               = "Width is mandatory"
+	ERROR_HEIGHT              = "Height is mandatory"
+	ERROR_LENGTH              = "Length is mandatory"
+	ERROR_NET_WEIGHT          = "NetWeight is mandatory"
+	ERROR_EXPIRATIONN_RATE    = "ExpirationRate is mandatory"
 	ERROR_RECOM_FREEZING_TEMP = "RecommendedFreezingTemperature is mandatory"
-	ERROR_FREEZING_RATE = "FreezingRate is mandatory"
-	ERROR_PRODUCT_TYPE_ID = "ProductTypeId is mandatory"
-	ERROR_TOKEN = "invalid token"
-	ERROR_ID = "invalid id"
+	ERROR_FREEZING_RATE       = "FreezingRate is mandatory"
+	ERROR_PRODUCT_TYPE_ID     = "ProductTypeId is mandatory"
+	ERROR_TOKEN               = "invalid token"
+	ERROR_ID                  = "invalid id"
 	ERROR_UNIQUE_PRODUCT_CODE = "the product code must be unique"
 )
 
 type requestProduct struct {
-	ProductCode string `json:"product_code"`
-	Description string `json:"description"`
-	Width float64 `json:"width"`
-	Height float64 `json:"height"`
-	Length  float64 `json:"length"`
-	NetWeight float64 `json:"net_weight"`
-	ExpirationRate string  `json:"expiration_rate"`
+	ProductCode                    string  `json:"product_code"`
+	Description                    string  `json:"description"`
+	Width                          float64 `json:"width"`
+	Height                         float64 `json:"height"`
+	Length                         float64 `json:"length"`
+	NetWeight                      float64 `json:"net_weight"`
+	ExpirationRate                 string  `json:"expiration_rate"`
 	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature"`
-	FreezingRate float64 `json:"freezing_rate"`
-	ProductTypeId int `json:"product_type_id"`
+	FreezingRate                   float64 `json:"freezing_rate"`
+	ProductTypeId                  int     `json:"product_type_id"`
 }
 
 type Product struct {

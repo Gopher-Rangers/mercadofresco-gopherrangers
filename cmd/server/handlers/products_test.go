@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	URL = "/api/v1/products/"
+	URL_PRODUCTS = "/api/v1/products/"
 )
 
 type responseArray struct {
@@ -67,27 +67,27 @@ func createProductsArray() []products.Product {
 	return ps
 }
 
-func createRequestTest(method string, url string, body string) (*http.Request, *httptest.ResponseRecorder) {
+func createProductRequestTest(method string, url string, body string) (*http.Request, *httptest.ResponseRecorder) {
 	req := httptest.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("TOKEN", os.Getenv("TOKEN"))
 	return req, httptest.NewRecorder()
 }
 
-func createRequestTestIvalidToken(method string, url string, body string) (*http.Request, *httptest.ResponseRecorder) {
+func createProductRequestTestIvalidToken(method string, url string, body string) (*http.Request, *httptest.ResponseRecorder) {
 	req := httptest.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("TOKEN", "invalid_token")
 	return req, httptest.NewRecorder()
 }
 
-func TestStore(t *testing.T) {
+func TestProductStore(t *testing.T) {
 	t.Run("create_ok", func (t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		ps := createProductsArray()
 		expected := `{"id": 1,
@@ -102,7 +102,7 @@ func TestStore(t *testing.T) {
 					"freezing_rate": 1.1,
 					"product_type_id": 1,
 					"seller_id": 1}`
-		req, rr := createRequestTest(http.MethodPost, URL, expected)
+		req, rr := createProductRequestTest(http.MethodPost, URL_PRODUCTS, expected)
 		mockService.On("Store", ps[0]).Return(ps[0], nil)
 		productRouterGroup.POST("/", handlerProduct.Store())
 		server.ServeHTTP(rr, req)
@@ -119,7 +119,7 @@ func TestStore(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		ps := createProductsArray()
 		expected := `{"id": 1,
@@ -134,7 +134,7 @@ func TestStore(t *testing.T) {
 					"freezing_rate": 1.1,
 					"product_type_id": 1,
 					"seller_id": 1}`
-		req, rr := createRequestTest(http.MethodPost, URL, expected)
+		req, rr := createProductRequestTest(http.MethodPost, URL_PRODUCTS, expected)
 		mockService.On("Store", ps[0]).Return(products.Product{}, fmt.Errorf(products.ERROR_UNIQUE_PRODUCT_CODE))
 		productRouterGroup.POST("/", handlerProduct.Store())
 		server.ServeHTTP(rr, req)
@@ -151,7 +151,7 @@ func TestStore(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		expected := `{"id": 1,
 					"product_code": "01",
@@ -165,7 +165,7 @@ func TestStore(t *testing.T) {
 					"freezing_rate": 1.1,
 					"product_type_id": 1,
 					"seller_id": 1}`
-		req, rr := createRequestTestIvalidToken(http.MethodPost, URL, expected)
+		req, rr := createProductRequestTestIvalidToken(http.MethodPost, URL_PRODUCTS, expected)
 		productRouterGroup.POST("/", handlerProduct.Store())
 		server.ServeHTTP(rr, req)
 
@@ -181,7 +181,7 @@ func TestStore(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		expected := `{"id": 0,
 					"product_code": "",
@@ -195,7 +195,7 @@ func TestStore(t *testing.T) {
 					"freezing_rate": 0,
 					"product_type_id": 0,
 					"seller_id": 0}`
-		req, rr := createRequestTest(http.MethodPost, URL, expected)
+		req, rr := createProductRequestTest(http.MethodPost, URL_PRODUCTS, expected)
 		productRouterGroup.POST("/", handlerProduct.Store())
 		server.ServeHTTP(rr, req)
 
@@ -208,16 +208,16 @@ func TestStore(t *testing.T) {
 	})
 }
 
-func TestGetAll(t *testing.T) {
+func TestProductGetAll(t *testing.T) {
 	t.Run("find_all", func (t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		ps := createProductsArray()
-		req, rr := createRequestTest(http.MethodGet, URL, "")
+		req, rr := createProductRequestTest(http.MethodGet, URL_PRODUCTS, "")
 	
 		mockService.On("GetAll").Return(ps, nil)
 		productRouterGroup.GET("/", handlerProduct.GetAll())
@@ -235,9 +235,9 @@ func TestGetAll(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
-		req, rr := createRequestTestIvalidToken(http.MethodGet, URL, "")
+		req, rr := createProductRequestTestIvalidToken(http.MethodGet, URL_PRODUCTS, "")
 
 		productRouterGroup.GET("/", handlerProduct.GetAll())
 		server.ServeHTTP(rr, req)
@@ -251,16 +251,16 @@ func TestGetAll(t *testing.T) {
 	})
 }
 
-func TestGetById(t *testing.T) {
+func TestProductGetById(t *testing.T) {
 	t.Run("find_by_id_existent", func (t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		ps := createProductsArray()
-		req, rr := createRequestTest(http.MethodGet, URL + "1", "")
+		req, rr := createProductRequestTest(http.MethodGet, URL_PRODUCTS + "1", "")
 	
 		mockService.On("GetById", 1).Return(ps[0], nil)
 		productRouterGroup.GET("/:id", handlerProduct.GetById())
@@ -278,10 +278,10 @@ func TestGetById(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		ps := products.Product{}
-		req, rr := createRequestTest(http.MethodGet, URL + "3", "")
+		req, rr := createProductRequestTest(http.MethodGet, URL_PRODUCTS + "3", "")
 	
 		mockService.On("GetById", 3).Return(ps, fmt.Errorf("produto 3 não encontrado"))
 		productRouterGroup.GET("/:id", handlerProduct.GetById())
@@ -299,10 +299,10 @@ func TestGetById(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		ps := products.Product{}
-		req, rr := createRequestTestIvalidToken(http.MethodGet, URL + "1", "")
+		req, rr := createProductRequestTestIvalidToken(http.MethodGet, URL_PRODUCTS + "1", "")
 
 		productRouterGroup.GET("/:id", handlerProduct.GetById())
 		server.ServeHTTP(rr, req)
@@ -319,10 +319,10 @@ func TestGetById(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		ps := products.Product{}
-		req, rr := createRequestTest(http.MethodGet, URL + "A", "")
+		req, rr := createProductRequestTest(http.MethodGet, URL_PRODUCTS + "A", "")
 
 		productRouterGroup.GET("/:id", handlerProduct.GetById())
 		server.ServeHTTP(rr, req)
@@ -336,13 +336,13 @@ func TestGetById(t *testing.T) {
 	})
 }
 
-func TestUpdate(t *testing.T) {
+func TestProductUpdate(t *testing.T) {
 	t.Run("update_ok", func (t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		ps := products.Product {
 			ID: 1,
@@ -370,7 +370,7 @@ func TestUpdate(t *testing.T) {
 					"freezing_rate": 1.1,
 					"product_type_id": 1,
 					"seller_id": 1}`
-		req, rr := createRequestTest(http.MethodPatch, URL + "1", expected)
+		req, rr := createProductRequestTest(http.MethodPatch, URL_PRODUCTS + "1", expected)
 		mockService.On("Update", ps, 1).Return(ps, nil)
 		productRouterGroup.PATCH("/:id", handlerProduct.Update())
 		server.ServeHTTP(rr, req)
@@ -387,7 +387,7 @@ func TestUpdate(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		ps := products.Product {
 			ID: 1,
@@ -415,7 +415,7 @@ func TestUpdate(t *testing.T) {
 					"freezing_rate": 1.1,
 					"product_type_id": 1,
 					"seller_id": 1}`
-		req, rr := createRequestTest(http.MethodPatch, URL + "1", expected)
+		req, rr := createProductRequestTest(http.MethodPatch, URL_PRODUCTS + "1", expected)
 		mockService.On("Update", ps, 1).Return(products.Product{}, fmt.Errorf(products.ERROR_UNIQUE_PRODUCT_CODE))
 		productRouterGroup.PATCH("/:id", handlerProduct.Update())
 		server.ServeHTTP(rr, req)
@@ -432,7 +432,7 @@ func TestUpdate(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		expected := `{"id": 1,
 					"product_code": "01",
@@ -446,7 +446,7 @@ func TestUpdate(t *testing.T) {
 					"freezing_rate": 1.1,
 					"product_type_id": 1,
 					"seller_id": 1}`
-		req, rr := createRequestTestIvalidToken(http.MethodPatch, URL + "1", expected)
+		req, rr := createProductRequestTestIvalidToken(http.MethodPatch, URL_PRODUCTS + "1", expected)
 		productRouterGroup.PATCH("/:id", handlerProduct.Update())
 		server.ServeHTTP(rr, req)
 
@@ -462,7 +462,7 @@ func TestUpdate(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		expected := `{"id": 1,
 					"product_code": "01",
@@ -476,7 +476,7 @@ func TestUpdate(t *testing.T) {
 					"freezing_rate": 1.1,
 					"product_type_id": 1,
 					"seller_id": 1}`
-		req, rr := createRequestTest(http.MethodPatch, URL + "non_number", expected)
+		req, rr := createProductRequestTest(http.MethodPatch, URL_PRODUCTS + "non_number", expected)
 		productRouterGroup.PATCH("/:id", handlerProduct.Update())
 		server.ServeHTTP(rr, req)
 
@@ -492,7 +492,7 @@ func TestUpdate(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		expected := `{"id": 1,
 					"product_code": "01",
@@ -506,7 +506,7 @@ func TestUpdate(t *testing.T) {
 					"freezing_rate": 1.1,
 					"product_type_id": 1,
 					"seller_id": 1}`
-		req, rr := createRequestTestIvalidToken(http.MethodPost, URL + "1", expected)
+		req, rr := createProductRequestTestIvalidToken(http.MethodPost, URL_PRODUCTS + "1", expected)
 		productRouterGroup.POST("/:id", handlerProduct.Update())
 		server.ServeHTTP(rr, req)
 
@@ -522,7 +522,7 @@ func TestUpdate(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
 		expected := `{"id": 0,
 					"product_code": "",
@@ -536,7 +536,7 @@ func TestUpdate(t *testing.T) {
 					"freezing_rate": 0,
 					"product_type_id": 0,
 					"seller_id": 0}`
-		req, rr := createRequestTest(http.MethodPatch, URL + "1", expected)
+		req, rr := createProductRequestTest(http.MethodPatch, URL_PRODUCTS + "1", expected)
 		productRouterGroup.PATCH("/:id", handlerProduct.Update())
 		server.ServeHTTP(rr, req)
 
@@ -549,15 +549,15 @@ func TestUpdate(t *testing.T) {
 	})
 }
 
-func TestDelete(t *testing.T) {
+func TestProductDelete(t *testing.T) {
 	t.Run("delete_ok", func (t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
-		req, rr := createRequestTest(http.MethodDelete, URL + "1", "")
+		req, rr := createProductRequestTest(http.MethodDelete, URL_PRODUCTS + "1", "")
 
 		mockService.On("Delete", 1).Return(nil)
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
@@ -575,9 +575,9 @@ func TestDelete(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
-		req, rr := createRequestTest(http.MethodDelete, URL + "1", "")
+		req, rr := createProductRequestTest(http.MethodDelete, URL_PRODUCTS + "1", "")
 
 		mockService.On("Delete", 1).Return(fmt.Errorf("produto 1 não encontrado"))
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
@@ -595,9 +595,9 @@ func TestDelete(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
-		req, rr := createRequestTest(http.MethodDelete, URL + "non_number", "")
+		req, rr := createProductRequestTest(http.MethodDelete, URL_PRODUCTS + "non_number", "")
 
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)
@@ -614,9 +614,9 @@ func TestDelete(t *testing.T) {
 		handlerProduct := handler.NewProduct(mockService)
 
 		server := gin.Default()
-		productRouterGroup := server.Group(URL)
+		productRouterGroup := server.Group(URL_PRODUCTS)
 
-		req, rr := createRequestTestIvalidToken(http.MethodDelete, URL + "1", "")
+		req, rr := createProductRequestTestIvalidToken(http.MethodDelete, URL_PRODUCTS + "1", "")
 
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)

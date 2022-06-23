@@ -6,7 +6,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
+	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 
 	"github.com/gin-gonic/gin"

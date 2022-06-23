@@ -5,10 +5,10 @@ import (
 	"os"
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
 	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
@@ -71,21 +71,7 @@ func main() {
 			buyerRouterGroup.DELETE("/:id", buyerHandler.ValidateID, buyerHandler.Delete)
 		}
 
-		sectionRouterGroup := baseRoute.Group("/sections")
-		{
-			file := store.New(store.FileType, "../../internal/section/sections.json")
-			sec_rep := section.NewRepository(file)
-			sec_service := section.NewService(sec_rep)
-			section := handler.NewSection(sec_service)
-
-			sectionRouterGroup.Use(section.TokenAuthMiddleware)
-
-			sectionRouterGroup.GET("/", section.GetAll())
-			sectionRouterGroup.POST("/", section.CreateSection())
-			sectionRouterGroup.GET("/:id", section.IdVerificatorMiddleware, section.GetByID())
-			sectionRouterGroup.PATCH("/:id", section.IdVerificatorMiddleware, section.UpdateSecID())
-			sectionRouterGroup.DELETE("/:id", section.IdVerificatorMiddleware, section.DeleteSection())
-		}
+		routes.Sections(baseRoute)
 
 		warehouseRouterGroup := baseRoute.Group("/warehouses")
 		{

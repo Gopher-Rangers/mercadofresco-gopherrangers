@@ -20,7 +20,7 @@
   </a>
 
   <a href="https://codecov.io/gh/Gopher-Rangers/mercadofresco-gopherrangers"> 
-    <img src="https://codecov.io/gh/Gopher-Rangers/mercadofresco-gopherrangers/branch/feature-product-4/graph/badge.svg?token=NUUR12FFLR"> 
+    <img src="https://codecov.io/gh/Gopher-Rangers/mercadofresco-gopherrangers/branch/main/graph/badge.svg?token=NUUR12FFLR"> 
   </a>
 
 </p>

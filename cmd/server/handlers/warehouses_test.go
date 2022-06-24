@@ -30,7 +30,7 @@ func makeValidDBWarehouse() warehouse.Warehouse {
 }
 
 const (
-	URL = "/api/v1/warehouse"
+	URLwarehouses = "/api/v1/warehouse"
 )
 
 type warehouseResponseBody struct {
@@ -47,7 +47,7 @@ func Test_CreateWarehouse(t *testing.T) {
 
 	gin.SetMode(gin.TestMode) // Pra deixar o framework do gin em modo de test
 
-	server.POST(URL, controller.CreateWarehouse)
+	server.POST(URLwarehouses, controller.CreateWarehouse)
 
 	t.Run("Deve retornar um status code 201, quando a entrada de dados for bem-sucedida e retornará um warehouse.", func(t *testing.T) {
 
@@ -61,7 +61,7 @@ func Test_CreateWarehouse(t *testing.T) {
 
 		rr := httptest.NewRecorder() // Monitorar e armazenar requisições http.(Response)
 
-		req, _ := http.NewRequest(http.MethodPost, URL, body)
+		req, _ := http.NewRequest(http.MethodPost, URLwarehouses, body)
 
 		server.ServeHTTP(rr, req) // gerenciador de requisições
 
@@ -86,7 +86,7 @@ func Test_CreateWarehouse(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodPost, URL, invalidBody)
+		req, _ := http.NewRequest(http.MethodPost, URLwarehouses, invalidBody)
 
 		server.ServeHTTP(rr, req)
 
@@ -106,7 +106,7 @@ func Test_CreateWarehouse(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodPost, URL, body)
+		req, _ := http.NewRequest(http.MethodPost, URLwarehouses, body)
 
 		server.ServeHTTP(rr, req)
 
@@ -123,7 +123,7 @@ func Test_GetAll(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 
-	server.GET(URL, controller.GetAll)
+	server.GET(URLwarehouses, controller.GetAll)
 
 	t.Run("Deve retornar uma lista de warehouses se a solicitação for bem sucedida.", func(t *testing.T) {
 
@@ -133,7 +133,7 @@ func Test_GetAll(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodGet, URL, nil)
+		req, _ := http.NewRequest(http.MethodGet, URLwarehouses, nil)
 
 		server.ServeHTTP(rr, req)
 
@@ -152,7 +152,7 @@ func Test_GetByID(t *testing.T) {
 	controller := handlers.NewWarehouse(service)
 	server := gin.Default()
 
-	server.GET(URL+"/:id", controller.GetByID)
+	server.GET(URLwarehouses+"/:id", controller.GetByID)
 
 	t.Run("Deve retornar um código 404, quando o Warehouse não existir.", func(t *testing.T) {
 
@@ -160,7 +160,7 @@ func Test_GetByID(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodGet, URL+"/1", nil)
+		req, _ := http.NewRequest(http.MethodGet, URLwarehouses+"/1", nil)
 
 		server.ServeHTTP(rr, req)
 
@@ -176,7 +176,7 @@ func Test_GetByID(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodGet, URL+"/casa", nil)
+		req, _ := http.NewRequest(http.MethodGet, URLwarehouses+"/casa", nil)
 
 		server.ServeHTTP(rr, req)
 
@@ -196,7 +196,7 @@ func Test_GetByID(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodGet, URL+"/1", nil)
+		req, _ := http.NewRequest(http.MethodGet, URLwarehouses+"/1", nil)
 
 		server.ServeHTTP(rr, req)
 
@@ -217,7 +217,7 @@ func Test_UpdatedWarehouseID(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 
-	server.PATCH(URL+"/:id", controller.UpdatedWarehouseID)
+	server.PATCH(URLwarehouses+"/:id", controller.UpdatedWarehouseID)
 
 	t.Run("Deve retornar um status code 200, e o Warehouse atualizado, quando a solicitação for bem sucedida.", func(t *testing.T) {
 
@@ -231,7 +231,7 @@ func Test_UpdatedWarehouseID(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodPatch, URL+"/1", body)
+		req, _ := http.NewRequest(http.MethodPatch, URLwarehouses+"/1", body)
 
 		server.ServeHTTP(rr, req)
 
@@ -255,7 +255,7 @@ func Test_UpdatedWarehouseID(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodPatch, URL+"/1", invalidBody)
+		req, _ := http.NewRequest(http.MethodPatch, URLwarehouses+"/1", invalidBody)
 
 		server.ServeHTTP(rr, req)
 
@@ -273,7 +273,7 @@ func Test_UpdatedWarehouseID(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodPatch, URL+"/casa", body)
+		req, _ := http.NewRequest(http.MethodPatch, URLwarehouses+"/casa", body)
 
 		server.ServeHTTP(rr, req)
 
@@ -293,7 +293,7 @@ func Test_UpdatedWarehouseID(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodPatch, URL+"/1", body)
+		req, _ := http.NewRequest(http.MethodPatch, URLwarehouses+"/1", body)
 
 		respBody := warehouseResponseBody{}
 
@@ -314,7 +314,7 @@ func Test_DeleteWarehouse(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 
-	server.DELETE(URL+"/:id", controller.DeleteWarehouse)
+	server.DELETE(URLwarehouses+"/:id", controller.DeleteWarehouse)
 
 	t.Run("Deve retornar um código 404, se o Warehouse não existir.", func(t *testing.T) {
 
@@ -322,7 +322,7 @@ func Test_DeleteWarehouse(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodDelete, URL+"/1", nil)
+		req, _ := http.NewRequest(http.MethodDelete, URLwarehouses+"/1", nil)
 
 		server.ServeHTTP(rr, req)
 
@@ -334,7 +334,7 @@ func Test_DeleteWarehouse(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodDelete, URL+"/casa", nil)
+		req, _ := http.NewRequest(http.MethodDelete, URLwarehouses+"/casa", nil)
 
 		server.ServeHTTP(rr, req)
 
@@ -348,7 +348,7 @@ func Test_DeleteWarehouse(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodDelete, URL+"/1", nil)
+		req, _ := http.NewRequest(http.MethodDelete, URLwarehouses+"/1", nil)
 
 		server.ServeHTTP(rr, req)
 

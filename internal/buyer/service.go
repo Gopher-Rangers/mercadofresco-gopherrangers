@@ -2,14 +2,12 @@ package buyer
 
 import (
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
 type Service interface {
 	GetAll() ([]Buyer, error)
-	Create(cardNumberId string, firstName string, lastName string) (Buyer, error)
-	Update(id int, cardNumberId string, firstName string, lastName string) (Buyer, error)
+	Create(buyer Buyer) (Buyer, error)
+	Update(buyer Buyer) (Buyer, error)
 	Delete(id int) error
 	GetById(id int) (Buyer, error)
 }
@@ -18,23 +16,23 @@ type service struct {
 	repository Repository
 }
 
-func NewService() Service {
-	return &service{repository: NewRepository()}
+func NewService(r Repository) Service {
+	return &service{r}
 }
 
-func (s *service) Create(cardNumberId string, firstName string, lastName string) (Buyer, error) {
-	err := validateCardNumber(cardNumberId, s)
+func (s *service) Create(buyer Buyer) (Buyer, error) {
+	err := validateCardNumber(buyer.CardNumberId, s)
 	if err != nil {
 		return Buyer{}, err
 	}
 
-	validId := getNewValidId(s)
+	buyer.Id = s.repository.GetValidId()
 
-	buyer, err := s.repository.Create(validId, cardNumberId, firstName, lastName)
+	newBuyer, err := s.repository.Create(buyer)
 	if err != nil {
 		return Buyer{}, err
 	}
-	return buyer, nil
+	return newBuyer, nil
 }
 
 func validateCardNumber(cardNumberId string, s *service) error {
@@ -50,31 +48,13 @@ func validateCardNumber(cardNumberId string, s *service) error {
 	return nil
 }
 
-func getNewValidId(s *service) int {
-	generatedId := int(uuid.New().ID())
-
-	entities, _ := s.repository.GetAll()
-
-	for i := 0; i < len(entities); i++ {
-		if entities[i].Id == generatedId {
-			generatedId = int(uuid.New().ID())
-			i = 0
-		}
+func (s *service) Update(buyer Buyer) (Buyer, error) {
+	err := validateCardNumber(buyer.CardNumberId, s)
+	if err != nil {
+		return Buyer{}, err
 	}
 
-	return generatedId
-}
-
-func (s *service) Update(id int, cardNumberId string, firstName string, lastName string) (Buyer, error) {
-	entities, _ := s.repository.GetAll()
-
-	for i := 0; i < len(entities); i++ {
-		if entities[i].CardNumberId == cardNumberId && entities[i].Id != id {
-			return Buyer{}, fmt.Errorf("buyer with card_number_id %s already exists", cardNumberId)
-		}
-	}
-
-	updatedBuyer, err := s.repository.Update(id, cardNumberId, firstName, lastName)
+	updatedBuyer, err := s.repository.Update(buyer)
 	if err != nil {
 		return Buyer{}, err
 	}

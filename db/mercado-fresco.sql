@@ -6,22 +6,19 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- Schema mercado-fresco
 -- -----------------------------------------------------
 
-
--- DROP DATABASE `mercado-fresco`;
-
 -- -----------------------------------------------------
 -- Schema mercado-fresco
 -- -----------------------------------------------------
+-- DROP DATABASE `mercado-fresco`;
 CREATE SCHEMA IF NOT EXISTS `mercado-fresco` DEFAULT CHARACTER SET utf8 ;
 USE `mercado-fresco` ;
-
 
 -- -----------------------------------------------------
 -- Table `mercado-fresco`.`buyer`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`buyer` (
-                                                        `id` SERIAL,
-                                                        `card_number_id` VARCHAR(45) NOT NULL,
+    `id` SERIAL,
+    `card_number_id` VARCHAR(45) NOT NULL,
     `first_name` VARCHAR(45) NOT NULL,
     `last_name` VARCHAR(45) NOT NULL,
     PRIMARY KEY (`id`))
@@ -31,8 +28,8 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`buyer` (
 -- Table `mercado-fresco`.`warehouse`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`warehouse` (
-                                                            `id` SERIAL,
-                                                            `warehouse_code` VARCHAR(20) NOT NULL,
+    `id` SERIAL,
+    `warehouse_code` VARCHAR(20) NOT NULL,
     `address` VARCHAR(80) NOT NULL,
     `telephone` VARCHAR(15) NOT NULL,
     `minimun_capacity` INT NOT NULL,
@@ -44,8 +41,8 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`warehouse` (
 -- Table `mercado-fresco`.`employee`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`employee` (
-                                                           `id` SERIAL,
-                                                           `card_number_id` VARCHAR(45) NOT NULL,
+    `id` SERIAL,
+    `card_number_id` VARCHAR(45) NOT NULL,
     `first_name` VARCHAR(45) NOT NULL,
     `last_name` VARCHAR(45) NOT NULL,
     `warehouse_id` BIGINT UNSIGNED,
@@ -56,8 +53,8 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`employee` (
 -- Table `mercado-fresco`.`seller`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`seller` (
-                                                         `id` SERIAL,
-                                                         `cid` INT(11) UNSIGNED NOT NULL,
+    `id` SERIAL,
+    `cid` INT(11) UNSIGNED NOT NULL,
     `company_name` VARCHAR(80) NOT NULL,
     `address` VARCHAR(80) NOT NULL,
     `telephone` VARCHAR(15) NOT NULL,
@@ -68,8 +65,8 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`seller` (
 -- Table `mercado-fresco`.`product`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`product` (
-                                                          `id` SERIAL,
-                                                          `product_code` INT(11) NULL,
+    `id` SERIAL,
+    `product_code` INT(11) NULL,
     `description` VARCHAR(45) NULL,
     `width` VARCHAR(2) NULL,
     `height` VARCHAR(2) NULL,

@@ -7,18 +7,18 @@ import (
 )
 
 type Product struct {
-	ID int `json:"id"`
-	ProductCode  string `json:"product_code" validate:"required"`
-	Description string `json:"description" validate:"required"`
-	Width float64 `json:"width" validate:"required,gt=0"`
-	Height float64 `json:"height" validate:"required,gt=0"`
-	Length float64 `json:"length" validate:"required,gt=0"`
-	NetWeight float64 `json:"net_weight" validate:"required,gt=0"`
-	ExpirationRate string `json:"expiration_rate" validate:"required"`
+	ID                             int     `json:"id"`
+	ProductCode                    string  `json:"product_code" validate:"required"`
+	Description                    string  `json:"description" validate:"required"`
+	Width                          float64 `json:"width" validate:"required,gt=0"`
+	Height                         float64 `json:"height" validate:"required,gt=0"`
+	Length                         float64 `json:"length" validate:"required,gt=0"`
+	NetWeight                      float64 `json:"net_weight" validate:"required,gt=0"`
+	ExpirationRate                 string  `json:"expiration_rate" validate:"required"`
 	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature" validate:"required,gt=0"`
-	FreezingRate float64 `json:"freezing_rate" validate:"required,gt=0"`
-	ProductTypeId int `json:"product_type_id" validate:"required,gt=0"`
-	SellerId int `json:"seller_id"`
+	FreezingRate                   float64 `json:"freezing_rate" validate:"required,gt=0"`
+	ProductTypeId                  int     `json:"product_type_id" validate:"required,gt=0"`
+	SellerId                       int     `json:"seller_id"`
 }
 
 type Repository interface {
@@ -46,7 +46,7 @@ func (r *repository) LastID() (int, error) {
 	if len(ps) == 0 {
 		return 0, nil
 	}
-	return ps[len(ps) - 1].ID, nil
+	return ps[len(ps)-1].ID, nil
 }
 
 func (r *repository) Store(prod Product, id int) (Product, error) {
@@ -97,7 +97,7 @@ func (r *repository) Delete(id int) error {
 	r.db.Read(&ps)
 	for i := range ps {
 		if ps[i].ID == id {
-			ps = append(ps[:i], ps[i + 1:]...)
+			ps = append(ps[:i], ps[i+1:]...)
 			if err := r.db.Write(ps); err != nil {
 				return err
 			}

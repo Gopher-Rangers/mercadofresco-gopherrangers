@@ -5,19 +5,24 @@
 <h1 align="center">Mercado Fresco Gopher Rangers</h1>
 
 <p align="center">
-  <img alt="Github top language" src="https://img.shields.io/github/languages/top/Gopher-Rangers/mercadofresco-gopherrangers?color=56BEB8">
+  <img alt="Github top language" src="https://img.shields.io/github/languages/top/Gopher-Rangers/mercadofresco-gopherrangers?color=3de069">
 
-  <img alt="Github language count" src="https://img.shields.io/github/languages/count/Gopher-Rangers/mercadofresco-gopherrangers?color=56BEB8">
+  <img alt="Github language count" src="https://img.shields.io/github/languages/count/Gopher-Rangers/mercadofresco-gopherrangers?color=3de069">
 
-  <img alt="Repository size" src="https://img.shields.io/github/repo-size/Gopher-Rangers/mercadofresco-gopherrangers?color=56BEB8">
+  <img alt="Repository size" src="https://img.shields.io/github/repo-size/Gopher-Rangers/mercadofresco-gopherrangers?color=3de069">
 
-  <img alt="License" src="https://img.shields.io/github/license/Gopher-Rangers/mercadofresco-gopherrangers?color=56BEB8">
+  <img alt="License" src="https://img.shields.io/github/license/Gopher-Rangers/mercadofresco-gopherrangers?color=3de069">
 
-  <img alt="Github issues" src="https://img.shields.io/github/issues/Gopher-Rangers/mercadofresco-gopherrangers?color=56BEB8" />
+  <img alt="Github stars" src="https://img.shields.io/github/stars/Gopher-Rangers/mercadofresco-gopherrangers?color=3de069" />
 
- <img alt="Github forks" src="https://img.shields.io/github/forks/Gopher-Rangers/mercadofresco-gopherrangers?color=56BEB8" />
+  <a href="https://github.com/Gopher-Rangers/mercadofresco-gopherrangers/actions/workflows/test.yml">
+    <img src="https://github.com/Gopher-Rangers/mercadofresco-gopherrangers/actions/workflows/test.yml/badge.svg">
+  </a>
 
-  <img alt="Github stars" src="https://img.shields.io/github/stars/Gopher-Rangers/mercadofresco-gopherrangers?color=56BEB8" />
+  <a href="https://codecov.io/gh/Gopher-Rangers/mercadofresco-gopherrangers"> 
+    <img src="https://codecov.io/gh/Gopher-Rangers/mercadofresco-gopherrangers/branch/main/graph/badge.svg?token=NUUR12FFLR"> 
+  </a>
+
 </p>
 
 <h4 align="center"> 
@@ -103,6 +108,9 @@ The following tools were used in this project:
 - [Swagger](https://swagger.io/)
 - [Validator](https://pkg.go.dev/github.com/go-playground/validator/v10)
 - [UUID](https://pkg.go.dev/github.com/google/UUID)
+- [Godotenv](https://github.com/joho/godotenv)
+- [Testify](https://github.com/stretchr/testify)
+- [Mockery](https://github.com/vektra/mockery)
 
 ## Requirements ##
 
@@ -125,6 +133,16 @@ cd /cmd/server
 
 # Run the project
 go run main.go
+
+# To run the tests
+cd ../..
+go test ./... 
+
+# To see the tests coverage
+go test -coverprofile=coverage.out ./...
+
+# To see the tests coverage in each function
+go tool cover -func=coverage.out 
 
 # The server will initialize in the <http://localhost:8080/api/v1/>
 # To see the documentation go to <http://localhost:8080/docs/index.html#/>

@@ -9,7 +9,6 @@ import (
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 
 	"github.com/gin-gonic/gin"
@@ -49,20 +48,6 @@ func main() {
 
 		routes.Sections(baseRoute)
 
-		warehouseRouterGroup := baseRoute.Group("/warehouses")
-		{
-			file := store.New(store.FileType, "../../internal/warehouse/warehouses.json")
-			warehouseRep := warehouse.NewRepository(file)
-			warehouseService := warehouse.NewService(warehouseRep)
-			warehouse := handler.NewWarehouse(warehouseService)
-
-			warehouseRouterGroup.GET("/", warehouse.GetAll)
-			warehouseRouterGroup.GET("/:id", warehouse.GetByID)
-			warehouseRouterGroup.POST("/", warehouse.CreateWarehouse)
-			warehouseRouterGroup.PATCH("/:id", warehouse.UpdatedWarehouseID)
-			warehouseRouterGroup.DELETE("/:id", warehouse.DeleteWarehouse)
-		}
-
 		sellerRouterGroup := baseRoute.Group("/sellers")
 		{
 			file := store.New(store.FileType, "../../internal/seller/seller.json")
@@ -90,6 +75,8 @@ func main() {
 			employeeRouterGroup.PATCH("/:id", employee.Update())
 			employeeRouterGroup.DELETE("/:id", employee.Delete())
 		}
+
+		routes.Warehouses(baseRoute)
 	}
 	server.Run()
 }

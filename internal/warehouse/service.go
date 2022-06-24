@@ -1,9 +1,16 @@
 package warehouse
 
+import "fmt"
+
 type Service interface {
 	GetAll() []Warehouse
 	GetByID(id int) (Warehouse, error)
-	CreateWarehouse(id int, code, address, tel string, minCap, minTemp int) (Warehouse, error)
+	CreateWarehouse(
+		code,
+		address,
+		tel string,
+		minCap,
+		minTemp int) (Warehouse, error)
 	UpdatedWarehouseID(id int, code string) (Warehouse, error)
 	DeleteWarehouse(id int) error
 }
@@ -12,7 +19,7 @@ type service struct {
 	repository Repository
 }
 
-func NewService(r Repository) Repository {
+func NewService(r Repository) Service {
 	return &service{r}
 }
 
@@ -21,6 +28,7 @@ func (s service) GetAll() []Warehouse {
 }
 
 func (s service) GetByID(id int) (Warehouse, error) {
+
 	warehouse, err := s.repository.GetByID(id)
 
 	if err != nil {
@@ -31,9 +39,15 @@ func (s service) GetByID(id int) (Warehouse, error) {
 
 }
 
-func (s service) CreateWarehouse(id int, code, address, tel string, minCap, minTemp int) (Warehouse, error) {
+func (s service) CreateWarehouse(code, address, tel string, minCap, minTemp int) (Warehouse, error) {
 
-	id = s.repository.IncrementID()
+	_, err := s.repository.FindByWarehouseCode(code)
+
+	if err == nil {
+		return Warehouse{}, fmt.Errorf("o `warehouse_code` já está em uso")
+	}
+
+	id := s.repository.IncrementID()
 
 	warehouse, err := s.repository.CreateWarehouse(id, code, address, tel, minCap, minTemp)
 
@@ -45,6 +59,12 @@ func (s service) CreateWarehouse(id int, code, address, tel string, minCap, minT
 }
 
 func (s service) UpdatedWarehouseID(id int, code string) (Warehouse, error) {
+	_, err := s.repository.FindByWarehouseCode(code)
+
+	if err == nil {
+		return Warehouse{}, fmt.Errorf("o `warehouse_code` já está em uso")
+	}
+
 	warehouse, err := s.repository.UpdatedWarehouseID(id, code)
 
 	if err != nil {
@@ -62,8 +82,4 @@ func (s service) DeleteWarehouse(id int) error {
 	}
 
 	return nil
-}
-
-func (s service) IncrementID() int {
-	return s.repository.IncrementID()
 }

@@ -12,6 +12,15 @@ import (
 type requestWarehouse struct {
 	ID             int    `json:"id"`
 	WarehouseCode  string `json:"warehouse_code" binding:"required"`
+	Address        string `json:"address" binding:"required"`
+	Telephone      string `json:"telephone" binding:"required"`
+	MinCapacity    int    `json:"minimun_capacity" binding:"required"`
+	MinTemperature int    `json:"minimun_temperature" binding:"required"`
+}
+
+type requestPatchWarehouse struct {
+	ID             int    `json:"id"`
+	WarehouseCode  string `json:"warehouse_code" binding:"required"`
 	Address        string `json:"address"`
 	Telephone      string `json:"telephone"`
 	MinCapacity    int    `json:"minimun_capacity"`
@@ -53,12 +62,12 @@ func (w Warehouse) GetByID(c *gin.Context) {
 func (w Warehouse) CreateWarehouse(c *gin.Context) {
 	var req requestWarehouse
 
-	if err := c.Bind(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
 		return
 	}
 
-	warehouse, err := w.service.CreateWarehouse(req.ID, req.WarehouseCode, req.Address,
+	warehouse, err := w.service.CreateWarehouse(req.WarehouseCode, req.Address,
 		req.Telephone, req.MinCapacity, req.MinTemperature)
 
 	if err != nil {
@@ -70,9 +79,9 @@ func (w Warehouse) CreateWarehouse(c *gin.Context) {
 }
 
 func (w Warehouse) UpdatedWarehouseID(c *gin.Context) {
-	var req requestWarehouse
+	var req requestPatchWarehouse
 
-	if err := c.Bind(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
 		return
 	}

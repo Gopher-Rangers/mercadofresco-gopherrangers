@@ -6,10 +6,9 @@ import (
 	"os"
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
-	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
@@ -45,37 +44,11 @@ func main() {
 
 	baseRoute := server.Group("/api/v1/")
 	{
-		productRouterGroup := baseRoute.Group("/products")
-		{
-			file := store.New(store.FileType, "../../internal/product/products.json")
-			prod_rep := products.NewRepository(file)
-			prod_service := products.NewService(prod_rep)
-			prod := handler.NewProduct(prod_service)
-
-			productRouterGroup.POST("/", prod.Store())
-			productRouterGroup.GET("/", prod.GetAll())
-			productRouterGroup.GET("/:id", prod.GetById())
-			productRouterGroup.PATCH("/:id", prod.Update())
-			productRouterGroup.DELETE("/:id", prod.Delete())
-		}
+		routes.Products(baseRoute)
 
 		routes.Buyers(baseRoute)
 
-		sectionRouterGroup := baseRoute.Group("/sections")
-		{
-			file := store.New(store.FileType, "../../internal/section/sections.json")
-			sec_rep := section.NewRepository(file)
-			sec_service := section.NewService(sec_rep)
-			section := handler.NewSection(sec_service)
-
-			sectionRouterGroup.Use(section.TokenAuthMiddleware)
-
-			sectionRouterGroup.GET("/", section.GetAll())
-			sectionRouterGroup.POST("/", section.CreateSection())
-			sectionRouterGroup.GET("/:id", section.IdVerificatorMiddleware, section.GetByID())
-			sectionRouterGroup.PATCH("/:id", section.IdVerificatorMiddleware, section.UpdateSecID())
-			sectionRouterGroup.DELETE("/:id", section.IdVerificatorMiddleware, section.DeleteSection())
-		}
+		routes.Sections(baseRoute)
 
 		warehouseRouterGroup := baseRoute.Group("/warehouses")
 		{

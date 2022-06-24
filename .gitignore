@@ -4,6 +4,7 @@
 .vscode
 ngrok
 codecov
+.data/
 
 # Binaries for programs and plugins
 *.exe

@@ -109,10 +109,6 @@ func TestSeller_Update(t *testing.T) {
 }
 
 func TestSeller_Create(t *testing.T) {
-	t.Run("Quando o JSON tiver um campo incorreto, um código 400 será retornado.", func(t *testing.T) {
-
-	})
-
 	t.Run("Se o cid já existir, ele retornará um erro 409 Conflict.", func(t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerSeller := NewSeller(mockService)

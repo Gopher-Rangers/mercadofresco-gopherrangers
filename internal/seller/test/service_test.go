@@ -86,6 +86,31 @@ func TestService_Update(t *testing.T) {
 		assert.Equal(t, expectedResult, response)
 		assert.Equal(t, expectedError, err)
 	})
+
+	t.Run("Se o cid já existir, o elemento não poderá ser atualizador.", func(t *testing.T) {
+
+		mockRepo := &mocks.MockRepository{}
+
+		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454"},
+			{Id: 3, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454"}}
+
+		expectedResult := seller.Seller{Id: 1, CompanyId: 6, CompanyName: "Meli", Address: "América do Sul", Telephone: "5501154545454"}
+		expectedError := errors.New("this cid already exists and and belongs to another company")
+
+		mockRepo.On("GetOne", 1).Return(sellerList[0], nil)
+		mockRepo.On("GetAll").Return(sellerList, nil)
+		mockRepo.On("Update", expectedResult.CompanyId, expectedResult.CompanyName, expectedResult.Address, expectedResult.Telephone, sellerList[0]).
+			Return(expectedResult, nil)
+
+		service := seller.NewService(mockRepo)
+		_, err := service.Update(1, 6, "Meli", "América do Sul", "5501154545454")
+
+		//assert.Equal(t, expectedResult, err)
+		assert.NotNil(t, err)
+		assert.Equal(t, expectedError, err)
+		
+	})
+
 }
 
 func TestService_GetOne(t *testing.T) {
@@ -174,5 +199,20 @@ func TestService_GetAll(t *testing.T) {
 
 		assert.Equal(t, 2, len(response))
 		assert.Equal(t, expectedResult, response)
+	})
+
+	t.Run("Deve retornar erro", func(t *testing.T) {
+
+		mockRepository := mocks.NewRepository(t)
+
+		expectedError := errors.New("erro ao inicializar a lista")
+
+		mockRepository.On("GetAll").Return([]seller.Seller{}, expectedError)
+
+		service := seller.NewService(mockRepository)
+		_, err := service.GetAll()
+
+		assert.NotNil(t, err)
+		assert.Equal(t, expectedError, err)
 	})
 }

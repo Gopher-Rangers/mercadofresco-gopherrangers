@@ -10,11 +10,12 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema mercado-fresco
 -- -----------------------------------------------------
-CREATE DATABASE `mercado-fresco`;
+
 -- -----------------------------------------------------
 -- Schema mercado-fresco
 -- -----------------------------------------------------
-ALTER SCHEMA `mercado-fresco`  DEFAULT CHARACTER SET utf8  DEFAULT COLLATE utf8_general_ci ;
+CREATE SCHEMA IF NOT EXISTS `mercado-fresco` DEFAULT CHARACTER SET utf8 ;
+USE `mercado-fresco` ;
 
 -- -----------------------------------------------------
 -- Table `mercado-fresco`.`buyer`
@@ -24,32 +25,46 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`buyer` (
   `card_number_id` VARCHAR(45) NOT NULL,
   `first_name` VARCHAR(45) NOT NULL,
   `last_name` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `card_number_id_UNIQUE` (`card_number_id` ASC) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `mercado-fresco`.`warehouse`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mercado-fresco`.`warehouse` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `warehouse_code` VARCHAR(20) NOT NULL,
+  `address` VARCHAR(80) NOT NULL,
+  `telephone` VARCHAR(15) NOT NULL,
+  `minimun_capacity` INT NOT NULL,
+  `minimun_temperature` INT NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `mercado-fresco`.`employee`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`employee` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
   `card_number_id` VARCHAR(45) NOT NULL,
   `first_name` VARCHAR(45) NOT NULL,
   `last_name` VARCHAR(45) NOT NULL,
   `warehouse_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `card_number_id_UNIQUE` (`card_number_id` ASC) VISIBLE,
-  INDEX `fk_employee_warehouse1_idx` (`warehouse_id` ASC) VISIBLE,
-  CONSTRAINT `fk_employee_warehouse1`
-    FOREIGN KEY (`warehouse_id`)
-    REFERENCES `mercado-fresco`.`warehouse` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
+  PRIMARY KEY (`id`))
+  -- FOREIGN KEY (`warehouse_id`) REFERENCES `mercado-fresco`.`warehouse` (`id`))
+ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `mercado-fresco`.`seller`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mercado-fresco`.`seller` (
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `cid` INT(11) UNSIGNED NOT NULL,
+  `company_name` VARCHAR(80) NOT NULL,
+  `address` VARCHAR(80) NOT NULL,
+  `telephone` VARCHAR(15) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `mercado-fresco`.`product`
@@ -67,16 +82,13 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`product` (
   `freezing_rate` DECIMAL(2) NULL,
   `product_type_id` INT(11) NULL,
   `seller_id` INT(11) NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_product_section1_idx` (`product_type_id` ASC) VISIBLE,
-  CONSTRAINT `fk_product_section1`
-    FOREIGN KEY (`product_type_id`)
-    REFERENCES `mercado-fresco`.`section` (`product_type_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
+  PRIMARY KEY (`id`))
+ -- CONSTRAINT `fk_product_section`
+  --  FOREIGN KEY (`seller_id`)
+   -- REFERENCES `mercado-fresco`.`seller` (`id`)
+  --  ON DELETE NO ACTION
+   -- ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `mercado-fresco`.`section`
@@ -91,52 +103,10 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`section` (
   `maximum_capacity` INT(11) NULL,
   `warehouse_id` INT(11) NULL,
   `product_type_id` INT(11) NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `mercado-fresco`.`seller`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mercado-fresco`.`seller` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `cid` INT(11) UNSIGNED NOT NULL,
-  `company_name` VARCHAR(80) NOT NULL,
-  `address` VARCHAR(80) NOT NULL,
-  `telephone` VARCHAR(15) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `cid_UNIQUE` (`cid` ASC) VISIBLE,
-  CONSTRAINT `fk_seller_product1`
-    FOREIGN KEY (`id`)
-    REFERENCES `mercado-fresco`.`product` (`seller_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `mercado-fresco`.`warehouse`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mercado-fresco`.`warehouse` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `warehouse_code` VARCHAR(20) NOT NULL,
-  `address` VARCHAR(80) NOT NULL,
-  `telephone` VARCHAR(15) NOT NULL,
-  `minimun_capacity` INT(11) NOT NULL,
-  `minimun_temperature` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `warehouse_code_UNIQUE` (`warehouse_code` ASC) VISIBLE,
-  CONSTRAINT `fk_warehouse_section`
-    FOREIGN KEY (`id`)
-    REFERENCES `mercado-fresco`.`section` (`warehouse_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
+  PRIMARY KEY (`id`))
+  -- FOREIGN KEY (`warehouse_id`) REFERENCES `mercado-fresco`.`warehouse` (`id`),
+  -- FOREIGN KEY (`product_type_id`) REFERENCES `mercado-fresco`.`product` (`product_type_id`))
+ENGINE = InnoDB;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

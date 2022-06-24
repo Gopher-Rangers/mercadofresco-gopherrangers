@@ -39,6 +39,12 @@ type warehouseResponseBody struct {
 	Error string              `json:"error"`
 }
 
+type warehouseResponseBodyArray struct {
+	Code  int                 `json:"code"`
+	Data  []warehouse.Warehouse `json:"data"`
+	Error string              `json:"error"`
+}
+
 func Test_CreateWarehouse(t *testing.T) {
 
 	service := mock_service.NewService(t)
@@ -137,12 +143,12 @@ func Test_GetAll(t *testing.T) {
 
 		server.ServeHTTP(rr, req)
 
-		respBody := warehouseResponseBody{}
+		respBody := warehouseResponseBodyArray{}
 
 		json.Unmarshal(rr.Body.Bytes(), &respBody)
 
 		assert.Equal(t, http.StatusOK, rr.Code)
-		assert.Equal(t, data, respBody)
+		assert.Equal(t, data, respBody.Data[0])
 	})
 }
 

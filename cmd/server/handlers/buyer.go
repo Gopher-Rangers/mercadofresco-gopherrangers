@@ -18,7 +18,14 @@ const (
 )
 
 type buyerRequest struct {
-	Id           int    `json:"id"`
+	ID           int    `json:"id"`
+	CardNumberId string `json:"card_number_id" binding:"required"`
+	FirstName    string `json:"first_name" binding:"required"`
+	LastName     string `json:"last_name" binding:"required"`
+}
+
+type buyerRequestUpdate struct {
+	ID           int    `json:"id"`
 	CardNumberId string `json:"card_number_id"`
 	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name"`
@@ -83,7 +90,7 @@ func (Buyer) validateBody(req buyer.Buyer, c *gin.Context) bool {
 // @Success 200 {object} web.Response
 // @Router /api/v1/buyers [GET]
 func (b *Buyer) GetAll(c *gin.Context) {
-	data, _ := b.service.GetAll()
+	data, _ := b.service.GetAll(c.Request.Context())
 
 	c.JSON(web.NewResponse(http.StatusOK, data))
 }
@@ -103,7 +110,7 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	data, err := b.service.GetById(id)
+	data, err := b.service.GetById(c.Request.Context(), id)
 
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
@@ -129,13 +136,15 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 func (b *Buyer) Create(c *gin.Context) {
 
 	var req buyerRequest
-	c.Bind(&req)
-
-	if !b.validateBody(buyer.Buyer(req), c) {
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest,
+			gin.H{
+				"error":   "VALIDATEERR-1",
+				"message": "Invalid inputs. Please check your inputs"})
 		return
 	}
 
-	newBuyer, err := b.service.Create(buyer.Buyer(req))
+	newBuyer, err := b.service.Create(c.Request.Context(), buyer.Buyer{CardNumberId: req.CardNumberId, FirstName: req.FirstName, LastName: req.LastName})
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
@@ -160,16 +169,16 @@ func (b *Buyer) Create(c *gin.Context) {
 // @Success 200 {object} web.Response
 // @Router /api/v1/buyers/{id} [PUT]
 func (b *Buyer) Update(c *gin.Context) {
-	var req buyerRequest
+	var req buyerRequestUpdate
 	c.Bind(&req)
 
-	req.Id, _ = strconv.Atoi(c.Param("id"))
+	req.ID, _ = strconv.Atoi(c.Param("id"))
 
-	if !b.validateBody(buyer.Buyer(req), c) {
+	if !b.validateBody(buyer.Buyer{ID: req.ID, CardNumberId: req.CardNumberId, FirstName: req.FirstName, LastName: req.LastName}, c) {
 		return
 	}
 
-	newBuyer, err := b.service.Update(buyer.Buyer(req))
+	newBuyer, err := b.service.Update(c.Request.Context(), buyer.Buyer(req))
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 		return
@@ -194,7 +203,7 @@ func (b *Buyer) Update(c *gin.Context) {
 func (b *Buyer) Delete(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	err := b.service.Delete(id)
+	err := b.service.Delete(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return

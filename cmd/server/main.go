@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/database"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"log"
 	"os"
@@ -34,6 +35,8 @@ func main() {
 		log.Fatal("failed to load .env")
 	}
 
+	dbConnection := database.GetInstance()
+
 	gin.SetMode("release")
 
 	server := gin.Default()
@@ -45,7 +48,7 @@ func main() {
 	{
 		routes.Products(baseRoute)
 
-		routes.Buyers(baseRoute)
+		routes.Buyers(dbConnection, baseRoute)
 
 		routes.Sections(baseRoute)
 

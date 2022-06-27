@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"log"
 	"os"
@@ -15,6 +17,8 @@ import (
 	"github.com/joho/godotenv"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // @title Mercado Fresco
@@ -37,6 +41,17 @@ func main() {
 
 	server := gin.Default()
 
+	dataSource := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
+
+	conn, err := sql.Open("mysql", dataSource)
+
+	if err != nil {
+		log.Fatal("failed to connect to mariadb")
+	}
+
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 	server.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
@@ -50,16 +65,15 @@ func main() {
 
 		sellerRouterGroup := baseRoute.Group("/sellers")
 		{
-			file := store.New(store.FileType, "../../internal/seller/seller.json")
-			sellerRepository := seller.NewRepository(file)
-			sellerService := seller.NewService(sellerRepository)
-			sellerController := handler.NewSeller(sellerService)
+			sellerRepositoryMaria := seller.NewMariaDBRepository(conn)
+			sellerServiceMaria := seller.NewService(sellerRepositoryMaria)
+			sellerControllerMaria := handler.NewSeller(sellerServiceMaria)
 
-			sellerRouterGroup.GET("/", sellerController.GetAll)
-			sellerRouterGroup.GET("/:id", sellerController.GetOne)
-			sellerRouterGroup.PUT("/:id", sellerController.Update)
-			sellerRouterGroup.POST("/", sellerController.Create)
-			sellerRouterGroup.DELETE("/:id", sellerController.Delete)
+			sellerRouterGroup.GET("/", sellerControllerMaria.GetAll)
+			sellerRouterGroup.GET("/:id", sellerControllerMaria.GetOne)
+			sellerRouterGroup.PUT("/:id", sellerControllerMaria.Update)
+			sellerRouterGroup.POST("/", sellerControllerMaria.Create)
+			sellerRouterGroup.DELETE("/:id", sellerControllerMaria.Delete)
 		}
 
 		employeeRouterGroup := baseRoute.Group("/employees")

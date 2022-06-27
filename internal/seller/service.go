@@ -78,9 +78,17 @@ func (s *service) GetOne(id int) (Seller, error) {
 }
 
 func (s *service) Delete(id int) error {
-	if err := s.repository.Delete(id); err != nil {
+
+	seller, err := s.GetOne(id)
+
+	if err != nil {
 		return err
 	}
+
+	if err := s.repository.Delete(seller.Id); err != nil {
+		return err
+	}
+
 	return nil
 }
 

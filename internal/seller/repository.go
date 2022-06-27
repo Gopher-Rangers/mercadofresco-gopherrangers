@@ -1,6 +1,7 @@
 package seller
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
@@ -18,84 +19,120 @@ type repository struct {
 	db store.Store
 }
 
-func NewRepository(db store.Store) Repository {
-	return &repository{db: db}
+type mariaDBRepository struct {
+	db *sql.DB
 }
 
-func (r repository) GetOne(id int) (Seller, error) {
-	var sellerList []Seller
+func NewMariaDBRepository(db *sql.DB) Repository {
+	return &mariaDBRepository{db: db}
+}
 
-	err := r.db.Read(&sellerList)
+func (m mariaDBRepository) GetOne(id int) (Seller, error) {
+	var seller Seller
+
+	rows, err := m.db.Query("SELECT *  FROM seller WHERE id=?", id)
 
 	if err != nil {
-		fmt.Println("error reading file", err)
+		return seller, err
 	}
 
-	for _, seller := range sellerList {
-		if seller.Id == id {
-			return seller, nil
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&seller.Id, &seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone)
+
+		if err != nil {
+			return seller, err
 		}
+
+		return seller, nil
 	}
+
+	err = rows.Err()
+	if err != nil {
+		return Seller{}, err
+	}
+
 	return Seller{}, fmt.Errorf("the id %d does not exists", id)
 }
 
-func (r *repository) GetAll() ([]Seller, error) {
+func (m *mariaDBRepository) GetAll() ([]Seller, error) {
 	var sellerList []Seller
-
-	err := r.db.Read(&sellerList)
-
-	if err != nil {
-		fmt.Println("error reading file", err)
-	}
 
 	if len(sellerList) < 0 {
 		return sellerList, errors.New("erro ao inicializar a lista")
 	}
 
-	if len(sellerList) == 0 {
-		sellerList = make([]Seller, 0)
+	rows, err := m.db.Query("SELECT * FROM seller")
+
+	if err != nil {
+		return sellerList, err
 	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var seller Seller
+
+		err := rows.Scan(&seller.Id, &seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone)
+
+		if err != nil {
+			return sellerList, err
+		}
+
+		sellerList = append(sellerList, seller)
+	}
+
 	return sellerList, err
 }
 
-func (r *repository) Create(cid int, companyName, address, telephone string) (Seller, error) {
-	var sellerList []Seller
+func (m *mariaDBRepository) Create(cid int, companyName, address, telephone string) (Seller, error) {
+	var seller Seller
 
-	err := r.db.Read(&sellerList)
-
+	sellerList, err := m.GetAll()
 	if err != nil {
-		fmt.Println("error reading file", err)
-		return Seller{}, err
+		return seller, err
 	}
 
 	for i := range sellerList {
 		if sellerList[i].CompanyId == cid {
-			return Seller{}, errors.New("the cid already exists")
+			return seller, errors.New("the cid already exists")
 		}
 	}
 
-	newSeller := Seller{CompanyId: cid, CompanyName: companyName, Address: address, Telephone: telephone}
-	newSeller, err = r.generateId(&newSeller)
+	seller = Seller{CompanyId: cid, CompanyName: companyName, Address: address, Telephone: telephone}
+
+	stmt, err := m.db.Prepare("INSERT INTO seller (cid, company_name, address, telephone) VALUES (?,?,?,?)")
 
 	if err != nil {
-		return Seller{}, err
-	}
-	sellerList = append(sellerList, newSeller)
-
-	if err := r.db.Write(sellerList); err != nil {
-		return Seller{}, err
+		return seller, err
 	}
 
-	return newSeller, nil
+	defer stmt.Close()
+
+	res, err := stmt.Exec(&seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone)
+
+	if err != nil {
+		return seller, err
+	}
+
+	lastID, err := res.LastInsertId()
+
+	if err != nil {
+		return seller, err
+	}
+
+	seller.Id = int(lastID)
+
+	return seller, nil
 }
 
-func (r *repository) Update(cid int, companyName, address, telephone string, seller Seller) (Seller, error) {
+func (m *mariaDBRepository) Update(cid int, companyName, address, telephone string, seller Seller) (Seller, error) {
 
-	var sellerList []Seller
+	seller, err := m.GetOne(seller.Id)
 
-	err := r.db.Read(&sellerList)
 	if err != nil {
-		return Seller{}, err
+		return seller, err
 	}
 
 	seller.CompanyId = cid
@@ -103,66 +140,37 @@ func (r *repository) Update(cid int, companyName, address, telephone string, sel
 	seller.Address = address
 	seller.Telephone = telephone
 
-	for i := range sellerList {
-		if sellerList[i].Id == seller.Id {
-			sellerList[i] = seller
-		}
+	stmt, err := m.db.Prepare("UPDATE seller SET cid=?, company_name=?, address=?, telephone=? WHERE id=?")
+
+	if err != nil {
+		return seller, err
 	}
 
-	if err := r.db.Write(sellerList); err != nil {
-		return Seller{}, err
+	defer stmt.Close()
+
+	_, err = stmt.Exec(&seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone, &seller.Id)
+
+	if err != nil {
+		return seller, err
 	}
 
 	return seller, nil
 }
 
-func (r *repository) Delete(id int) error {
-	var sellerList []Seller
-
-	err := r.db.Read(&sellerList)
-	if err != nil {
-		return err
-	}
-
-	var index int
-	seller, err := r.GetOne(id)
+func (m *mariaDBRepository) Delete(id int) error {
+	stmt, err := m.db.Prepare("DELETE FROM seller WHERE id=?")
 
 	if err != nil {
 		return err
 	}
 
-	for i := range sellerList {
-		if sellerList[i].Id == seller.Id {
-			index = i
-		}
-	}
+	defer stmt.Close()
 
-	sellerList = append(sellerList[:index], sellerList[index+1:]...)
-	if err := r.db.Write(sellerList); err != nil {
+	_, err = stmt.Exec(id)
+
+	if err != nil {
 		return err
 	}
+
 	return nil
-}
-
-func (r repository) generateId(newSeller *Seller) (Seller, error) {
-	var sellerList []Seller
-
-	err := r.db.Read(&sellerList)
-
-	if err != nil {
-		return Seller{}, err
-	}
-
-	if len(sellerList) < 0 {
-		return Seller{}, errors.New("erro ao listar vendedores")
-	}
-
-	if len(sellerList) == 0 {
-		newSeller.Id = 1
-		return *newSeller, nil
-	}
-
-	lastSeller := sellerList[len(sellerList)-1]
-	newSeller.Id = lastSeller.Id + 1
-	return *newSeller, nil
 }

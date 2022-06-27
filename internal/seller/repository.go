@@ -3,8 +3,6 @@ package seller
 import (
 	"database/sql"
 	"errors"
-	"fmt"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 )
 
 type Repository interface {
@@ -13,10 +11,6 @@ type Repository interface {
 	Create(cid int, companyName, address, telephone string) (Seller, error)
 	Update(cid int, companyName, address, telephone string, seller Seller) (Seller, error)
 	Delete(id int) error
-}
-
-type repository struct {
-	db store.Store
 }
 
 type mariaDBRepository struct {
@@ -44,8 +38,6 @@ func (m mariaDBRepository) GetOne(id int) (Seller, error) {
 		if err != nil {
 			return seller, err
 		}
-
-		return seller, nil
 	}
 
 	err = rows.Err()
@@ -53,7 +45,7 @@ func (m mariaDBRepository) GetOne(id int) (Seller, error) {
 		return Seller{}, err
 	}
 
-	return Seller{}, fmt.Errorf("the id %d does not exists", id)
+	return seller, nil
 }
 
 func (m *mariaDBRepository) GetAll() ([]Seller, error) {

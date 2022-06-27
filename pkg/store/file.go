@@ -42,4 +42,5 @@ func (fs *FileStore) Read(data any) error {
 		return err
 	}
 	return json.Unmarshal(fileData, &data)
+
 }

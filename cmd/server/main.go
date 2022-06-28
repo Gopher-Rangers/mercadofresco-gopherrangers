@@ -5,7 +5,6 @@ import (
 	"os"
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/database"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
@@ -34,8 +33,6 @@ func main() {
 		log.Fatal("failed to load .env")
 	}
 
-	dbConnection := database.GetInstance()
-
 	//gin.SetMode("release")
 
 	server := gin.Default()
@@ -45,7 +42,7 @@ func main() {
 
 	baseRoute := server.Group("/api/v1/")
 	{
-		routes.Products(dbConnection, baseRoute)
+		routes.Products(baseRoute)
 
 		routes.Buyers(baseRoute)
 

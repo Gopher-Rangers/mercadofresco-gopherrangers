@@ -1,17 +1,16 @@
 package routes
 
 import (
-	"database/sql"
-
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/database"
 	
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func Products(databaseConection *sql.DB, routerGroup *gin.RouterGroup) {
-	productsRepository := products.NewDBRepository(databaseConection)
+func Products(routerGroup *gin.RouterGroup) {
+	productsRepository := products.NewDBRepository(database.GetInstance())
 	productsService := products.NewService(productsRepository)
 	productsHandler := handler.NewProduct(productsService)
 

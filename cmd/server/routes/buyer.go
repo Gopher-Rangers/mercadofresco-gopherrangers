@@ -1,16 +1,16 @@
 package routes
 
 import (
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/database"
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func Buyers(routerGroup *gin.RouterGroup) {
 
-	storeBuyers := store.New(store.FileType, "../../internal/buyer/buyers.json")
-	repo := buyer.NewRepository(storeBuyers)
+	repo := buyer.NewRepository(database.GetInstance())
 	buyersService := buyer.NewService(repo)
 	buyerHandler := handler.NewBuyer(buyersService)
 

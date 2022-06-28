@@ -9,6 +9,44 @@ import (
 	"testing"
 )
 
+func Test_Update(t *testing.T) {
+	t.Run("Deve realizar o update dos dados do seller", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+
+		defer db.Close()
+
+		mockSellers := []seller.Seller{{Id: 1, CompanyId: 1, CompanyName: "Meli", Address: "Osasco", Telephone: "99999"},
+			{Id: 2, CompanyId: 2, CompanyName: "Lojinha", Address: "Barueri", Telephone: "000000"}}
+
+		stmt := mock.ExpectPrepare("UPDATE seller")
+		stmt.ExpectExec().WithArgs(3, "Melii", "Osascão", "9999", 1).WillReturnResult(sqlmock.NewResult(1, 1))
+
+		sellerRepo := seller.NewMariaDBRepository(db)
+		result, err := sellerRepo.Update(3, "Melii", "Osascão", "9999", mockSellers[0])
+
+		assert.Equal(t, "Melii", result.CompanyName)
+	})
+
+	t.Run("Deve retornar erro ao executar a query com parametro errado", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+
+		defer db.Close()
+
+		mockSellers := []seller.Seller{{Id: 1, CompanyId: 1, CompanyName: "Meli", Address: "Osasco", Telephone: "99999"},
+			{Id: 2, CompanyId: 2, CompanyName: "Lojinha", Address: "Barueri", Telephone: "000000"}}
+
+		stmt := mock.ExpectPrepare("UPDATE seller")
+		stmt.ExpectExec().WithArgs(2, "Melii", "Osascão", "9999", 1).WillReturnError(fmt.Errorf("error"))
+
+		sellerRepo := seller.NewMariaDBRepository(db)
+		_, err = sellerRepo.Update(2, "Melii", "Osascão", "9999", mockSellers[1])
+
+		assert.Error(t, err)
+	})
+}
+
 func Test_Delete(t *testing.T) {
 	t.Run("Deve excluir o seller se existir", func(t *testing.T) {
 		db, mock, err := sqlmock.New()

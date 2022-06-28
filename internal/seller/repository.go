@@ -121,12 +121,6 @@ func (m *mariaDBRepository) Create(cid int, companyName, address, telephone stri
 
 func (m *mariaDBRepository) Update(cid int, companyName, address, telephone string, seller Seller) (Seller, error) {
 
-	seller, err := m.GetOne(seller.Id)
-
-	if err != nil {
-		return seller, err
-	}
-
 	seller.CompanyId = cid
 	seller.CompanyName = companyName
 	seller.Address = address

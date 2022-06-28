@@ -139,7 +139,7 @@ func (b *Buyer) Create(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest,
 			gin.H{
-				"error":   "VALIDATEERR-1",
+				"error":   "Validation error",
 				"message": "Invalid inputs. Please check your inputs"})
 		return
 	}

@@ -83,7 +83,7 @@ func TestSectionGetAll(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
 	exp := createSectionArray()
 	router.GET(URL_SECTIONS, sec.GetAll())
-	mockRepository.On("GetAll").Return(exp)
+	mockRepository.On("GetAll").Return(exp, nil)
 
 	t.Run("find_all", func(t *testing.T) {
 		req, w := InitServer(http.MethodGet, URL_SECTIONS, nil)
@@ -131,8 +131,8 @@ func TestSectionCreate(t *testing.T) {
 	secs = append([]section.Section{}, secs[1:]...)
 
 	t.Run("create_ok", func(t *testing.T) {
-		mockRepository.On("GetAll").Return(secs)
-		mockRepository.On("Create", 1, exp.SectionNumber, exp.CurTemperature, exp.MinTemperature, exp.CurCapacity,
+		mockRepository.On("GetAll").Return(secs, nil)
+		mockRepository.On("Create", exp.SectionNumber, exp.CurTemperature, exp.MinTemperature, exp.CurCapacity,
 			exp.MinCapacity, exp.MaxCapacity, exp.WareHouseID, exp.ProductTypeID).Return(exp, nil)
 
 		expected, _ := json.Marshal(exp)
@@ -177,7 +177,7 @@ func TestSectionUpdateSecID(t *testing.T) {
 	secs := createSectionArray()
 	exp := secs[0]
 
-	mockRepository.On("GetAll").Return(secs)
+	mockRepository.On("GetAll").Return(secs, nil)
 
 	t.Run("update_ok", func(t *testing.T) {
 		exp.SectionNumber = 50
@@ -264,7 +264,7 @@ func TestTokenAuth(t *testing.T) {
 	router.GET(URL_SECTIONS, sec.GetAll())
 	godotenv.Load("../../../.env")
 
-	mockRepository.On("GetAll").Return(exp)
+	mockRepository.On("GetAll").Return(exp, nil)
 
 	t.Run("token_ok", func(t *testing.T) {
 		req, w := InitServer(http.MethodGet, URL_SECTIONS, nil)

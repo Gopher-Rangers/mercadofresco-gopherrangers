@@ -1,14 +1,16 @@
 package section
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Services interface {
-	GetAll() []Section
+	GetAll() ([]Section, error)
 	GetByID(id int) (Section, error)
 	Create(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error)
 	UpdateSecID(id, secNum int) (Section, CodeError)
 	DeleteSection(id int) error
-	LastID() int
 }
 
 type service struct {
@@ -20,9 +22,12 @@ func NewService(r Repository) Services {
 	return &s
 }
 
-func (s *service) GetAll() []Section {
-	ps := s.repository.GetAll()
-	return ps
+func (s *service) GetAll() ([]Section, error) {
+	ps, err := s.repository.GetAll()
+	if err != nil {
+		return ps, err
+	}
+	return ps, nil
 }
 
 func (s *service) GetByID(id int) (Section, error) {
@@ -34,15 +39,18 @@ func (s *service) GetByID(id int) (Section, error) {
 }
 
 func (s *service) Create(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error) {
-	ListSections := s.repository.GetAll()
+	ListSections, err := s.repository.GetAll()
+	if err != nil {
+		return Section{}, err
+	}
+
 	for i := range ListSections {
 		if ListSections[i].SectionNumber == secNum {
 			return Section{}, fmt.Errorf("seção com sectionNumber: %d já existe no banco de dados", secNum)
 		}
 	}
 
-	id := s.AvailableID()
-	ps, err := s.repository.Create(id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID)
+	ps, err := s.repository.Create(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID)
 	if err != nil {
 		return Section{}, err
 	}
@@ -50,7 +58,11 @@ func (s *service) Create(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareI
 }
 
 func (s *service) UpdateSecID(id, secNum int) (Section, CodeError) {
-	ListSections := s.repository.GetAll()
+	ListSections, err := s.repository.GetAll()
+	if err != nil {
+		return Section{}, CodeError{500, errors.New("internal server error")}
+	}
+
 	for i := range ListSections {
 		if ListSections[i].SectionNumber == secNum {
 			return Section{}, CodeError{409,
@@ -58,9 +70,9 @@ func (s *service) UpdateSecID(id, secNum int) (Section, CodeError) {
 		}
 	}
 
-	ps, err := s.repository.UpdateSecID(id, secNum)
-	if err.Code != 0 {
-		return Section{}, err
+	ps, erro := s.repository.UpdateSecID(id, secNum)
+	if erro.Code != 0 {
+		return Section{}, erro
 	}
 
 	return ps, CodeError{0, nil}
@@ -72,31 +84,4 @@ func (s *service) DeleteSection(id int) error {
 		return err
 	}
 	return nil
-}
-
-func (s *service) AvailableID() int {
-	ListSections := s.repository.GetAll()
-
-	if len(ListSections) == 0 || ListSections[0].ID != 1 {
-		return 1
-	}
-
-	for prevI := range ListSections[:len(ListSections)-1] {
-		i := prevI + 1
-		if ListSections[i].ID != (ListSections[prevI].ID + 1) {
-			id := ListSections[prevI].ID + 1
-			return id
-		}
-	}
-	return s.LastID()
-}
-
-func (s *service) LastID() int {
-	ListSections := s.repository.GetAll()
-
-	if len(ListSections) == 0 {
-		return 1
-	}
-
-	return ListSections[len(ListSections)-1].ID + 1
 }

@@ -70,7 +70,7 @@ func (p *Section) IdVerificatorMiddleware(ctx *gin.Context) {
 
 func (p *Section) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sec := p.service.GetAll()
+		sec, _ := p.service.GetAll()
 		c.JSON(web.NewResponse(http.StatusOK, sec))
 	}
 }

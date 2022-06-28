@@ -1,17 +1,14 @@
 version: "3.9"
 
 services:
-  mysql:
-    image: mysql
+  mariadb:
+    image: mariadb:10.8.3
     container_name: mercado-fresco
-    command: --default-authentication-plugin=mysql_native_password
     hostname: mercado-fresco
     volumes:
       - ./db/:/docker-entrypoint-initdb.d
-      - db:/var/lib/mysql
+      - ./db/.data:/var/lib/mysql
     ports:
       - 3306:3306
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASS}
-volumes:
-  db:
+      - MARIADB_ROOT_PASSWORD=${DB_PASS}

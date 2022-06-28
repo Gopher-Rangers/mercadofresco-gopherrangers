@@ -40,9 +40,9 @@ type warehouseResponseBody struct {
 }
 
 type warehouseResponseBodyArray struct {
-	Code  int                 `json:"code"`
+	Code  int                   `json:"code"`
 	Data  []warehouse.Warehouse `json:"data"`
-	Error string              `json:"error"`
+	Error string                `json:"error"`
 }
 
 func Test_CreateWarehouse(t *testing.T) {

@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`buyer` (
 -- Table `mercado-fresco`.`warehouse`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`warehouse` (
-                                                            `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                                                            `warehouse_code` VARCHAR(20) NOT NULL,
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `warehouse_code` VARCHAR(20) NOT NULL,
     `address` VARCHAR(80) NOT NULL,
     `telephone` VARCHAR(15) NOT NULL,
     `minimun_capacity` INT NOT NULL,

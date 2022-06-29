@@ -1,6 +1,7 @@
-package test
+package seller_test
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/DATA-DOG/go-sqlmock"
@@ -9,7 +10,7 @@ import (
 	"testing"
 )
 
-func Test_Update(t *testing.T) {
+func TestRepository_Update(t *testing.T) {
 	t.Run("Deve realizar o update dos dados do seller", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -23,7 +24,7 @@ func Test_Update(t *testing.T) {
 		stmt.ExpectExec().WithArgs(3, "Melii", "Osascão", "9999", 1).WillReturnResult(sqlmock.NewResult(1, 1))
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		result, err := sellerRepo.Update(3, "Melii", "Osascão", "9999", mockSellers[0])
+		result, err := sellerRepo.Update(context.Background(), 3, "Melii", "Osascão", "9999", mockSellers[0])
 
 		assert.Equal(t, "Melii", result.CompanyName)
 	})
@@ -41,13 +42,13 @@ func Test_Update(t *testing.T) {
 		stmt.ExpectExec().WithArgs(2, "Melii", "Osascão", "9999", 1).WillReturnError(fmt.Errorf("error"))
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		_, err = sellerRepo.Update(2, "Melii", "Osascão", "9999", mockSellers[1])
+		_, err = sellerRepo.Update(context.Background(), 2, "Melii", "Osascão", "9999", mockSellers[1])
 
 		assert.Error(t, err)
 	})
 }
 
-func Test_Delete(t *testing.T) {
+func TestRepository_Delete(t *testing.T) {
 	t.Run("Deve excluir o seller se existir", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -57,7 +58,7 @@ func Test_Delete(t *testing.T) {
 		stmt.ExpectExec().WithArgs(1).WillReturnResult(sqlmock.NewResult(1, 1))
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		err = sellerRepo.Delete(1)
+		err = sellerRepo.Delete(context.Background(), 1)
 
 		assert.Nil(t, err)
 	})
@@ -71,7 +72,7 @@ func Test_Delete(t *testing.T) {
 		stmt.ExpectExec().WithArgs(1).WillReturnError(fmt.Errorf("error"))
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		err = sellerRepo.Delete(1)
+		err = sellerRepo.Delete(context.Background(), 1)
 
 		assert.Error(t, err)
 	})
@@ -85,13 +86,13 @@ func Test_Delete(t *testing.T) {
 		stmt.ExpectExec().WithArgs("1").WillReturnResult(sqlmock.NewResult(1, 1))
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		err = sellerRepo.Delete(1)
+		err = sellerRepo.Delete(context.Background(), 1)
 
 		assert.Error(t, err)
 	})
 }
 
-func Test_Store(t *testing.T) {
+func TestRepository_Create(t *testing.T) {
 	t.Run("Deve criar um seller", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -100,16 +101,12 @@ func Test_Store(t *testing.T) {
 
 		input := seller.Seller{CompanyId: 1, CompanyName: "Meli", Address: "A", Telephone: "9999999"}
 
-		rows := sqlmock.NewRows([]string{"id", "cid", "company_name", "address", "telephone"})
-
-		mock.ExpectQuery("SELECT \\* FROM seller").WillReturnRows(rows)
-
 		stmt := mock.ExpectPrepare("INSERT INTO seller")
 		stmt.ExpectExec().WithArgs(input.CompanyId, input.CompanyName, input.Address, input.Telephone).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		result, err := sellerRepo.Create(1, "Meli", "A", "9999999")
+		result, err := sellerRepo.Create(context.Background(), 1, "Meli", "A", "9999999")
 		assert.NoError(t, err)
 
 		if err := mock.ExpectationsWereMet(); err != nil {
@@ -119,31 +116,6 @@ func Test_Store(t *testing.T) {
 		assert.Equal(t, input.CompanyId, result.CompanyId)
 		assert.Equal(t, input.CompanyName, result.CompanyName)
 		assert.Equal(t, input.Address, result.Address)
-	})
-
-	t.Run("Não deve criar novo seller se o cid já existir", func(t *testing.T) {
-		db, mock, err := sqlmock.New()
-		assert.NoError(t, err)
-
-		defer db.Close()
-
-		input := seller.Seller{CompanyId: 1, CompanyName: "Meli", Address: "A", Telephone: "9999999"}
-
-		rows := sqlmock.NewRows([]string{"id", "cid", "company_name", "address", "telephone"}).AddRow(1, 1, "Meli", "Osasco", "9999999")
-
-		mock.ExpectQuery("SELECT \\* FROM seller").WillReturnRows(rows)
-
-		stmt := mock.ExpectPrepare("INSERT INTO seller")
-		stmt.ExpectExec().WithArgs(input.CompanyId, input.CompanyName, input.Address, input.Telephone).WillReturnError(fmt.Errorf("error"))
-
-		mock.ExpectCommit()
-
-		sellerRepo := seller.NewMariaDBRepository(db)
-		result, err := sellerRepo.Create(1, "Meli", "A", "9999999")
-
-		assert.Error(t, err)
-		assert.Equal(t, seller.Seller{}, result)
-		assert.Equal(t, "the cid already exists", err.Error())
 	})
 
 	t.Run("Deve retornar erro com sql query errada", func(t *testing.T) {
@@ -164,7 +136,7 @@ func Test_Store(t *testing.T) {
 		mock.ExpectCommit()
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		_, err = sellerRepo.Create(10, "Meli", "A", "9999999")
+		_, err = sellerRepo.Create(context.Background(), 10, "Meli", "A", "9999999")
 
 		assert.Error(t, err)
 	})
@@ -187,7 +159,7 @@ func Test_Store(t *testing.T) {
 		mock.ExpectCommit()
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		_, err = sellerRepo.Create(12, "Meli", "A", "9999999")
+		_, err = sellerRepo.Create(context.Background(), 12, "Meli", "A", "9999999")
 
 		assert.Error(t, err)
 	})
@@ -208,14 +180,14 @@ func Test_Store(t *testing.T) {
 		mock.ExpectCommit()
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		_, err = sellerRepo.Create(12, "Meli", "A", "9999999")
+		_, err = sellerRepo.Create(context.Background(), 12, "Meli", "A", "9999999")
 
 		assert.Error(t, err)
 	})
 
 }
 
-func Test_FindOne(t *testing.T) {
+func TestRepository_FindOne(t *testing.T) {
 	t.Run("Deve retornar um seller", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -230,7 +202,7 @@ func Test_FindOne(t *testing.T) {
 		mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		result, err := sellerRepo.GetOne(1)
+		result, err := sellerRepo.GetOne(context.Background(), 1)
 		assert.NoError(t, err)
 
 		assert.Equal(t, expectedResult.Id, result.Id)
@@ -244,7 +216,7 @@ func Test_FindOne(t *testing.T) {
 		mock.ExpectQuery(query).WithArgs(2).WillReturnError(fmt.Errorf("the id %d does not exists", 2))
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		result, err := sellerRepo.GetOne(2)
+		result, err := sellerRepo.GetOne(context.Background(), 2)
 
 		assert.Error(t, err, "the id 2 does not exists")
 		assert.Equal(t, seller.Seller{}, result)
@@ -266,7 +238,7 @@ func Test_FindOne(t *testing.T) {
 
 		sellerRepo := seller.NewMariaDBRepository(db)
 
-		_, err = sellerRepo.GetOne(1)
+		_, err = sellerRepo.GetOne(context.Background(), 1)
 
 		assert.Error(t, err)
 	})
@@ -280,12 +252,12 @@ func Test_FindOne(t *testing.T) {
 		mock.ExpectQuery(query).WillReturnError(sql.ErrNoRows)
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		_, err = sellerRepo.GetAll()
+		_, err = sellerRepo.GetAll(context.Background())
 		assert.Error(t, err)
 	})
 }
 
-func Test_GetAll(t *testing.T) {
+func TestRepository_GetAll(t *testing.T) {
 	t.Run("Deve retornar ok", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -306,16 +278,12 @@ func Test_GetAll(t *testing.T) {
 
 		sellerRepo := seller.NewMariaDBRepository(db)
 
-		_, err = sellerRepo.GetAll()
+		_, err = sellerRepo.GetAll(context.Background())
 
 		if err := mock.ExpectationsWereMet(); err != nil {
 			t.Errorf("there were unfulfilled expectations: %s", err)
 		}
 
-		//assert.NoError(t, err)
-		//
-		//assert.Equal(t, result[0].Id, 1)
-		//assert.Equal(t, result[1].Id, 2)
 	})
 
 	t.Run("Deve retornar erro no Scan", func(t *testing.T) {
@@ -333,7 +301,7 @@ func Test_GetAll(t *testing.T) {
 
 		sellerRepo := seller.NewMariaDBRepository(db)
 
-		_, err = sellerRepo.GetAll()
+		_, err = sellerRepo.GetAll(context.Background())
 
 		assert.Error(t, err)
 	})
@@ -347,7 +315,7 @@ func Test_GetAll(t *testing.T) {
 		mock.ExpectQuery(query).WillReturnError(sql.ErrNoRows)
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		_, err = sellerRepo.GetAll()
+		_, err = sellerRepo.GetAll(context.Background())
 		assert.Error(t, err)
 	})
 }

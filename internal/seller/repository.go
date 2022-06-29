@@ -1,16 +1,16 @@
 package seller
 
 import (
+	"context"
 	"database/sql"
-	"errors"
 )
 
 type Repository interface {
-	GetOne(id int) (Seller, error)
-	GetAll() ([]Seller, error)
-	Create(cid int, companyName, address, telephone string) (Seller, error)
-	Update(cid int, companyName, address, telephone string, seller Seller) (Seller, error)
-	Delete(id int) error
+	GetOne(ctx context.Context, id int) (Seller, error)
+	GetAll(ctx context.Context) ([]Seller, error)
+	Create(ctx context.Context, cid int, companyName, address, telephone string) (Seller, error)
+	Update(ctx context.Context, cid int, companyName, address, telephone string, seller Seller) (Seller, error)
+	Delete(ctx context.Context, id int) error
 }
 
 type mariaDBRepository struct {
@@ -21,10 +21,10 @@ func NewMariaDBRepository(db *sql.DB) Repository {
 	return &mariaDBRepository{db: db}
 }
 
-func (m mariaDBRepository) GetOne(id int) (Seller, error) {
+func (m mariaDBRepository) GetOne(ctx context.Context, id int) (Seller, error) {
 	var seller Seller
 
-	rows, err := m.db.Query("SELECT *  FROM seller WHERE id=?", id)
+	rows, err := m.db.QueryContext(ctx, "SELECT *  FROM seller WHERE id=?", id)
 
 	if err != nil {
 		return seller, err
@@ -48,14 +48,10 @@ func (m mariaDBRepository) GetOne(id int) (Seller, error) {
 	return seller, nil
 }
 
-func (m *mariaDBRepository) GetAll() ([]Seller, error) {
+func (m *mariaDBRepository) GetAll(ctx context.Context) ([]Seller, error) {
 	var sellerList []Seller
 
-	if len(sellerList) < 0 {
-		return sellerList, errors.New("erro ao inicializar a lista")
-	}
-
-	rows, err := m.db.Query("SELECT * FROM seller")
+	rows, err := m.db.QueryContext(ctx, "SELECT * FROM seller")
 
 	if err != nil {
 		return sellerList, err
@@ -78,23 +74,12 @@ func (m *mariaDBRepository) GetAll() ([]Seller, error) {
 	return sellerList, err
 }
 
-func (m *mariaDBRepository) Create(cid int, companyName, address, telephone string) (Seller, error) {
+func (m *mariaDBRepository) Create(ctx context.Context, cid int, companyName, address, telephone string) (Seller, error) {
 	var seller Seller
-
-	sellerList, err := m.GetAll()
-	if err != nil {
-		return seller, err
-	}
-
-	for i := range sellerList {
-		if sellerList[i].CompanyId == cid {
-			return seller, errors.New("the cid already exists")
-		}
-	}
 
 	seller = Seller{CompanyId: cid, CompanyName: companyName, Address: address, Telephone: telephone}
 
-	stmt, err := m.db.Prepare("INSERT INTO seller (cid, company_name, address, telephone) VALUES (?,?,?,?)")
+	stmt, err := m.db.PrepareContext(ctx, "INSERT INTO seller (cid, company_name, address, telephone) VALUES (?,?,?,?)")
 
 	if err != nil {
 		return seller, err
@@ -102,7 +87,7 @@ func (m *mariaDBRepository) Create(cid int, companyName, address, telephone stri
 
 	defer stmt.Close()
 
-	res, err := stmt.Exec(&seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone)
+	res, err := stmt.ExecContext(ctx, &seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone)
 
 	if err != nil {
 		return seller, err
@@ -119,14 +104,14 @@ func (m *mariaDBRepository) Create(cid int, companyName, address, telephone stri
 	return seller, nil
 }
 
-func (m *mariaDBRepository) Update(cid int, companyName, address, telephone string, seller Seller) (Seller, error) {
+func (m *mariaDBRepository) Update(ctx context.Context, cid int, companyName, address, telephone string, seller Seller) (Seller, error) {
 
 	seller.CompanyId = cid
 	seller.CompanyName = companyName
 	seller.Address = address
 	seller.Telephone = telephone
 
-	stmt, err := m.db.Prepare("UPDATE seller SET cid=?, company_name=?, address=?, telephone=? WHERE id=?")
+	stmt, err := m.db.PrepareContext(ctx, "UPDATE seller SET cid=?, company_name=?, address=?, telephone=? WHERE id=?")
 
 	if err != nil {
 		return seller, err
@@ -134,7 +119,7 @@ func (m *mariaDBRepository) Update(cid int, companyName, address, telephone stri
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(&seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone, &seller.Id)
+	_, err = stmt.ExecContext(ctx, &seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone, &seller.Id)
 
 	if err != nil {
 		return seller, err
@@ -143,8 +128,8 @@ func (m *mariaDBRepository) Update(cid int, companyName, address, telephone stri
 	return seller, nil
 }
 
-func (m *mariaDBRepository) Delete(id int) error {
-	stmt, err := m.db.Prepare("DELETE FROM seller WHERE id=?")
+func (m *mariaDBRepository) Delete(ctx context.Context, id int) error {
+	stmt, err := m.db.PrepareContext(ctx, "DELETE FROM seller WHERE id=?")
 
 	if err != nil {
 		return err
@@ -152,7 +137,7 @@ func (m *mariaDBRepository) Delete(id int) error {
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(id)
+	_, err = stmt.ExecContext(ctx, id)
 
 	if err != nil {
 		return err

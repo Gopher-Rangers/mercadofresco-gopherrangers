@@ -1,15 +1,16 @@
 package seller
 
 import (
+	"context"
 	"errors"
 )
 
 type Service interface {
-	GetOne(id int) (Seller, error)
-	GetAll() ([]Seller, error)
-	Create(cid int, companyName, address, telephone string) (Seller, error)
-	Update(id, cid int, companyName, address, telephone string) (Seller, error)
-	Delete(id int) error
+	GetOne(ctx context.Context, id int) (Seller, error)
+	GetAll(ctx context.Context) ([]Seller, error)
+	Create(ctx context.Context, cid int, companyName, address, telephone string) (Seller, error)
+	Update(ctx context.Context, id, cid int, companyName, address, telephone string) (Seller, error)
+	Delete(ctx context.Context, id int) error
 }
 
 type service struct {
@@ -20,8 +21,8 @@ func NewService(r Repository) Service {
 	return &service{repository: r}
 }
 
-func (s *service) GetAll() ([]Seller, error) {
-	sellerList, err := s.repository.GetAll()
+func (s *service) GetAll(ctx context.Context) ([]Seller, error) {
+	sellerList, err := s.repository.GetAll(ctx)
 
 	if err != nil {
 		return sellerList, err
@@ -29,15 +30,15 @@ func (s *service) GetAll() ([]Seller, error) {
 	return sellerList, nil
 }
 
-func (s *service) Create(cid int, companyName, address, telephone string) (Seller, error) {
+func (s *service) Create(ctx context.Context, cid int, companyName, address, telephone string) (Seller, error) {
 
-	err := s.findByCid(cid)
+	err := s.findByCid(ctx, cid)
 
 	if err != nil {
 		return Seller{}, err
 	}
 
-	newSeller, err := s.repository.Create(cid, companyName, address, telephone)
+	newSeller, err := s.repository.Create(ctx, cid, companyName, address, telephone)
 
 	if err != nil {
 		return Seller{}, err
@@ -45,22 +46,20 @@ func (s *service) Create(cid int, companyName, address, telephone string) (Selle
 	return newSeller, nil
 }
 
-func (s *service) Update(id, cid int, companyName, address, telephone string) (Seller, error) {
-	oneSeller, err := s.GetOne(id)
+func (s *service) Update(ctx context.Context, id, cid int, companyName, address, telephone string) (Seller, error) {
+	oneSeller, err := s.GetOne(ctx, id)
 
 	if err != nil {
 		return Seller{}, err
 	}
 
-	sellerList, err := s.GetAll()
+	err = s.findByCid(ctx, cid)
 
-	for i := range sellerList {
-		if sellerList[i].CompanyId == cid && sellerList[i].Id != oneSeller.Id {
-			return Seller{}, errors.New("this cid already exists and and belongs to another company")
-		}
+	if err != nil {
+		return Seller{}, err
 	}
 
-	updateSeller, err := s.repository.Update(cid, companyName, address, telephone, oneSeller)
+	updateSeller, err := s.repository.Update(ctx, cid, companyName, address, telephone, oneSeller)
 
 	if err != nil {
 		return Seller{}, err
@@ -68,8 +67,8 @@ func (s *service) Update(id, cid int, companyName, address, telephone string) (S
 	return updateSeller, nil
 }
 
-func (s *service) GetOne(id int) (Seller, error) {
-	oneSeller, err := s.repository.GetOne(id)
+func (s *service) GetOne(ctx context.Context, id int) (Seller, error) {
+	oneSeller, err := s.repository.GetOne(ctx, id)
 
 	if err != nil {
 		return Seller{}, err
@@ -77,25 +76,25 @@ func (s *service) GetOne(id int) (Seller, error) {
 	return oneSeller, nil
 }
 
-func (s *service) Delete(id int) error {
+func (s *service) Delete(ctx context.Context, id int) error {
 
-	seller, err := s.GetOne(id)
+	seller, err := s.GetOne(ctx, id)
 
 	if err != nil {
 		return err
 	}
 
-	if err := s.repository.Delete(seller.Id); err != nil {
+	if err := s.repository.Delete(ctx, seller.Id); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s service) findByCid(cid int) error {
+func (s service) findByCid(ctx context.Context, cid int) error {
 	var sellerList []Seller
 
-	sellerList, err := s.GetAll()
+	sellerList, err := s.GetAll(ctx)
 
 	if err != nil {
 		return err

@@ -1,9 +1,7 @@
 package section
 
 import (
-	"fmt"
-
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
+	"database/sql"
 )
 
 type Section struct {
@@ -19,9 +17,9 @@ type Section struct {
 }
 
 type Repository interface {
-	GetAll() []Section
+	GetAll() ([]Section, error)
 	GetByID(id int) (Section, error)
-	Create(id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error)
+	Create(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error)
 	UpdateSecID(id, secNum int) (Section, CodeError)
 	DeleteSection(id int) error
 }
@@ -36,81 +34,89 @@ func (c CodeError) Error() error {
 }
 
 type repository struct {
-	db store.Store
+	db *sql.DB
 }
 
-func NewRepository(db store.Store) Repository {
+func NewRepository(db *sql.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r repository) GetAll() []Section {
-	var ListSections []Section
-	r.db.Read(&ListSections)
-	return ListSections
+func (r repository) GetAll() ([]Section, error) {
+	var sections []Section
+
+	rows, err := r.db.Query(sqlGetAll)
+	if err != nil {
+		return sections, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var sec Section
+
+		err := rows.Scan(&sec.ID, &sec.SectionNumber, &sec.CurTemperature, &sec.MinTemperature,
+			&sec.CurCapacity, &sec.MinCapacity, &sec.MaxCapacity, &sec.WareHouseID, &sec.ProductTypeID)
+		if err != nil {
+			return sections, err
+		}
+
+		sections = append(sections, sec)
+	}
+
+	return sections, nil
 }
 
 func (r repository) GetByID(id int) (Section, error) {
-	var ListSections []Section
-	r.db.Read(&ListSections)
-	for i := range ListSections {
-		if ListSections[i].ID == id {
-			return ListSections[i], nil
+	var sec Section
+
+	rows, err := r.db.Query(sqlGetById, id)
+	if err != nil {
+		return Section{}, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&sec.ID, &sec.SectionNumber, &sec.CurTemperature, &sec.MinTemperature,
+			&sec.CurCapacity, &sec.MinCapacity, &sec.MaxCapacity, &sec.WareHouseID, &sec.ProductTypeID)
+		if err != nil {
+			return Section{}, err
 		}
 	}
 
-	return Section{}, fmt.Errorf("seção %d não encontrada", id)
+	return sec, nil
 }
 
-func (r repository) Create(id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error) {
-	var ListSections []Section
-	r.db.Read(&ListSections)
-
-	p := Section{id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID}
-
-	for i := range ListSections {
-		if ListSections[i].ID+1 == id {
-			post := make([]Section, len(ListSections[i+1:]))
-			copy(post, ListSections[i+1:])
-
-			ListSections = append(ListSections[:i+1], p)
-			ListSections = append(ListSections, post...)
-			break
-		}
+func (r repository) Create(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error) {
+	res, err := r.db.Exec(sqlStore, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID)
+	if err != nil {
+		return Section{}, err
 	}
 
-	if id == 1 {
-		sec := []Section{p}
-		ListSections = append(sec, ListSections...)
+	lastID, err := res.LastInsertId()
+	if err != nil {
+		return Section{}, err
 	}
-	r.db.Write(ListSections)
-	return p, nil
+
+	sec := Section{int(lastID), secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID}
+	return sec, nil
 }
 
 func (r repository) UpdateSecID(id, secNum int) (Section, CodeError) {
-	var ListSections []Section
-	r.db.Read(&ListSections)
-
-	for i := range ListSections {
-		if ListSections[i].ID == id {
-			ListSections[i].SectionNumber = secNum
-			r.db.Write(ListSections)
-			return ListSections[i], CodeError{0, nil}
-		}
+	_, err := r.db.Exec(sqlUpdateSecID, secNum, id)
+	if err != nil {
+		return Section{}, CodeError{500, err}
 	}
 
-	return Section{}, CodeError{404, fmt.Errorf("seção %d não encontrada", id)}
+	sec, _ := r.GetByID(id)
+	return sec, CodeError{200, nil}
 }
 
 func (r repository) DeleteSection(id int) error {
-	var ListSections []Section
-	r.db.Read(&ListSections)
-
-	for i := range ListSections {
-		if ListSections[i].ID == id {
-			ListSections = append(ListSections[:i], ListSections[i+1:]...)
-			r.db.Write(ListSections)
-			return nil
-		}
+	_, err := r.db.Exec(sqlDelete, id)
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("seção %d não encontrada", id)
+
+	return nil
 }

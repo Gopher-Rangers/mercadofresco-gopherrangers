@@ -9,6 +9,7 @@ import (
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -42,8 +43,8 @@ func TestSeller_Update(t *testing.T) {
 
 		dataJson, _ := json.Marshal(expected)
 
-		mockService.On("GetOne", 2).Return(seller.Seller{}, expectedError)
-		mockService.On("Update", 2, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).
+		mockService.On("GetOne", mock.Anything, 2).Return(seller.Seller{}, expectedError)
+		mockService.On("Update", mock.Anything, 2, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).
 			Return(seller.Seller{}, expectedError)
 
 		server := gin.Default()
@@ -69,8 +70,8 @@ func TestSeller_Update(t *testing.T) {
 
 		dataJson, _ := json.Marshal(expected)
 
-		mockService.On("GetOne", 1).Return(data, nil)
-		mockService.On("Update", 1, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).
+		mockService.On("GetOne", mock.Anything, 1).Return(data, nil)
+		mockService.On("Update", mock.Anything, 1, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).
 			Return(expected, nil)
 
 		server := gin.Default()
@@ -106,6 +107,26 @@ func TestSeller_Update(t *testing.T) {
 
 		assert.Equal(t, 422, rr.Code)
 	})
+
+	t.Run("Se o id não for um número, o código 500 será devolvido.", func(t *testing.T) {
+
+		mockService := mocks.NewService(t)
+		handlerSeller := NewSeller(mockService)
+
+		expected := seller.Seller{Id: 1, CompanyName: "Expected", Address: "BR", Telephone: "5501154545454"}
+
+		dataJson, _ := json.Marshal(expected)
+
+		server := gin.Default()
+		serverSellerGroup := server.Group(URL)
+
+		serverSellerGroup.PUT("/:id", handlerSeller.Update)
+
+		req, rr := createRequestTest(http.MethodPut, URL+"err", string(dataJson))
+		server.ServeHTTP(rr, req)
+
+		assert.Equal(t, 500, rr.Code)
+	})
 }
 
 func TestSeller_Create(t *testing.T) {
@@ -121,8 +142,8 @@ func TestSeller_Create(t *testing.T) {
 
 		dataJson, _ := json.Marshal(input)
 
-		mockService.On("GetAll").Return(sellerList, nil)
-		mockService.On("Create", input.CompanyId, input.CompanyName, input.Address, input.Telephone).Return(seller.Seller{}, expectedError)
+		mockService.On("GetAll", mock.Anything).Return(sellerList, nil)
+		mockService.On("Create", mock.Anything, input.CompanyId, input.CompanyName, input.Address, input.Telephone).Return(seller.Seller{}, expectedError)
 
 		server := gin.Default()
 
@@ -167,8 +188,8 @@ func TestSeller_Create(t *testing.T) {
 
 		dataJson, _ := json.Marshal(input)
 
-		mockService.On("GetAll").Return([]seller.Seller{}, nil)
-		mockService.On("Create", expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).Return(expected, nil)
+		mockService.On("GetAll", mock.Anything).Return([]seller.Seller{}, nil)
+		mockService.On("Create", mock.Anything, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).Return(expected, nil)
 
 		server := gin.Default()
 
@@ -193,7 +214,7 @@ func TestSeller_GetOne(t *testing.T) {
 		handlerSeller := NewSeller(mockService)
 
 		expectedError := fmt.Errorf("the id %d does not exists", id)
-		mockService.On("GetOne", id).Return(seller.Seller{}, expectedError)
+		mockService.On("GetOne", mock.Anything, id).Return(seller.Seller{}, expectedError)
 
 		server := gin.Default()
 		serverSellerGroup := server.Group(URL)
@@ -215,7 +236,7 @@ func TestSeller_GetOne(t *testing.T) {
 		expectedJson, _ := json.Marshal(sellerOne)
 
 		req, rr := createRequestTest(http.MethodGet, URL+"1", string(expectedJson))
-		mockService.On("GetOne", 1).Return(sellerOne, nil)
+		mockService.On("GetOne", mock.Anything, 1).Return(sellerOne, nil)
 
 		server := gin.Default()
 		sellerServerGroup := server.Group(URL)
@@ -231,7 +252,7 @@ func TestSeller_GetOne(t *testing.T) {
 		assert.Equal(t, sellerOne, response.Data)
 	})
 
-	t.Run("Quando a solicitação for bem-sucedida, o back-end retornará as informações solicitadas do vendedor", func(t *testing.T) {
+	t.Run("Quando o id não for um número, deve retornar um erro e código 500", func(t *testing.T) {
 
 		mockService := mocks.NewService(t)
 		handlerSeller := NewSeller(mockService)
@@ -240,8 +261,7 @@ func TestSeller_GetOne(t *testing.T) {
 
 		expectedJson, _ := json.Marshal(sellerOne)
 
-		req, rr := createRequestTest(http.MethodGet, URL+"1", string(expectedJson))
-		mockService.On("GetOne", 1).Return(sellerOne, nil)
+		req, rr := createRequestTest(http.MethodGet, URL+"err", string(expectedJson))
 
 		server := gin.Default()
 		sellerServerGroup := server.Group(URL)
@@ -253,8 +273,7 @@ func TestSeller_GetOne(t *testing.T) {
 
 		json.Unmarshal(rr.Body.Bytes(), &response)
 
-		assert.Equal(t, 200, response.Code)
-		//assert.Equal(t, sellerOne, response.Data)
+		assert.Equal(t, 500, response.Code)
 	})
 }
 
@@ -271,7 +290,7 @@ func TestSeller_GetAll(t *testing.T) {
 		expectedError := errors.New("erro ao inicializar a lista")
 
 		req, rr := createRequestTest(http.MethodGet, URL, string(dataJson))
-		mockService.On("GetAll").Return([]seller.Seller{}, expectedError)
+		mockService.On("GetAll", mock.Anything).Return([]seller.Seller{}, expectedError)
 
 		server := gin.Default()
 		sellerServerGroup := server.Group(URL)
@@ -291,7 +310,7 @@ func TestSeller_GetAll(t *testing.T) {
 		dataJson, _ := json.Marshal(sellerList)
 
 		req, rr := createRequestTest(http.MethodGet, URL, string(dataJson))
-		mockService.On("GetAll").Return(sellerList, nil)
+		mockService.On("GetAll", mock.Anything).Return(sellerList, nil)
 
 		server := gin.Default()
 		sellerServerGroup := server.Group(URL)
@@ -319,7 +338,7 @@ func TestSeller_Delete(t *testing.T) {
 		expectedError := fmt.Errorf("the id %d does not exists", id)
 
 		req, rr := createRequestTest(http.MethodDelete, URL+"3", "")
-		mockService.On("Delete", id).Return(expectedError)
+		mockService.On("Delete", mock.Anything, id).Return(expectedError)
 
 		sellerRouterGroup.DELETE("/:id", handlerSeller.Delete)
 		server.ServeHTTP(rr, req)
@@ -336,11 +355,27 @@ func TestSeller_Delete(t *testing.T) {
 
 		req, rr := createRequestTest(http.MethodDelete, URL+"1", "")
 
-		mockService.On("Delete", 1).Return(nil)
+		mockService.On("Delete", mock.Anything, 1).Return(nil)
+
 		sellerRouterGroup.DELETE("/:id", handlerSeller.Delete)
 		server.ServeHTTP(rr, req)
 
 		assert.Equal(t, 204, rr.Code)
+	})
+
+	t.Run("Quando o id não for int, um código 500 deverá devolvido", func(t *testing.T) {
+		mockService := mocks.NewService(t)
+		handlerSeller := NewSeller(mockService)
+
+		server := gin.Default()
+		sellerRouterGroup := server.Group(URL)
+
+		req, rr := createRequestTest(http.MethodDelete, URL+"err", "")
+
+		sellerRouterGroup.DELETE("/:id", handlerSeller.Delete)
+		server.ServeHTTP(rr, req)
+
+		assert.Equal(t, 500, rr.Code)
 	})
 }
 

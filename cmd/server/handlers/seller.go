@@ -43,6 +43,7 @@ func (s *Seller) GetOne(ctx *gin.Context) {
 	idConvertido, err := strconv.Atoi(id)
 	if err != nil {
 		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
+		return
 	}
 
 	oneSeller, err := s.service.GetOne(ctx, idConvertido)
@@ -61,6 +62,7 @@ func (s *Seller) Update(ctx *gin.Context) {
 	idConvertido, err := strconv.Atoi(id)
 	if err != nil {
 		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
+		return
 	}
 
 	var req requestSeller
@@ -105,6 +107,7 @@ func (s *Seller) Delete(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
+		return
 	}
 
 	err = s.service.Delete(ctx, idConvertido)

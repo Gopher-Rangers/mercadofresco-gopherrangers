@@ -70,7 +70,7 @@ func (r *sqlDbRepository) GetAll() ([]Product, error) {
 	var ps []Product
 	rows, err := r.db.Query(GETALL)
 	if err != nil {
-		return ps, nil
+		return ps, err
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -117,10 +117,7 @@ func (r *sqlDbRepository) Update(prod Product, id int) (Product, error) {
 	if err != nil {
 		return Product{}, err
 	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return Product{}, err
-	}
+	rowsAffected, _ := result.RowsAffected()
 	if rowsAffected == 0 {
 		return Product{}, fmt.Errorf("produto %d não encontrado", id)
 	}
@@ -137,10 +134,7 @@ func (r *sqlDbRepository) Delete(id int) error {
 	if err != nil {
 		return err
 	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
+	rowsAffected, _ := result.RowsAffected()
 	if rowsAffected == 0 {
 		return fmt.Errorf("produto %d não encontrado", id)
 	}

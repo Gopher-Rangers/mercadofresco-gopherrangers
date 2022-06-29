@@ -19,14 +19,14 @@ func mockRowsArray() *sqlmock.Rows {
 		"width", "height", "length", "net_weight", "expiration_rate",
 		"recommended_freezing_temperature", "freezing_rate",
 		"product_type_id", "seller_id"}).AddRow(
-			prod[0].ID, prod[0].ProductCode, prod[0].Description, prod[0].Width,
-			prod[0].Height, prod[0].Length, prod[0].NetWeight,
-			prod[0].ExpirationRate, prod[0].RecommendedFreezingTemperature,
-			prod[0].FreezingRate, prod[0].ProductTypeId, prod[0].SellerId).AddRow(
-			prod[1].ID, prod[1].ProductCode, prod[1].Description, prod[1].Width,
-			prod[1].Height, prod[1].Length, prod[1].NetWeight,
-			prod[1].ExpirationRate, prod[1].RecommendedFreezingTemperature,
-			prod[1].FreezingRate, prod[1].ProductTypeId, prod[1].SellerId)
+		prod[0].ID, prod[0].ProductCode, prod[0].Description, prod[0].Width,
+		prod[0].Height, prod[0].Length, prod[0].NetWeight,
+		prod[0].ExpirationRate, prod[0].RecommendedFreezingTemperature,
+		prod[0].FreezingRate, prod[0].ProductTypeId, prod[0].SellerId).AddRow(
+		prod[1].ID, prod[1].ProductCode, prod[1].Description, prod[1].Width,
+		prod[1].Height, prod[1].Length, prod[1].NetWeight,
+		prod[1].ExpirationRate, prod[1].RecommendedFreezingTemperature,
+		prod[1].FreezingRate, prod[1].ProductTypeId, prod[1].SellerId)
 	return rows
 }
 
@@ -37,10 +37,10 @@ func mockRow() *sqlmock.Rows {
 		"width", "height", "length", "net_weight", "expiration_rate",
 		"recommended_freezing_temperature", "freezing_rate",
 		"product_type_id", "seller_id"}).AddRow(
-			prod[0].ID, prod[0].ProductCode, prod[0].Description, prod[0].Width,
-			prod[0].Height, prod[0].Length, prod[0].NetWeight,
-			prod[0].ExpirationRate, prod[0].RecommendedFreezingTemperature,
-			prod[0].FreezingRate, prod[0].ProductTypeId, prod[0].SellerId)
+		prod[0].ID, prod[0].ProductCode, prod[0].Description, prod[0].Width,
+		prod[0].Height, prod[0].Length, prod[0].NetWeight,
+		prod[0].ExpirationRate, prod[0].RecommendedFreezingTemperature,
+		prod[0].FreezingRate, prod[0].ProductTypeId, prod[0].SellerId)
 	return rows
 }
 

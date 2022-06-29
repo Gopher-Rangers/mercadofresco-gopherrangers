@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	GETALL = "SELECT * FROM products"
+	GETALL  = "SELECT * FROM products"
 	GETBYID = "SELECT * FROM products WHERE id=?"
-	STORE = `INSERT INTO products (product_code, description,
+	STORE   = `INSERT INTO products (product_code, description,
 		width, height, length, net_weight, expiration_rate,
 		recommended_freezing_temperature, freezing_rate,
 		product_type_id, seller_id)
@@ -19,7 +19,7 @@ const (
 		recommended_freezing_temperature=?, freezing_rate=?,
 		product_type_id=?, seller_id=?
 		WHERE id=?`
-	DELETE = "DELETE FROM products WHERE id=?"
+	DELETE  = "DELETE FROM products WHERE id=?"
 	LAST_ID = "SELECT MAX(id) as last_id FROM products"
 )
 
@@ -111,9 +111,9 @@ func (r *sqlDbRepository) Update(prod Product, id int) (Product, error) {
 	}
 	defer stmt.Close()
 	result, err := stmt.Exec(&prod.ProductCode, &prod.Description,
-			&prod.Width, &prod.Height, &prod.Length, &prod.NetWeight,
-			&prod.ExpirationRate, &prod.RecommendedFreezingTemperature,
-			&prod.FreezingRate, &prod.ProductTypeId, &prod.SellerId, id)
+		&prod.Width, &prod.Height, &prod.Length, &prod.NetWeight,
+		&prod.ExpirationRate, &prod.RecommendedFreezingTemperature,
+		&prod.FreezingRate, &prod.ProductTypeId, &prod.SellerId, id)
 	if err != nil {
 		return Product{}, err
 	}

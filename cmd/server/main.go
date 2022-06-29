@@ -1,8 +1,6 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"log"
 	"os"
@@ -10,7 +8,6 @@ import (
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 
 	"github.com/gin-gonic/gin"
@@ -41,17 +38,6 @@ func main() {
 
 	server := gin.Default()
 
-	dataSource := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
-
-	conn, err := sql.Open("mysql", dataSource)
-
-	if err != nil {
-		log.Fatal("failed to connect to mariadb")
-	}
-
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 	server.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
@@ -63,18 +49,7 @@ func main() {
 
 		routes.Sections(baseRoute)
 
-		sellerRouterGroup := baseRoute.Group("/sellers")
-		{
-			sellerRepositoryMaria := seller.NewMariaDBRepository(conn)
-			sellerServiceMaria := seller.NewService(sellerRepositoryMaria)
-			sellerControllerMaria := handler.NewSeller(sellerServiceMaria)
-
-			sellerRouterGroup.GET("/", sellerControllerMaria.GetAll)
-			sellerRouterGroup.GET("/:id", sellerControllerMaria.GetOne)
-			sellerRouterGroup.PUT("/:id", sellerControllerMaria.Update)
-			sellerRouterGroup.POST("/", sellerControllerMaria.Create)
-			sellerRouterGroup.DELETE("/:id", sellerControllerMaria.Delete)
-		}
+		routes.Sellers(baseRoute)
 
 		employeeRouterGroup := baseRoute.Group("/employees")
 		{

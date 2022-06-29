@@ -89,10 +89,11 @@ func TestGetByID(t *testing.T) {
 	secs := createSectionArray()
 	exp := secs[0]
 
+	mockRepository.On("GetAll").Return(secs, nil)
+
 	t.Run("find_by_id_non_existent", func(t *testing.T) {
-		mockRepository.On("GetByID", 10).Return(section.Section{}, errors.New("seção 10 não encontrada"))
 		sec, err := service.GetByID(10)
-		assert.Equal(t, errors.New("seção 10 não encontrada"), err)
+		assert.Equal(t, errors.New("seção com id: 10 não existe no banco de dados"), err)
 		assert.Equal(t, section.Section{}, sec)
 	})
 
@@ -123,9 +124,9 @@ func TestUpdateSecID(t *testing.T) {
 	mockRepository.On("GetAll").Return(secs, nil)
 
 	t.Run("update_existent", func(t *testing.T) {
-		mockRepository.On("UpdateSecID", 2, 572836456385).Return(exp, section.CodeError{})
+		mockRepository.On("UpdateSecID", 2, 572836456385).Return(exp, section.CodeError{200, nil})
 		sec, err := service.UpdateSecID(2, 572836456385)
-		assert.Equal(t, section.CodeError{}, err)
+		assert.Equal(t, section.CodeError{200, nil}, err)
 		assert.Equal(t, exp, sec)
 	})
 
@@ -148,8 +149,10 @@ func TestDelete(t *testing.T) {
 	mockRepository := mocks.NewRepository(t)
 	service := section.NewService(mockRepository)
 
+	secs := createSectionArray()
+	mockRepository.On("GetAll").Return(secs, nil)
+
 	t.Run("delete_non_existent", func(t *testing.T) {
-		mockRepository.On("DeleteSection", 99).Return(errors.New("seção 99 não encontrada"))
 		err := service.DeleteSection(99)
 		assert.NotNil(t, err)
 	})

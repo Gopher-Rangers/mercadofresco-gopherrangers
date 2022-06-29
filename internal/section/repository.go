@@ -2,7 +2,6 @@ package section
 
 import (
 	"database/sql"
-	"fmt"
 )
 
 type Section struct {
@@ -72,7 +71,7 @@ func (r repository) GetByID(id int) (Section, error) {
 
 	rows, err := r.db.Query(sqlGetById, id)
 	if err != nil {
-		return Section{}, fmt.Errorf("seção %d não encontrada", id)
+		return Section{}, err
 	}
 
 	defer rows.Close()

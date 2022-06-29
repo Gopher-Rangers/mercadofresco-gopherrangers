@@ -1,4 +1,4 @@
-package handlers_test
+package sections_test
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	sections "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/sections"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section/mocks"
 	"github.com/gin-gonic/gin"
@@ -49,13 +49,13 @@ func createSectionArray() []section.Section {
 	return sec
 }
 
-func InitTest(t *testing.T) (*gin.Engine, *mocks.Repository, handlers.Section) {
+func InitTest(t *testing.T) (*gin.Engine, *mocks.Repository, sections.Section) {
 	gin.SetMode("release")
 	router := gin.Default()
 
 	mockRepository := mocks.NewRepository(t)
 	service := section.NewService(mockRepository)
-	sec := handlers.NewSection(service)
+	sec := sections.NewSection(service)
 
 	return router, mockRepository, sec
 }
@@ -100,14 +100,14 @@ func TestSectionGetByID(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
 	exp := createSectionArray()
 	router.GET(URL_SECTIONS+":id", sec.GetByID())
+	mockRepository.On("GetAll").Return(exp, nil)
 
 	t.Run("find_by_id_non_existent", func(t *testing.T) {
-		mockRepository.On("GetByID", 90).Return(section.Section{}, errors.New("seção 90 não encontrada"))
 		req, w := InitServer(http.MethodGet, URL_SECTIONS+"90", nil)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusNotFound, w.Code)
-		assert.Equal(t, "{\"code\":404,\"error\":\"seção 90 não encontrada\"}", w.Body.String())
+		assert.Equal(t, "{\"code\":404,\"error\":\"seção com id: 90 não existe no banco de dados\"}", w.Body.String())
 	})
 
 	t.Run("find_by_id_existent", func(t *testing.T) {
@@ -182,7 +182,7 @@ func TestSectionUpdateSecID(t *testing.T) {
 	t.Run("update_ok", func(t *testing.T) {
 		exp.SectionNumber = 50
 
-		mockRepository.On("UpdateSecID", 1, exp.SectionNumber).Return(exp, section.CodeError{})
+		mockRepository.On("UpdateSecID", 1, exp.SectionNumber).Return(exp, section.CodeError{Code: 200, Message: nil})
 
 		expected, _ := json.Marshal(exp)
 		req, w := InitServer(http.MethodPatch, URL_SECTIONS+"1", expected)
@@ -237,14 +237,15 @@ func TestSectionDelete(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
 	router.DELETE(URL_SECTIONS+":id", sec.DeleteSection())
 
-	t.Run("delete_non_existent", func(t *testing.T) {
-		mockRepository.On("DeleteSection", 99).Return(errors.New("seção 99 não encontrada"))
+	secs := createSectionArray()
+	mockRepository.On("GetAll").Return(secs, nil)
 
+	t.Run("delete_non_existent", func(t *testing.T) {
 		req, w := InitServer(http.MethodDelete, URL_SECTIONS+"99", nil)
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, 404, w.Code)
-		assert.Equal(t, "{\"code\":404,\"error\":\"seção 99 não encontrada\"}", w.Body.String())
+		assert.Equal(t, "{\"code\":404,\"error\":\"seção com id: 99 não existe no banco de dados\"}", w.Body.String())
 	})
 
 	t.Run("delete_ok", func(t *testing.T) {
@@ -262,7 +263,7 @@ func TestTokenAuth(t *testing.T) {
 	exp := createSectionArray()
 	router.Use(sec.TokenAuthMiddleware)
 	router.GET(URL_SECTIONS, sec.GetAll())
-	godotenv.Load("../../../.env")
+	godotenv.Load("../../../../.env")
 
 	mockRepository.On("GetAll").Return(exp, nil)
 
@@ -303,7 +304,10 @@ func TestVerificatorID(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
 	router.Use(sec.IdVerificatorMiddleware)
 	router.DELETE(URL_SECTIONS+":id", sec.DeleteSection())
-	godotenv.Load("../../../.env")
+	godotenv.Load("../../../../.env")
+
+	secs := createSectionArray()
+	mockRepository.On("GetAll").Return(secs, nil)
 
 	t.Run("id_ok", func(t *testing.T) {
 		mockRepository.On("DeleteSection", 1).Return(nil)

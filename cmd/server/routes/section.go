@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/database"
-	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	sections "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/sections"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
 	"github.com/gin-gonic/gin"
 )
@@ -12,7 +12,7 @@ func Sections(routerGroup *gin.RouterGroup) {
 	{
 		sec_rep := section.NewRepository(database.GetInstance())
 		sec_service := section.NewService(sec_rep)
-		section := handler.NewSection(sec_service)
+		section := sections.NewSection(sec_service)
 
 		sectionRouterGroup.Use(section.TokenAuthMiddleware)
 

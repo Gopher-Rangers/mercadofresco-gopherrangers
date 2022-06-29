@@ -31,11 +31,22 @@ func (s *service) GetAll() ([]Section, error) {
 }
 
 func (s *service) GetByID(id int) (Section, error) {
-	ps, err := s.repository.GetByID(id)
+	ListSections, err := s.repository.GetAll()
 	if err != nil {
 		return Section{}, err
 	}
-	return ps, nil
+
+	for i := range ListSections {
+		if ListSections[i].ID == id {
+			sec, err := s.repository.GetByID(id)
+			if err != nil {
+				return Section{}, err
+			}
+			return sec, nil
+		}
+	}
+
+	return Section{}, fmt.Errorf("seção com id: %d não existe no banco de dados", id)
 }
 
 func (s *service) Create(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error) {
@@ -71,17 +82,28 @@ func (s *service) UpdateSecID(id, secNum int) (Section, CodeError) {
 	}
 
 	ps, erro := s.repository.UpdateSecID(id, secNum)
-	if erro.Code != 0 {
+	if erro.Code != 200 {
 		return Section{}, erro
 	}
 
-	return ps, CodeError{0, nil}
+	return ps, CodeError{200, nil}
 }
 
 func (s *service) DeleteSection(id int) error {
-	err := s.repository.DeleteSection(id)
+	ListSections, err := s.repository.GetAll()
 	if err != nil {
 		return err
 	}
-	return nil
+
+	for i := range ListSections {
+		if ListSections[i].ID == id {
+			err := s.repository.DeleteSection(id)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+
+	return fmt.Errorf("seção com id: %d não existe no banco de dados", id)
 }

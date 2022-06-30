@@ -11,19 +11,32 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	ERROR_BUYER_CARD_NUMBER = "card_number_id is mandatory"
+	ERROR_BUYER_FIRST_NAME  = "first_name is mandatory"
+	ERROR_BUYER_LAST_NAME   = "last_name is mandatory"
+)
+
 type buyerRequest struct {
-	Id           int    `json:"id"`
+	ID           int    `json:"id"`
 	CardNumberId string `json:"card_number_id" binding:"required"`
 	FirstName    string `json:"first_name" binding:"required"`
 	LastName     string `json:"last_name" binding:"required"`
+}
+
+type buyerRequestUpdate struct {
+	ID           int    `json:"id"`
+	CardNumberId string `json:"card_number_id"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
 }
 
 type Buyer struct {
 	service buyer.Service
 }
 
-func NewBuyerHandler() Buyer {
-	return Buyer{buyer.NewService()}
+func NewBuyer(s buyer.Service) Buyer {
+	return Buyer{s}
 }
 
 func (Buyer) AuthToken(context *gin.Context) {
@@ -49,7 +62,23 @@ func (Buyer) ValidateID(ctx *gin.Context) {
 	ctx.Next()
 }
 
-// ListBuyers godoc
+func (Buyer) validateBody(req buyer.Buyer, c *gin.Context) bool {
+	if req.CardNumberId == "" {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_BUYER_CARD_NUMBER))
+		return false
+	}
+	if req.FirstName == "" {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_BUYER_FIRST_NAME))
+		return false
+	}
+	if req.LastName == "" {
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_BUYER_LAST_NAME))
+		return false
+	}
+	return true
+}
+
+// GetAll ListBuyers godoc
 // @Summary List buyers
 // @Tags Buyers
 // @Description get all buyers
@@ -61,18 +90,12 @@ func (Buyer) ValidateID(ctx *gin.Context) {
 // @Success 200 {object} web.Response
 // @Router /api/v1/buyers [GET]
 func (b *Buyer) GetAll(c *gin.Context) {
-
-	data, err := b.service.GetAll()
-
-	if err != nil {
-		c.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
-		return
-	}
+	data, _ := b.service.GetAll(c.Request.Context())
 
 	c.JSON(web.NewResponse(http.StatusOK, data))
 }
 
-// GetBuyer godoc
+// GetBuyerById GetBuyer godoc
 // @Summary List buyer
 // @Tags Buyers
 // @Description get a especific buyer by id
@@ -87,7 +110,7 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	data, err := b.service.GetById(id)
+	data, err := b.service.GetById(c.Request.Context(), id)
 
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
@@ -97,7 +120,7 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 	c.JSON(web.NewResponse(http.StatusOK, data))
 }
 
-// CreateBuyer godoc
+// Create CreateBuyer godoc
 // @Summary Create buyer
 // @Tags Buyers
 // @Description store a new buyer
@@ -113,12 +136,15 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 func (b *Buyer) Create(c *gin.Context) {
 
 	var req buyerRequest
-	if err := c.Bind(&req); err != nil {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest,
+			gin.H{
+				"error":   "Validation error",
+				"message": "Invalid inputs. Please check your inputs"})
 		return
 	}
 
-	newBuyer, err := b.service.Create(req.CardNumberId, req.FirstName, req.LastName)
+	newBuyer, err := b.service.Create(c.Request.Context(), buyer.Buyer{CardNumberId: req.CardNumberId, FirstName: req.FirstName, LastName: req.LastName})
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
@@ -127,7 +153,7 @@ func (b *Buyer) Create(c *gin.Context) {
 	c.JSON(web.NewResponse(http.StatusCreated, newBuyer))
 }
 
-// UpdateBuyers godoc
+// Update UpdateBuyers godoc
 // @Summary Update buyer by ID
 // @Tags Buyers
 // @Description update buyer
@@ -143,24 +169,25 @@ func (b *Buyer) Create(c *gin.Context) {
 // @Success 200 {object} web.Response
 // @Router /api/v1/buyers/{id} [PUT]
 func (b *Buyer) Update(c *gin.Context) {
-	var req buyerRequest
-	if err := c.Bind(&req); err != nil {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
+	var req buyerRequestUpdate
+	c.Bind(&req)
+
+	req.ID, _ = strconv.Atoi(c.Param("id"))
+
+	if !b.validateBody(buyer.Buyer{ID: req.ID, CardNumberId: req.CardNumberId, FirstName: req.FirstName, LastName: req.LastName}, c) {
 		return
 	}
 
-	id, _ := strconv.Atoi(c.Param("id"))
-
-	newBuyer, err := b.service.Update(id, req.CardNumberId, req.FirstName, req.LastName)
+	newBuyer, err := b.service.Update(c.Request.Context(), buyer.Buyer(req))
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 		return
 	}
 
-	c.JSON(web.NewResponse(http.StatusCreated, newBuyer))
+	c.JSON(web.NewResponse(http.StatusOK, newBuyer))
 }
 
-// DeleteBuyers godoc
+// Delete DeleteBuyers godoc
 // @Summary Delete buyers by ID
 // @Tags Buyers
 // @Description delete buyer by ID
@@ -176,7 +203,7 @@ func (b *Buyer) Update(c *gin.Context) {
 func (b *Buyer) Delete(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	err := b.service.Delete(id)
+	err := b.service.Delete(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return

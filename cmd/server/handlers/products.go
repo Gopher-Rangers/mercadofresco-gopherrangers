@@ -6,23 +6,24 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
+	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 const (
-	ERROR_PRODUCT_CODE        = "product_code is mandatory"
-	ERROR_DESCRIPTION         = "description is mandatory"
+	ERROR_PRODUCT_CODE        = "ProductCode is mandatory"
+	ERROR_DESCRIPTION         = "Description is mandatory"
 	ERROR_WIDTH               = "Width is mandatory"
-	ERROR_HEIGHT              = "height is mandatory"
-	ERROR_LENGTH              = "length is mandatory"
-	ERROR_NET_WEIGHT          = "net_weight is mandatory"
-	ERROR_EXPIRATIONN_RATE    = "expiration_rate is mandatory"
-	ERROR_RECOM_FREEZING_TEMP = "recommended_freezing_temperature is mandatory"
-	ERROR_FREEZING_RATE       = "freezing_rate is mandatory"
-	ERROR_PRODUCT_TYPE_ID     = "product_type_id is mandatory"
+	ERROR_HEIGHT              = "Height is mandatory"
+	ERROR_LENGTH              = "Length is mandatory"
+	ERROR_NET_WEIGHT          = "NetWeight is mandatory"
+	ERROR_EXPIRATIONN_RATE    = "ExpirationRate is mandatory"
+	ERROR_RECOM_FREEZING_TEMP = "RecommendedFreezingTemperature is mandatory"
+	ERROR_FREEZING_RATE       = "FreezingRate is mandatory"
+	ERROR_PRODUCT_TYPE_ID     = "ProductTypeId is mandatory"
 	ERROR_TOKEN               = "invalid token"
 	ERROR_ID                  = "invalid id"
 	ERROR_UNIQUE_PRODUCT_CODE = "the product code must be unique"
@@ -38,7 +39,7 @@ type requestProduct struct {
 	ExpirationRate                 string  `json:"expiration_rate"`
 	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature"`
 	FreezingRate                   float64 `json:"freezing_rate"`
-	ProductTypeTd                  int     `json:"product_type_id"`
+	ProductTypeId                  int     `json:"product_type_id"`
 }
 
 type Product struct {
@@ -52,73 +53,6 @@ func NewProduct(p products.Service) *Product {
 func NewRequestProduct() requestProduct {
 	p := requestProduct{}
 	return p
-}
-
-func (prod *Product) checkBody(req products.Product, c *gin.Context) bool {
-	ps, _ := prod.service.GetAll()
-	for i := range ps {
-		if ps[i].ProductCode == req.ProductCode && ps[i].ID != req.ID {
-			c.JSON(web.DecodeError(
-				http.StatusUnprocessableEntity,
-				ERROR_UNIQUE_PRODUCT_CODE))
-			return false
-		}
-	}
-	if req.ProductCode == "" {
-		c.JSON(web.DecodeError(
-			http.StatusUnprocessableEntity,
-			ERROR_PRODUCT_CODE))
-		return false
-	}
-	if req.Description == "" {
-		c.JSON(web.DecodeError(
-			http.StatusUnprocessableEntity,
-			ERROR_DESCRIPTION))
-		return false
-	}
-	if req.Width == 0 {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_WIDTH))
-		return false
-	}
-	if req.Height == 0 {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_HEIGHT))
-		return false
-	}
-	if req.Length == 0 {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_LENGTH))
-		return false
-	}
-	if req.NetWeight == 0 {
-		c.JSON(web.DecodeError(
-			http.StatusUnprocessableEntity,
-			ERROR_NET_WEIGHT))
-		return false
-	}
-	if req.ExpirationRate == "" {
-		c.JSON(web.DecodeError(
-			http.StatusUnprocessableEntity,
-			ERROR_EXPIRATIONN_RATE))
-		return false
-	}
-	if req.RecommendedFreezingTemperature == 0 {
-		c.JSON(web.DecodeError(
-			http.StatusUnprocessableEntity,
-			ERROR_RECOM_FREEZING_TEMP))
-		return false
-	}
-	if req.FreezingRate == 0 {
-		c.JSON(web.DecodeError(
-			http.StatusUnprocessableEntity,
-			ERROR_FREEZING_RATE))
-		return false
-	}
-	if req.ProductTypeId == 0 {
-		c.JSON(web.DecodeError(
-			http.StatusUnprocessableEntity,
-			ERROR_PRODUCT_TYPE_ID))
-		return false
-	}
-	return true
 }
 
 // StoreProducts godoc
@@ -141,16 +75,32 @@ func (prod *Product) Store() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
 			return
 		}
+		var validate *validator.Validate = validator.New()
 		var req products.Product
 		if err := c.Bind(&req); err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
-		if !prod.checkBody(req, c) {
-			return
+		errValidate := validate.Struct(req)
+		if errValidate != nil {
+			if _, ok := errValidate.(*validator.InvalidValidationError); ok {
+				c.JSON(web.DecodeError(http.StatusNotFound, errValidate.Error()))
+				return
+			}
+			for _, errValidate := range errValidate.(validator.ValidationErrors) {
+				if errValidate != nil {
+					s := fmt.Sprintf("%s is mandatory", errValidate.Field())
+					c.JSON(web.DecodeError(http.StatusUnprocessableEntity, s))
+					return
+				}
+			}
 		}
 		p, err := prod.service.Store(req)
 		if err != nil {
+			if err.Error() == ERROR_UNIQUE_PRODUCT_CODE {
+				c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+				return
+			}
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
@@ -177,11 +127,7 @@ func (prod *Product) GetAll() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
 			return
 		}
-		p, err := prod.service.GetAll()
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
-		}
+		p, _ := prod.service.GetAll()
 		c.JSON(web.NewResponse(http.StatusOK, p))
 	}
 	return fn
@@ -249,17 +195,33 @@ func (prod *Product) Update() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_ID))
 			return
 		}
+		var validate *validator.Validate = validator.New()
 		var req products.Product
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
 			return
 		}
 		req.ID = id
-		if !prod.checkBody(req, c) {
-			return
+		errValidate := validate.Struct(req)
+		if errValidate != nil {
+			if _, ok := errValidate.(*validator.InvalidValidationError); ok {
+				c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+				return
+			}
+			for _, errValidate := range errValidate.(validator.ValidationErrors) {
+				if errValidate != nil {
+					s := fmt.Sprintf("%s is mandatory", errValidate.Field())
+					c.JSON(web.DecodeError(http.StatusUnprocessableEntity, s))
+					return
+				}
+			}
 		}
 		p, err := prod.service.Update(req, int(id))
 		if err != nil {
+			if err.Error() == ERROR_UNIQUE_PRODUCT_CODE {
+				c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+				return
+			}
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}

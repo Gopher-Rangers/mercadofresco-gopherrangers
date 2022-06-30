@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	URL = "/api/v1/employees/"
+	URL_EMPLOYEES = "/api/v1/employees/"
 )
 
 type response struct {

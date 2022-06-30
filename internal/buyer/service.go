@@ -1,45 +1,34 @@
 package buyer
 
 import (
+	"context"
 	"fmt"
-
-	"github.com/google/uuid"
 )
-
-type Service interface {
-	GetAll() ([]Buyer, error)
-	Create(cardNumberId string, firstName string, lastName string) (Buyer, error)
-	Update(id int, cardNumberId string, firstName string, lastName string) (Buyer, error)
-	Delete(id int) error
-	GetById(id int) (Buyer, error)
-}
 
 type service struct {
 	repository Repository
 }
 
-func NewService() Service {
-	return &service{repository: NewRepository()}
+func NewService(r Repository) Service {
+	return &service{r}
 }
 
-func (s *service) Create(cardNumberId string, firstName string, lastName string) (Buyer, error) {
-	err := validateCardNumber(cardNumberId, s)
+func (s *service) Create(ctx context.Context, buyer Buyer) (Buyer, error) {
+	err := validateCardNumber(ctx, buyer.CardNumberId, s)
 	if err != nil {
 		return Buyer{}, err
 	}
 
-	validId := getNewValidId(s)
-
-	buyer, err := s.repository.Create(validId, cardNumberId, firstName, lastName)
+	newBuyer, err := s.repository.Create(ctx, buyer)
 	if err != nil {
 		return Buyer{}, err
 	}
-	return buyer, nil
+	return newBuyer, nil
 }
 
-func validateCardNumber(cardNumberId string, s *service) error {
+func validateCardNumber(ctx context.Context, cardNumberId string, s *service) error {
 
-	entities, _ := s.repository.GetAll()
+	entities, _ := s.repository.GetAll(ctx)
 
 	for i := 0; i < len(entities); i++ {
 		if entities[i].CardNumberId == cardNumberId {
@@ -50,31 +39,13 @@ func validateCardNumber(cardNumberId string, s *service) error {
 	return nil
 }
 
-func getNewValidId(s *service) int {
-	generatedId := int(uuid.New().ID())
-
-	entities, _ := s.repository.GetAll()
-
-	for i := 0; i < len(entities); i++ {
-		if entities[i].Id == generatedId {
-			generatedId = int(uuid.New().ID())
-			i = 0
-		}
+func (s *service) Update(ctx context.Context, buyer Buyer) (Buyer, error) {
+	err := validateCardNumber(ctx, buyer.CardNumberId, s)
+	if err != nil {
+		return Buyer{}, err
 	}
 
-	return generatedId
-}
-
-func (s *service) Update(id int, cardNumberId string, firstName string, lastName string) (Buyer, error) {
-	entities, _ := s.repository.GetAll()
-
-	for i := 0; i < len(entities); i++ {
-		if entities[i].CardNumberId == cardNumberId && entities[i].Id != id {
-			return Buyer{}, fmt.Errorf("buyer with card_number_id %s already exists", cardNumberId)
-		}
-	}
-
-	updatedBuyer, err := s.repository.Update(id, cardNumberId, firstName, lastName)
+	updatedBuyer, err := s.repository.Update(ctx, buyer)
 	if err != nil {
 		return Buyer{}, err
 	}
@@ -82,24 +53,24 @@ func (s *service) Update(id int, cardNumberId string, firstName string, lastName
 	return updatedBuyer, nil
 }
 
-func (s *service) GetAll() ([]Buyer, error) {
-	buyers, err := s.repository.GetAll()
+func (s *service) GetAll(ctx context.Context) ([]Buyer, error) {
+	buyers, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return buyers, nil
 }
 
-func (s *service) GetById(id int) (Buyer, error) {
-	buyer, err := s.repository.GetById(id)
+func (s *service) GetById(ctx context.Context, id int) (Buyer, error) {
+	buyer, err := s.repository.GetById(ctx, id)
 	if err != nil {
 		return Buyer{}, err
 	}
 	return buyer, nil
 }
 
-func (s *service) Delete(id int) error {
-	err := s.repository.Delete(id)
+func (s *service) Delete(ctx context.Context, id int) error {
+	err := s.repository.Delete(ctx, id)
 	if err != nil {
 		return err
 	}

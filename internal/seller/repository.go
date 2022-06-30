@@ -48,6 +48,10 @@ func (r *repository) GetAll() ([]Seller, error) {
 		fmt.Println("error reading file", err)
 	}
 
+	if len(sellerList) < 0 {
+		return sellerList, errors.New("erro ao inicializar a lista")
+	}
+
 	if len(sellerList) == 0 {
 		sellerList = make([]Seller, 0)
 	}
@@ -71,7 +75,11 @@ func (r *repository) Create(cid int, companyName, address, telephone string) (Se
 	}
 
 	newSeller := Seller{CompanyId: cid, CompanyName: companyName, Address: address, Telephone: telephone}
-	newSeller = r.generateId(&newSeller)
+	newSeller, err = r.generateId(&newSeller)
+
+	if err != nil {
+		return Seller{}, err
+	}
 	sellerList = append(sellerList, newSeller)
 
 	if err := r.db.Write(sellerList); err != nil {
@@ -136,21 +144,25 @@ func (r *repository) Delete(id int) error {
 	return nil
 }
 
-func (r repository) generateId(newSeller *Seller) Seller {
+func (r repository) generateId(newSeller *Seller) (Seller, error) {
 	var sellerList []Seller
 
 	err := r.db.Read(&sellerList)
 
 	if err != nil {
-		fmt.Println("error reading file", err)
+		return Seller{}, err
+	}
+
+	if len(sellerList) < 0 {
+		return Seller{}, errors.New("erro ao listar vendedores")
 	}
 
 	if len(sellerList) == 0 {
 		newSeller.Id = 1
-		return *newSeller
+		return *newSeller, nil
 	}
 
 	lastSeller := sellerList[len(sellerList)-1]
 	newSeller.Id = lastSeller.Id + 1
-	return *newSeller
+	return *newSeller, nil
 }

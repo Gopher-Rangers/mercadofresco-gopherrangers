@@ -5,12 +5,10 @@ import (
 	"os"
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
-	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 
 	"github.com/gin-gonic/gin"
@@ -35,7 +33,7 @@ func main() {
 		log.Fatal("failed to load .env")
 	}
 
-	gin.SetMode("release")
+	//gin.SetMode("release")
 
 	server := gin.Default()
 
@@ -44,62 +42,11 @@ func main() {
 
 	baseRoute := server.Group("/api/v1/")
 	{
-		productRouterGroup := baseRoute.Group("/products")
-		{
-			file := store.New(store.FileType, "../../internal/product/products.json")
-			prod_rep := products.NewRepository(file)
-			prod_service := products.NewService(prod_rep)
-			prod := handler.NewProduct(prod_service)
+		routes.Products(baseRoute)
 
-			productRouterGroup.POST("/", prod.Store())
-			productRouterGroup.GET("/", prod.GetAll())
-			productRouterGroup.GET("/:id", prod.GetById())
-			productRouterGroup.PATCH("/:id", prod.Update())
-			productRouterGroup.DELETE("/:id", prod.Delete())
-		}
+		routes.Buyers(baseRoute)
 
-		buyerRouterGroup := baseRoute.Group("/buyers")
-		{
-			buyerHandler := handler.NewBuyerHandler()
-
-			buyerRouterGroup.Use(buyerHandler.AuthToken)
-
-			buyerRouterGroup.GET("/", buyerHandler.GetAll)
-			buyerRouterGroup.POST("/", buyerHandler.Create)
-			buyerRouterGroup.GET("/:id", buyerHandler.ValidateID, buyerHandler.GetBuyerById)
-			buyerRouterGroup.PUT("/:id", buyerHandler.ValidateID, buyerHandler.Update)
-			buyerRouterGroup.DELETE("/:id", buyerHandler.ValidateID, buyerHandler.Delete)
-		}
-
-		sectionRouterGroup := baseRoute.Group("/sections")
-		{
-			file := store.New(store.FileType, "../../internal/section/sections.json")
-			sec_rep := section.NewRepository(file)
-			sec_service := section.NewService(sec_rep)
-			section := handler.NewSection(sec_service)
-
-			sectionRouterGroup.Use(section.TokenAuthMiddleware)
-
-			sectionRouterGroup.GET("/", section.GetAll())
-			sectionRouterGroup.POST("/", section.CreateSection())
-			sectionRouterGroup.GET("/:id", section.IdVerificatorMiddleware, section.GetByID())
-			sectionRouterGroup.PATCH("/:id", section.IdVerificatorMiddleware, section.UpdateSecID())
-			sectionRouterGroup.DELETE("/:id", section.IdVerificatorMiddleware, section.DeleteSection())
-		}
-
-		warehouseRouterGroup := baseRoute.Group("/warehouses")
-		{
-			file := store.New(store.FileType, "../../internal/warehouse/warehouses.json")
-			warehouseRep := warehouse.NewRepository(file)
-			warehouseService := warehouse.NewService(warehouseRep)
-			warehouse := handler.NewWarehouse(warehouseService)
-
-			warehouseRouterGroup.GET("/", warehouse.GetAll)
-			warehouseRouterGroup.GET("/:id", warehouse.GetByID)
-			warehouseRouterGroup.POST("/", warehouse.CreateWarehouse)
-			warehouseRouterGroup.PATCH("/:id", warehouse.UpdatedWarehouseID)
-			warehouseRouterGroup.DELETE("/:id", warehouse.DeleteWarehouse)
-		}
+		routes.Sections(baseRoute)
 
 		sellerRouterGroup := baseRoute.Group("/sellers")
 		{
@@ -128,6 +75,8 @@ func main() {
 			employeeRouterGroup.PATCH("/:id", employee.Update())
 			employeeRouterGroup.DELETE("/:id", employee.Delete())
 		}
+
+		routes.Warehouses(baseRoute)
 	}
 	server.Run()
 }

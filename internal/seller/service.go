@@ -2,7 +2,6 @@ package seller
 
 import (
 	"errors"
-	"fmt"
 )
 
 type Service interface {
@@ -73,7 +72,6 @@ func (s *service) GetOne(id int) (Seller, error) {
 	oneSeller, err := s.repository.GetOne(id)
 
 	if err != nil {
-		fmt.Println(err.Error())
 		return Seller{}, err
 	}
 	return oneSeller, nil

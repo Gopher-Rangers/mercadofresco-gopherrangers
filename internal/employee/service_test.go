@@ -53,8 +53,7 @@ func TestGetAll(t *testing.T) {
 		service := employee.NewService(mockRepository)
 		employees := createEmployeeArray()
 		mockRepository.On("GetAll").Return(employees, nil)
-		employee, err := service.GetAll()
-		assert.Nil(t, err)
+		employee := service.GetAll()
 		assert.Equal(t, employee, employees)
 
 	})

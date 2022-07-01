@@ -65,19 +65,19 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`sellers` (
 -- Table `mercado-fresco`.`products`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`products` (
-                                                            `id` SERIAL,
-                                                            `product_code` VARCHAR(15) NULL,
-                                                            `description` VARCHAR(45) NULL,
-                                                            `width` DECIMAL(2) NULL,
-                                                            `height` DECIMAL(2) NULL,
-                                                            `length` DECIMAL(2) NULL,
-                                                            `net_weight` DECIMAL(2) NULL,
-                                                            `expiration_rate` VARCHAR(15) NULL,
-                                                            `recommended_freezing_temperature` DECIMAL(2) NULL,
-                                                            `freezing_rate` DECIMAL(2) NULL,
-                                                            `product_type_id` BIGINT UNSIGNED,
-                                                            `seller_id` BIGINT UNSIGNED,
-                                                            PRIMARY KEY (`id`)
+                    `id` SERIAL,
+                    `product_code` VARCHAR(255) NOT NULL,
+                    `description` VARCHAR(255) NOT NULL,
+                    `width` DECIMAL(19,2) NOT NULL,
+                    `height` DECIMAL(19,2) NOT NULL,
+                    `length` DECIMAL(19,2) NOT NULL,
+                    `net_weight` DECIMAL(19,2) NOT NULL,
+                    `expiration_rate` DECIMAL(19,2) NOT NULL,
+                    `recommended_freezing_temperature` DECIMAL(19,2) NOT NULL,
+                    `freezing_rate` DECIMAL(19,2) NOT NULL,
+                    `product_type_id` BIGINT UNSIGNED,
+                    `seller_id` BIGINT UNSIGNED,
+                    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
 -- -----------------------------------------------------

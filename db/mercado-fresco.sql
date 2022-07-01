@@ -9,11 +9,12 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema mercado-fresco
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mercado-fresco` DEFAULT CHARACTER SET utf8 ;
+-- DROP DATABASE `mercado-fresco`;
+CREATE SCHEMA IF NOT EXISTS `mercado-fresco` DEFAULT CHARACTER SET utf8;
 USE `mercado-fresco` ;
 
 -- -----------------------------------------------------
--- Table `mercado-fresco`.`buyer`
+-- Table `mercado-fresco`.`buyers`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`buyers` (
 `id` SERIAL,
@@ -34,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`warehouse` (
 PRIMARY KEY (`id`))ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `mercado-fresco`.`employee`
+-- Table `mercado-fresco`.`employees`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`employees` (
 `id` SERIAL,
@@ -45,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`employees` (
 PRIMARY KEY (`id`))ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `mercado-fresco`.`seller`
+-- Table `mercado-fresco`.`sellers`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`sellers` (
 `id` SERIAL,
@@ -277,15 +278,40 @@ ALTER TABLE `mercado-fresco`.`purchase_orders` ADD CONSTRAINT `FK_PURCHASE_ORDER
 ALTER TABLE `mercado-fresco`.`purchase_orders` ADD CONSTRAINT `FK_PURCHASE_ORDERS_WAREHOUSE` FOREIGN KEY (`werehouse_id`) REFERENCES `mercado-fresco`.`warehouse`(`id`);
 ALTER TABLE `mercado-fresco`.`purchase_orders` ADD CONSTRAINT `FK_PURCHASE_ORDERS_STATUS_ORDER` FOREIGN KEY (`order_status_id`) REFERENCES `mercado-fresco`.`order_status`(`id`);
 
-ALTER TABLE `mercado-fresco`.`product` ADD CONSTRAINT `FK_PRODUCT_SELLER` FOREIGN KEY (`seller_id`) REFERENCES `mercado-fresco`.`seller`(`id`);
-ALTER TABLE `mercado-fresco`.`product` ADD UNIQUE KEY `PRODUCT_TYPE_ID` (`product_type_id`);
+ALTER TABLE `mercado-fresco`.`user_rol` ADD CONSTRAINT `FK_USER_ROL_USER` FOREIGN KEY (`usuario_id`) REFERENCES `mercado-fresco`.`users`(`id`);
+ALTER TABLE `mercado-fresco`.`user_rol` ADD CONSTRAINT `FK_USER_ROL_ROL` FOREIGN KEY (`rol_id`) REFERENCES `mercado-fresco`.`rol`(`id`);
 
-ALTER TABLE `mercado-fresco`.`employee` ADD CONSTRAINT `FK_EMPLOYEE_WAREHOUSE` FOREIGN KEY (`warehouse_id`) REFERENCES `mercado-fresco`.`warehouse`(`id`);
+ALTER TABLE `mercado-fresco`.`provinces` ADD CONSTRAINT `FK_PROVINCE_COUNTRY` FOREIGN KEY (`id_country`) REFERENCES `mercado-fresco`.`countries`(`id`);
+
+ALTER TABLE `mercado-fresco`.`localities` ADD CONSTRAINT `FK_LOCALITIES_PROVINCE` FOREIGN KEY (`province_id`) REFERENCES `mercado-fresco`.`provinces`(`id`);
+
+ALTER TABLE `mercado-fresco`.`carriers` ADD CONSTRAINT `FK_CARRIERS_LOCALITY` FOREIGN KEY (`locality_id`) REFERENCES `mercado-fresco`.`localities`(`id`);
+
+ALTER TABLE `mercado-fresco`.`product_records` ADD CONSTRAINT `FK_PRODUCT_RECORDS_PRODUCT` FOREIGN KEY (`product_id`) REFERENCES `mercado-fresco`.`products`(`id`);
+
+ALTER TABLE `mercado-fresco`.`order_details` ADD CONSTRAINT `FK_ORDER_DETAILS_PRODUCT_RECORD` FOREIGN KEY (`product_record_id`) REFERENCES `mercado-fresco`.`product_records`(`id`);
+ALTER TABLE `mercado-fresco`.`order_details` ADD CONSTRAINT `FK_ORDER_DETAILS_PURCHASE_ORDER` FOREIGN KEY (`purchase_order_id`) REFERENCES `mercado-fresco`.`purchase_orders`(`id`);
+
+ALTER TABLE `mercado-fresco`.`inbound_orders` ADD CONSTRAINT `FK_INBOUND_ORDERS_EMPLOYEE` FOREIGN KEY (`employee_id`) REFERENCES `mercado-fresco`.`employees`(`id`);
+ALTER TABLE `mercado-fresco`.`inbound_orders` ADD CONSTRAINT `FK_INBOUND_ORDERS_PRODUCT_BATCH` FOREIGN KEY (`product_batch_id`) REFERENCES `mercado-fresco`.`product_batches`(`id`);
+ALTER TABLE `mercado-fresco`.`inbound_orders` ADD CONSTRAINT `FK_INBOUND_ORDERS_WAREHOUSE` FOREIGN KEY (`warehouse_id`) REFERENCES `mercado-fresco`.`warehouse`(`id`);
+
+ALTER TABLE `mercado-fresco`.`product_batches` ADD CONSTRAINT `FK_PRODUCT_BATCHES_PRODUCT` FOREIGN KEY (`product_id`) REFERENCES `mercado-fresco`.`products`(`id`);
+ALTER TABLE `mercado-fresco`.`product_batches` ADD CONSTRAINT `FK_PRODUCT_BATCHES_SECTION` FOREIGN KEY (`section_id`) REFERENCES `mercado-fresco`.`section`(`id`);
+
+ALTER TABLE `mercado-fresco`.`purchase_orders` ADD CONSTRAINT `FK_PURCHASE_ORDERS_BUYER` FOREIGN KEY (`buyer_id`) REFERENCES `mercado-fresco`.`buyers`(`id`);
+ALTER TABLE `mercado-fresco`.`purchase_orders` ADD CONSTRAINT `FK_PURCHASE_ORDERS_CARRIER` FOREIGN KEY (`carrier_id`) REFERENCES `mercado-fresco`.`carriers`(`id`);
+ALTER TABLE `mercado-fresco`.`purchase_orders` ADD CONSTRAINT `FK_PURCHASE_ORDERS_WAREHOUSE` FOREIGN KEY (`werehouse_id`) REFERENCES `mercado-fresco`.`warehouse`(`id`);
+ALTER TABLE `mercado-fresco`.`purchase_orders` ADD CONSTRAINT `FK_PURCHASE_ORDERS_STATUS_ORDER` FOREIGN KEY (`order_status_id`) REFERENCES `mercado-fresco`.`order_status`(`id`);
+
+ALTER TABLE `mercado-fresco`.`sellers` ADD CONSTRAINT `FK_SELLER_LOCALITY` FOREIGN KEY (`locality_id`) REFERENCES `mercado-fresco`.`localities`(`id`);
+
+ALTER TABLE `mercado-fresco`.`products` ADD CONSTRAINT `FK_PRODUCT_PRODUCT_TYPE` FOREIGN KEY (`product_type_id`) REFERENCES `mercado-fresco`.`product_types`(`id`);
+ALTER TABLE `mercado-fresco`.`products` ADD CONSTRAINT `FK_PRODUCT_SELLER` FOREIGN KEY (`seller_id`) REFERENCES `mercado-fresco`.`sellers`(`id`);
+
+ALTER TABLE `mercado-fresco`.`employees` ADD CONSTRAINT `FK_EMPLOYEE_WAREHOUSE` FOREIGN KEY (`warehouse_id`) REFERENCES `mercado-fresco`.`warehouse`(`id`);
+
+ALTER TABLE `mercado-fresco`.`warehouse` ADD CONSTRAINT `FK_WAREHOUSE_LOCALITY` FOREIGN KEY (`locality_id`) REFERENCES `mercado-fresco`.`localities`(`id`);
 
 ALTER TABLE `mercado-fresco`.`section` ADD CONSTRAINT `FK_SECTION_WAREHOUSE` FOREIGN KEY (`warehouse_id`) REFERENCES `mercado-fresco`.`warehouse`(`id`);
-ALTER TABLE `mercado-fresco`.`section` ADD CONSTRAINT `FK_SECTION_PRODUCT` FOREIGN KEY (`product_type_id`) REFERENCES `mercado-fresco`.`product`(`product_type_id`);
-
-
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+ALTER TABLE `mercado-fresco`.`section` ADD CONSTRAINT `FK_SECTION_PRODUCT` FOREIGN KEY (`product_type_id`) REFERENCES `mercado-fresco`.`product_types`(`id`);

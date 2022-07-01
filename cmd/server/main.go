@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"log"
 	"os"
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
@@ -33,7 +33,7 @@ func main() {
 		log.Fatal("failed to load .env")
 	}
 
-	gin.SetMode("release")
+	//gin.SetMode("release")
 
 	server := gin.Default()
 

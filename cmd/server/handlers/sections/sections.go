@@ -1,7 +1,6 @@
-package handlers
+package sections
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -70,7 +69,7 @@ func (p *Section) IdVerificatorMiddleware(ctx *gin.Context) {
 
 func (p *Section) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sec := p.service.GetAll()
+		sec, _ := p.service.GetAll()
 		c.JSON(web.NewResponse(http.StatusOK, sec))
 	}
 }
@@ -118,7 +117,7 @@ func (p *Section) UpdateSecID() gin.HandlerFunc {
 		id, _ := strconv.Atoi(c.Param("id"))
 
 		sec, err := p.service.UpdateSecID(id, req.SectionNumber)
-		if err.Code != 0 {
+		if err.Code != 200 {
 			c.JSON(web.DecodeError(err.Code, err.Message.Error()))
 			return
 		}
@@ -137,7 +136,6 @@ func (p *Section) DeleteSection() gin.HandlerFunc {
 			return
 		}
 
-		sec := fmt.Sprintf("O section %d foi removido", id)
-		c.JSON(web.NewResponse(http.StatusNoContent, sec))
+		c.JSON(web.NewResponse(http.StatusNoContent, ""))
 	}
 }

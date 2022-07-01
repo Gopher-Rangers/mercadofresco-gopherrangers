@@ -1,17 +1,21 @@
-package warehouse
+package usecases
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/domain"
+)
 
 type Service interface {
-	GetAll() []Warehouse
-	GetByID(id int) (Warehouse, error)
+	GetAll() []domain.Warehouse
+	GetByID(id int) (domain.Warehouse, error)
 	CreateWarehouse(
 		code,
 		address,
 		tel string,
 		minCap,
-		minTemp int) (Warehouse, error)
-	UpdatedWarehouseID(id int, code string) (Warehouse, error)
+		minTemp int) (domain.Warehouse, error)
+	UpdatedWarehouseID(id int, code string) (domain.Warehouse, error)
 	DeleteWarehouse(id int) error
 }
 
@@ -23,28 +27,28 @@ func NewService(r Repository) Service {
 	return &service{r}
 }
 
-func (s service) GetAll() []Warehouse {
+func (s service) GetAll() []domain.Warehouse {
 	return s.repository.GetAll()
 }
 
-func (s service) GetByID(id int) (Warehouse, error) {
+func (s service) GetByID(id int) (domain.Warehouse, error) {
 
 	warehouse, err := s.repository.GetByID(id)
 
 	if err != nil {
-		return Warehouse{}, err
+		return domain.Warehouse{}, err
 	}
 
 	return warehouse, nil
 
 }
 
-func (s service) CreateWarehouse(code, address, tel string, minCap, minTemp int) (Warehouse, error) {
+func (s service) CreateWarehouse(code, address, tel string, minCap, minTemp int) (domain.Warehouse, error) {
 
 	_, err := s.repository.FindByWarehouseCode(code)
 
 	if err == nil {
-		return Warehouse{}, fmt.Errorf("o `warehouse_code` já está em uso")
+		return domain.Warehouse{}, fmt.Errorf("o `warehouse_code` já está em uso")
 	}
 
 	id := s.repository.IncrementID()
@@ -52,23 +56,23 @@ func (s service) CreateWarehouse(code, address, tel string, minCap, minTemp int)
 	warehouse, err := s.repository.CreateWarehouse(id, code, address, tel, minCap, minTemp)
 
 	if err != nil {
-		return Warehouse{}, err
+		return domain.Warehouse{}, err
 	}
 
 	return warehouse, nil
 }
 
-func (s service) UpdatedWarehouseID(id int, code string) (Warehouse, error) {
+func (s service) UpdatedWarehouseID(id int, code string) (domain.Warehouse, error) {
 	_, err := s.repository.FindByWarehouseCode(code)
 
 	if err == nil {
-		return Warehouse{}, fmt.Errorf("o `warehouse_code` já está em uso")
+		return domain.Warehouse{}, fmt.Errorf("o `warehouse_code` já está em uso")
 	}
 
 	warehouse, err := s.repository.UpdatedWarehouseID(id, code)
 
 	if err != nil {
-		return Warehouse{}, err
+		return domain.Warehouse{}, err
 	}
 
 	return warehouse, nil

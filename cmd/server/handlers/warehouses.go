@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/usecases"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
 )
@@ -28,10 +28,10 @@ type requestPatchWarehouse struct {
 }
 
 type Warehouse struct {
-	service warehouse.Service
+	service usecases.Service
 }
 
-func NewWarehouse(w warehouse.Service) Warehouse {
+func NewWarehouse(w usecases.Service) Warehouse {
 	return Warehouse{w}
 }
 

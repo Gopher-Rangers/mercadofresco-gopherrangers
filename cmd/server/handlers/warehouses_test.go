@@ -11,16 +11,16 @@ import (
 	"testing"
 
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/domain"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/usecases/mock/mock_service"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/mock/mock_service"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func makeValidDBWarehouse() warehouse.Warehouse {
-	return warehouse.Warehouse{
+func makeValidDBWarehouse() domain.Warehouse {
+	return domain.Warehouse{
 		WarehouseCode:  "j753",
 		Address:        "Rua das Margaridas",
 		Telephone:      "4833334444",
@@ -34,15 +34,15 @@ const (
 )
 
 type warehouseResponseBody struct {
-	Code  int                 `json:"code"`
-	Data  warehouse.Warehouse `json:"data"`
-	Error string              `json:"error"`
+	Code  int              `json:"code"`
+	Data  domain.Warehouse `json:"data"`
+	Error string           `json:"error"`
 }
 
 type warehouseResponseBodyArray struct {
-	Code  int                   `json:"code"`
-	Data  []warehouse.Warehouse `json:"data"`
-	Error string                `json:"error"`
+	Code  int                `json:"code"`
+	Data  []domain.Warehouse `json:"data"`
+	Error string             `json:"error"`
 }
 
 func Test_CreateWarehouse(t *testing.T) {
@@ -102,7 +102,7 @@ func Test_CreateWarehouse(t *testing.T) {
 
 	t.Run("Deve retornar um status code 409, se `warehouse_code` já estiver em uso.", func(t *testing.T) {
 
-		service.On("CreateWarehouse", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(warehouse.Warehouse{}, errors.New("o `warehouse_code` já está em uso")).Once()
+		service.On("CreateWarehouse", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(domain.Warehouse{}, errors.New("o `warehouse_code` já está em uso")).Once()
 
 		data := makeValidDBWarehouse()
 
@@ -135,7 +135,7 @@ func Test_GetAll(t *testing.T) {
 
 		data := makeValidDBWarehouse()
 
-		service.On("GetAll").Return([]warehouse.Warehouse{data})
+		service.On("GetAll").Return([]domain.Warehouse{data})
 
 		rr := httptest.NewRecorder()
 
@@ -162,7 +162,7 @@ func Test_GetByID(t *testing.T) {
 
 	t.Run("Deve retornar um código 404, quando o Warehouse não existir.", func(t *testing.T) {
 
-		service.On("GetByID", 1).Return(warehouse.Warehouse{}, errors.New("O warehouse não foi encontrado!")).Once()
+		service.On("GetByID", 1).Return(domain.Warehouse{}, errors.New("O warehouse não foi encontrado!")).Once()
 
 		rr := httptest.NewRecorder()
 
@@ -291,7 +291,7 @@ func Test_UpdatedWarehouseID(t *testing.T) {
 
 		data := makeValidDBWarehouse()
 
-		service.On("UpdatedWarehouseID", mock.AnythingOfType("int"), mock.AnythingOfType("string")).Return(warehouse.Warehouse{}, fmt.Errorf("o id: %d informado não existe", 1)).Once()
+		service.On("UpdatedWarehouseID", mock.AnythingOfType("int"), mock.AnythingOfType("string")).Return(domain.Warehouse{}, fmt.Errorf("o id: %d informado não existe", 1)).Once()
 
 		dataJSON, _ := json.Marshal(data)
 

@@ -14,11 +14,12 @@ import (
 )
 
 const (
-	ERROR_LAST_UPDATE_DATE  = "LastUpdateDate is mandatory"
-	ERROR_PURCHASE_PRICE    = "PurchasePrice is mandatory"
-	ERROR_SALE_PRICE        = "SalePrice is mandatory"
-	ERROR_PRODUCT_ID        = "ProductId is mandatory"
-	ERROR_UNIQUE_PRODUCT_ID = "the product id must be unique"
+	ERROR_LAST_UPDATE_DATE       = "LastUpdateDate is mandatory"
+	ERROR_PURCHASE_PRICE         = "PurchasePrice is mandatory"
+	ERROR_SALE_PRICE             = "SalePrice is mandatory"
+	ERROR_PRODUCT_ID             = "ProductId is mandatory"
+	ERROR_INEXISTENT_PRODUCT     = "the product id doesn`t exist"
+	ERROR_WRONG_LAST_UPDATE_DATE = "the last update date must be greater than the system time"
 )
 
 type requestProductRecord struct {
@@ -83,7 +84,8 @@ func (prod *ProductRecord) Store() gin.HandlerFunc {
 		}
 		p, err := prod.service.Store(req)
 		if err != nil {
-			if err.Error() == ERROR_UNIQUE_PRODUCT_CODE {
+			if err.Error() == ERROR_INEXISTENT_PRODUCT ||
+				err.Error() == ERROR_WRONG_LAST_UPDATE_DATE {
 				c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 				return
 			}

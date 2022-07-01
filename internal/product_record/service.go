@@ -2,17 +2,22 @@ package productrecord
 
 import (
 	"fmt"
+	"time"
+
+	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 )
 
 const (
-	ERROR_UNIQUE_PRODUCT_ID = "the product id must be unique"
+	ERROR_INEXISTENT_PRODUCT = "the product id doesn`t exist"
+	ERROR_WRONG_LAST_UPDATE_DATE = "the last update date must be greater than the system time"
 )
 
 type Service interface {
 	Store(prod ProductRecord) (ProductRecord, error)
 	GetAll() ([]ProductRecordGet, error)
 	GetById(id int) (ProductRecordGet, error)
-	Get() ([]ProductRecord, error)
+	GetAllProductRecords() ([]ProductRecord, error)
+	GetAllProducts() ([]products.Product, error)
 }
 
 type service struct {
@@ -23,19 +28,34 @@ func NewService(r Repository) Service {
 	return &service{repository: r}
 }
 
-func (s *service) checkProductId(prod ProductRecord) bool {
-	ps, _ := s.Get()
+func (s *service) checkIfProductExists(prod ProductRecord) bool {
+	ps, _ := s.GetAllProducts()
 	for i := range ps {
-		if ps[i].ProductId == prod.ProductId && ps[i].ID != prod.ID {
-			return false
+		if ps[i].ID == prod.ProductId {
+			return true
 		}
 	}
-	return true
+	return false
+}
+
+func (s *service) checkDatetime(last_update_time string) bool {
+	currentTime := time.Now()
+	loc := currentTime.Location()
+	layout := "2006-01-02 15:04:00"
+	lastTime, err := time.ParseInLocation(layout, last_update_time, loc)
+	if err != nil {
+		fmt.Println(err)
+	}
+	diff := lastTime.Sub(currentTime)
+	return diff > 0
 }
 
 func (s *service) Store(prod ProductRecord) (ProductRecord, error) {
-	if !s.checkProductId(prod) {
-		return ProductRecord{}, fmt.Errorf(ERROR_UNIQUE_PRODUCT_ID)
+	if !s.checkIfProductExists(prod) {
+		return ProductRecord{}, fmt.Errorf(ERROR_INEXISTENT_PRODUCT)
+	}
+	if !s.checkDatetime(prod.LastUpdateDate) {
+		return ProductRecord{}, fmt.Errorf(ERROR_WRONG_LAST_UPDATE_DATE)
 	}
 	lastId, err := s.repository.LastId()
 	if err != nil {
@@ -62,7 +82,12 @@ func (s *service) GetAll() ([]ProductRecordGet, error) {
 	return ps, nil
 }
 
-func (s *service) Get() ([]ProductRecord, error) {
-	ps, _ := s.repository.Get()
+func (s *service) GetAllProductRecords() ([]ProductRecord, error) {
+	ps, _ := s.repository.GetAllProductRecords()
+	return ps, nil
+}
+
+func (s *service) GetAllProducts() ([]products.Product, error) {
+	ps, _ := s.repository.GetAllProducts()
 	return ps, nil
 }

@@ -3,6 +3,8 @@ package productrecord
 import (
 	"database/sql"
 	"fmt"
+
+	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 )
 
 const (
@@ -19,8 +21,9 @@ const (
 				WHERE pr.product_id = ?
 				GROUP BY pr.product_id`
 	STORE = `INSERT INTO product_records (last_update_date, purchase_price,
-		sale_price, product_id) VALUES (?, ?, ?, ?)`
-	LAST_ID = "SELECT MAX(id) as last_id FROM product_records"
+				sale_price, product_id) VALUES (?, ?, ?, ?)`
+	LAST_ID         = "SELECT MAX(id) as last_id FROM product_records"
+	GETALL_PRODUCTS = "SELECT * FROM products"
 )
 
 type ProductRecord struct {
@@ -42,7 +45,8 @@ type Repository interface {
 	Store(prod ProductRecord, id int) (ProductRecord, error)
 	GetById(id int) (ProductRecordGet, error)
 	GetAll() ([]ProductRecordGet, error)
-	Get() ([]ProductRecord, error)
+	GetAllProductRecords() ([]ProductRecord, error)
+	GetAllProducts() ([]products.Product, error)
 }
 
 type repository struct {
@@ -120,7 +124,7 @@ func (r *repository) GetAll() ([]ProductRecordGet, error) {
 	return ps, nil
 }
 
-func (r *repository) Get() ([]ProductRecord, error) {
+func (r *repository) GetAllProductRecords() ([]ProductRecord, error) {
 	var ps []ProductRecord
 	rows, err := r.db.Query(GETALL)
 	if err != nil {
@@ -139,3 +143,23 @@ func (r *repository) Get() ([]ProductRecord, error) {
 	return ps, nil
 }
 
+func (r *repository) GetAllProducts() ([]products.Product, error) {
+	var ps []products.Product
+	rows, err := r.db.Query(GETALL_PRODUCTS)
+	if err != nil {
+		return ps, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var prod products.Product
+		err := rows.Scan(&prod.ID, &prod.ProductCode, &prod.Description,
+			&prod.Width, &prod.Height, &prod.Length, &prod.NetWeight,
+			&prod.ExpirationRate, &prod.RecommendedFreezingTemperature,
+			&prod.FreezingRate, &prod.ProductTypeId, &prod.SellerId)
+		if err != nil {
+			return ps, err
+		}
+		ps = append(ps, prod)
+	}
+	return ps, nil
+}

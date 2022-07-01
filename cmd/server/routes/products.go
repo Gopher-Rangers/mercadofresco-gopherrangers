@@ -10,7 +10,7 @@ import (
 )
 
 func Products(routerGroup *gin.RouterGroup) {
-	productsRepository := products.NewDBRepository(database.GetInstance())
+	productsRepository := products.NewRepository(database.GetInstance())
 	productsService := products.NewService(productsRepository)
 	productsHandler := handler.NewProduct(productsService)
 

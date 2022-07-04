@@ -56,7 +56,7 @@ func createEmployeeRequestTest(method string, url string, body string) (*http.Re
 	return req, httptest.NewRecorder()
 }
 
-func TestEmployeeStore(t *testing.T) {
+func TestEmployeeCreate(t *testing.T) {
 	t.Run("create_ok", func(t *testing.T) {
 		mockService := mocks.NewServices(t)
 		handlerEmployee := handler.NewEmployee(mockService)
@@ -65,14 +65,10 @@ func TestEmployeeStore(t *testing.T) {
 		employeesRouterGroup := server.Group(URL_EMPLOYEES)
 
 		emps := createEmployeesArray()
-		expected := `{"id": 1,
-					"card_number_id": 117899,
-										"first_name": "Jose",
-										"last_name": "Neves",
-										"warehouse_id": 456521}`
+		expected := `{"id": 1, "card_number_id": 117899, "first_name": "Jose", "last_name": "Neves", "warehouse_id": 456521}`
 		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, expected)
 		mockService.On("GetAll").Return([]employee.Employee{})
-		mockService.On("Create", emps[0]).Return(emps[0].CardNumber, emps[0].FirstName, emps[0].LastName, emps[0].WareHouseID, nil)
+		mockService.On("Create", emps[0].CardNumber, emps[0].FirstName, emps[0].LastName, emps[0].WareHouseID).Return(emps[0], nil)
 		employeesRouterGroup.POST("/", handlerEmployee.Create())
 		server.ServeHTTP(rr, req)
 
@@ -166,13 +162,11 @@ func TestEmployeesGetAll(t *testing.T) {
 
 // func TestEmployeesDelete(t *testing.T) {
 // 	t.Run("delete_ok", func(t *testing.T) {
-// 		mockService := mocks.NewServices(t)
+//  		mockService := mocks.NewServices(t)
 // 		handlerEmployee := handler.NewEmployee(mockService)
-
 // 		server := gin.Default()
 // 		employeeRouterGroup := server.Group(URL_EMPLOYEES)
-
 // 		emps := createEmployeesArray()
-// 		req, rr :
+// 		req, rr := createEmployeeRequestTest(http.MethodDelete, URL_EMPLOYEES+"1", "")
 // 	})
 // }

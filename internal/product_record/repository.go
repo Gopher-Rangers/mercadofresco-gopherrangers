@@ -3,27 +3,21 @@ package productrecord
 import (
 	"database/sql"
 	"fmt"
-
-	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 )
 
 const (
 	GET    = `SELECT * FROM product_records`
 	GETALL = `SELECT p.id, p.description, COUNT(pr.product_id)
-				AS records_count
 				FROM product_records pr 
 				JOIN products p ON p.id = pr.product_id
 				GROUP BY p.id`
 	GETBYID = `SELECT pr.product_id, p.description, COUNT(pr.product_id)
-				AS records_count
 				FROM product_records pr 
 				JOIN products p ON p.id = pr.product_id
 				WHERE pr.product_id = ?
 				GROUP BY pr.product_id`
 	STORE = `INSERT INTO product_records (last_update_date, purchase_price,
 				sale_price, product_id) VALUES (?, ?, ?, ?)`
-	LAST_ID         = "SELECT MAX(id) as last_id FROM product_records"
-	GETALL_PRODUCTS = "SELECT * FROM products"
 )
 
 type ProductRecord struct {
@@ -41,33 +35,21 @@ type ProductRecordGet struct {
 }
 
 type Repository interface {
-	LastId() (int, error)
-	Store(prod ProductRecord, id int) (ProductRecord, error)
+	Store(prod ProductRecord) (ProductRecord, error)
 	GetById(id int) (ProductRecordGet, error)
 	GetAll() ([]ProductRecordGet, error)
 	GetAllProductRecords() ([]ProductRecord, error)
-	GetAllProducts() ([]products.Product, error)
 }
 
 type repository struct {
 	db *sql.DB
 }
 
-func (r *repository) LastId() (int, error) {
-	var lastId int
-	row := r.db.QueryRow(LAST_ID)
-	err := row.Scan(&lastId)
-	if err != nil {
-		return 0, err
-	}
-	return lastId, nil
-}
-
 func NewRepository(db *sql.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) Store(prod ProductRecord, id int) (ProductRecord, error) {
+func (r *repository) Store(prod ProductRecord) (ProductRecord, error) {
 	stmt, err := r.db.Prepare(STORE)
 	if err != nil {
 		return ProductRecord{}, err
@@ -80,7 +62,7 @@ func (r *repository) Store(prod ProductRecord, id int) (ProductRecord, error) {
 	}
 	rowsAffected, _ := result.RowsAffected()
 	if rowsAffected == 0 {
-		return ProductRecord{}, fmt.Errorf("falha ao salvar")
+		return ProductRecord{}, fmt.Errorf("fail to save")
 	}
 	lastId, err := result.LastInsertId()
 	if err != nil {
@@ -100,7 +82,7 @@ func (r *repository) GetById(id int) (ProductRecordGet, error) {
 	err = stmt.QueryRow(id).Scan(&prod.ProductId, &prod.Description,
 		&prod.RecordsCount)
 	if err != nil {
-		return ProductRecordGet{}, fmt.Errorf("produt record %d não encontrado", id)
+		return ProductRecordGet{}, fmt.Errorf("produt record %d not found", id)
 	}
 	return prod, nil
 }
@@ -135,27 +117,6 @@ func (r *repository) GetAllProductRecords() ([]ProductRecord, error) {
 		var prod ProductRecord
 		err := rows.Scan(&prod.ID, &prod.LastUpdateDate, &prod.PurchasePrice,
 			&prod.SalePrice, &prod.ProductId)
-		if err != nil {
-			return ps, err
-		}
-		ps = append(ps, prod)
-	}
-	return ps, nil
-}
-
-func (r *repository) GetAllProducts() ([]products.Product, error) {
-	var ps []products.Product
-	rows, err := r.db.Query(GETALL_PRODUCTS)
-	if err != nil {
-		return ps, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var prod products.Product
-		err := rows.Scan(&prod.ID, &prod.ProductCode, &prod.Description,
-			&prod.Width, &prod.Height, &prod.Length, &prod.NetWeight,
-			&prod.ExpirationRate, &prod.RecommendedFreezingTemperature,
-			&prod.FreezingRate, &prod.ProductTypeId, &prod.SellerId)
 		if err != nil {
 			return ps, err
 		}

@@ -17,25 +17,22 @@ type Service interface {
 	GetAll() ([]ProductRecordGet, error)
 	GetById(id int) (ProductRecordGet, error)
 	GetAllProductRecords() ([]ProductRecord, error)
-	GetAllProducts() ([]products.Product, error)
 }
 
 type service struct {
 	repository Repository
+	productsService products.Service
 }
 
-func NewService(r Repository) Service {
-	return &service{repository: r}
+func NewService(r Repository, productsService products.Service) Service {
+	return &service{
+		repository: r,
+		productsService: productsService}
 }
 
 func (s *service) checkIfProductExists(prod ProductRecord) bool {
-	ps, _ := s.GetAllProducts()
-	for i := range ps {
-		if ps[i].ID == prod.ProductId {
-			return true
-		}
-	}
-	return false
+	_, err := s.productsService.GetById(prod.ProductId)
+	return err == nil
 }
 
 func (s *service) checkDatetime(last_update_time string) bool {
@@ -57,12 +54,7 @@ func (s *service) Store(prod ProductRecord) (ProductRecord, error) {
 	if !s.checkDatetime(prod.LastUpdateDate) {
 		return ProductRecord{}, fmt.Errorf(ERROR_WRONG_LAST_UPDATE_DATE)
 	}
-	lastId, err := s.repository.LastId()
-	if err != nil {
-		return ProductRecord{}, err
-	}
-	lastId++
-	product, err := s.repository.Store(prod, lastId)
+	product, err := s.repository.Store(prod)
 	if err != nil {
 		return ProductRecord{}, err
 	}
@@ -84,10 +76,5 @@ func (s *service) GetAll() ([]ProductRecordGet, error) {
 
 func (s *service) GetAllProductRecords() ([]ProductRecord, error) {
 	ps, _ := s.repository.GetAllProductRecords()
-	return ps, nil
-}
-
-func (s *service) GetAllProducts() ([]products.Product, error) {
-	ps, _ := s.repository.GetAllProducts()
 	return ps, nil
 }

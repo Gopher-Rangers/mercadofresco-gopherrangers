@@ -42,9 +42,9 @@ func main() {
 
 	baseRoute := server.Group("/api/v1/")
 	{
-		routes.Products(baseRoute)
+		productsService := routes.Products(baseRoute)
 
-		routes.ProductRecord(baseRoute)
+		routes.ProductRecord(baseRoute, productsService)
 
 		routes.Buyers(baseRoute)
 

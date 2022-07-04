@@ -9,7 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func Products(routerGroup *gin.RouterGroup) {
+func Products(routerGroup *gin.RouterGroup) products.Service {
 	productsRepository := products.NewRepository(database.GetInstance())
 	productsService := products.NewService(productsRepository)
 	productsHandler := handler.NewProduct(productsService)
@@ -22,4 +22,5 @@ func Products(routerGroup *gin.RouterGroup) {
 		productsRouterGroup.PATCH("/:id", productsHandler.Update())
 		productsRouterGroup.DELETE("/:id", productsHandler.Delete())
 	}
+	return productsService
 }

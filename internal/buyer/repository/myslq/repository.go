@@ -3,6 +3,7 @@ package myslq
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/domain"
 )
 
@@ -17,7 +18,7 @@ func NewRepository(db *sql.DB) domain.Repository {
 func (r *repository) GetAll(ctx context.Context) ([]domain.Buyer, error) {
 	var buyers []domain.Buyer
 
-	rows, err := r.db.QueryContext(ctx, sqlGetAll)
+	rows, err := r.db.QueryContext(ctx, SqlGetAll)
 	if err != nil {
 		return buyers, err
 	}
@@ -41,7 +42,7 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Buyer, error) {
 func (r *repository) GetById(ctx context.Context, id int) (domain.Buyer, error) {
 	var buyer domain.Buyer
 
-	rows, err := r.db.QueryContext(ctx, sqlGetById, id)
+	rows, err := r.db.QueryContext(ctx, SqlGetById, id)
 	if err != nil {
 		return domain.Buyer{}, err
 	}
@@ -51,7 +52,7 @@ func (r *repository) GetById(ctx context.Context, id int) (domain.Buyer, error) 
 	for rows.Next() {
 		err := rows.Scan(&buyer.ID, &buyer.CardNumberId, &buyer.FirstName, &buyer.LastName)
 		if err != nil {
-			return domain.Buyer{}, err
+			return domain.Buyer{}, fmt.Errorf("buyer with id (%d) not founded", id)
 		}
 
 	}
@@ -60,9 +61,13 @@ func (r *repository) GetById(ctx context.Context, id int) (domain.Buyer, error) 
 }
 
 func (r repository) Create(ctx context.Context, buyer domain.Buyer) (domain.Buyer, error) {
-	res, err := r.db.ExecContext(ctx, sqlStore, &buyer.CardNumberId, &buyer.FirstName, &buyer.LastName)
+	res, err := r.db.ExecContext(ctx, SqlStore, &buyer.CardNumberId, &buyer.FirstName, &buyer.LastName)
 	if err != nil {
 		return domain.Buyer{}, err
+	}
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected == 0 {
+		return domain.Buyer{}, fmt.Errorf("error while saving")
 	}
 
 	lastID, err := res.LastInsertId()
@@ -76,25 +81,34 @@ func (r repository) Create(ctx context.Context, buyer domain.Buyer) (domain.Buye
 }
 
 func (r repository) Update(ctx context.Context, buyer domain.Buyer) (domain.Buyer, error) {
-	_, err := r.db.ExecContext(
+	res, err := r.db.ExecContext(
 		ctx,
-		sqlUpdate,
+		SqlUpdate,
 		&buyer.CardNumberId,
 		&buyer.FirstName,
 		&buyer.LastName,
 		&buyer.ID,
 	)
 	if err != nil {
-		return buyer, err
+		return domain.Buyer{}, err
+	}
+
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected == 0 {
+		return domain.Buyer{}, fmt.Errorf("buyer wiht id (%d) not founded", buyer.ID)
 	}
 
 	return buyer, nil
 }
 
 func (r repository) Delete(ctx context.Context, id int) error {
-	_, err := r.db.ExecContext(ctx, sqlDelete, id)
+	res, err := r.db.ExecContext(ctx, SqlDelete, id)
 	if err != nil {
 		return err
+	}
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected == 0 {
+		return fmt.Errorf("buyer with id (%d) not founded", id)
 	}
 
 	return nil
@@ -120,7 +134,7 @@ func (r repository) GetBuyerOrdersById(ctx context.Context, id int) (domain.Buye
 func (r repository) getTotalOrderByBuyer(ctx context.Context, id int) (domain.BuyerTotalOrders, error) {
 	var buyerOrders domain.BuyerTotalOrders
 
-	rows, err := r.db.QueryContext(ctx, sqlCountOrdersByBuyerId, id)
+	rows, err := r.db.QueryContext(ctx, SqlCountOrdersByBuyerId, id)
 	if err != nil {
 		return domain.BuyerTotalOrders{}, err
 	}

@@ -79,31 +79,28 @@ func TestEmployeeCreate(t *testing.T) {
 		assert.Equal(t, emps[0], resp.Data)
 		assert.Equal(t, resp.Error, "")
 	})
-	// 	t.Run("create_conflict", func(t *testing.T) {
-	// 		mockService := mocks.NewService(t)
-	// 		handlerEmployee := handler.NewEmployee(mockService)
+	// t.Run("create_conflict", func(t *testing.T) {
+	// 	mockService := mocks.NewServices(t)
+	// 	handlerEmployee := handler.NewEmployee(mockService)
 
-	// 		server := gin.Default()
-	// 		productRouterGroup := server.Group(URL_EMPLOYEES)
+	// 	server := gin.Default()
+	// 	employeesRouterGroup := server.Group(URL_EMPLOYEES)
 
-	// 		emps := createEmployeesArray()
-	// 		expected := `{"id": 1,
-	// 								"card_number": 117899,
-	// "first_name": "Jose",
-	// "last_name": "Neves",
-	// "ware_house_id": 456521,}`
-	// 		req, rr := createProductRequestTest(http.MethodPost, URL_PRODUCTS, expected)
-	// 		mockService.On("Store", ps[0]).Return(products.Product{}, fmt.Errorf(products.ERROR_UNIQUE_PRODUCT_CODE))
-	// 		productRouterGroup.POST("/", handlerProduct.Store())
-	// 		server.ServeHTTP(rr, req)
+	// 	emps := createEmployeesArray()
+	// 	expected := `{"id": 1, "card_number": 117899, "first_name": "Jose", "last_name": "Neves", "warehouse_id": 456521}`
+	// 	req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, expected)
+	// 	mockService.On("GetAll").Return(emps, nil)
+	// 	mockService.On("Create", emps[0].CardNumber, emps[0].FirstName, emps[0].LastName, emps[0].WareHouseID).Return(emps[0], http.StatusConflict)
+	// 	employeesRouterGroup.POST("/", handlerEmployee.Create())
+	// 	server.ServeHTTP(rr, req)
 
-	// 		resp := responseId{}
-	// 		json.Unmarshal(rr.Body.Bytes(), &resp)
+	// 	resp := responseCreate{}
+	// 	json.Unmarshal(rr.Body.Bytes(), &resp)
 
-	// 		assert.Equal(t, http.StatusConflict, rr.Code, resp.Code)
-	// 		assert.Equal(t, products.Product{}, resp.Data)
-	// 		assert.Equal(t, resp.Error, products.ERROR_UNIQUE_PRODUCT_CODE)
-	// 	})
+	// 	assert.Equal(t, http.StatusConflict, rr.Code, resp.Code)
+	// 	assert.Equal(t, employee.Employee{}, resp.Data)
+	// 	assert.Equal(t, resp.Error, http.StatusConflict)
+	// })
 	// 	t.Run("create_wrong_body", func(t *testing.T) {
 	// 		mockService := mocks.NewService(t)
 	// 		handlerProduct := handler.NewProduct(mockService)

@@ -101,36 +101,7 @@ func TestEmployeeCreate(t *testing.T) {
 	// 	assert.Equal(t, employee.Employee{}, resp.Data)
 	// 	assert.Equal(t, resp.Error, http.StatusConflict)
 	// })
-	// 	t.Run("create_wrong_body", func(t *testing.T) {
-	// 		mockService := mocks.NewService(t)
-	// 		handlerProduct := handler.NewProduct(mockService)
 
-	// 		server := gin.Default()
-	// 		productRouterGroup := server.Group(URL_PRODUCTS)
-
-	// 		expected := `{"id": 0,
-	// 										"product_code": "",
-	// 										"description": "",
-	// 										"width": 0,
-	// 										"height": 0,
-	// 										"length": 0,
-	// 										"net_weight": 0,
-	// 										"expiration_rate": "",
-	// 										"recommended_freezing_temperature": 0,
-	// 										"freezing_rate": 0,
-	// 										"product_type_id": 0,
-	// 										"seller_id": 0}`
-	// 		req, rr := createProductRequestTest(http.MethodPost, URL_PRODUCTS, expected)
-	// 		productRouterGroup.POST("/", handlerProduct.Store())
-	// 		server.ServeHTTP(rr, req)
-
-	// 		resp := responseId{}
-	// 		json.Unmarshal(rr.Body.Bytes(), &resp)
-
-	// 		assert.Equal(t, http.StatusUnprocessableEntity, rr.Code, resp.Code)
-	// 		assert.Equal(t, products.Product{}, resp.Data)
-	// 		assert.Equal(t, resp.Error, handler.ERROR_PRODUCT_CODE)
-	// 	})
 }
 
 func TestEmployeesGetAll(t *testing.T) {

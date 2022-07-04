@@ -1,7 +1,7 @@
 name: Go Test
 on:
   push:
-    branches: [ "feature-product-4" ]
+    branches: [ "release" ]
   pull_request:
     branches: [ "main" ]
 jobs:
@@ -21,4 +21,12 @@ jobs:
       - name: Test
         env:
           TOKEN: ${{ secrets.TOKEN }}
-        run: go test -v ./...
+        run: go test -v -coverprofile=coverage.out ./...
+
+      - name: Codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov token=$CODECOV_TOKEN

@@ -65,19 +65,19 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`sellers` (
 -- Table `mercado-fresco`.`products`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`products` (
-                                                           `id` SERIAL,
-                                                           `product_code` INT(11) NULL,
-                                                           `description` VARCHAR(45) NULL,
-                                                           `width` VARCHAR(2) NULL,
-                                                           `height` VARCHAR(2) NULL,
-                                                           `length` VARCHAR(2) NULL,
-                                                           `net_weight` VARCHAR(2) NULL,
-                                                           `expiration_rate` VARCHAR(15) NULL,
-                                                           `recommended_freezing_temperature` DECIMAL(2) NULL,
-                                                           `freezing_rate` DECIMAL(2) NULL,
-                                                           `product_type_id` BIGINT UNSIGNED,
-                                                           `seller_id` BIGINT UNSIGNED,
-                                                           PRIMARY KEY (`id`)
+                                                            `id` SERIAL,
+                                                            `product_code` VARCHAR(15) NULL,
+                                                            `description` VARCHAR(45) NULL,
+                                                            `width` DECIMAL(2) NULL,
+                                                            `height` DECIMAL(2) NULL,
+                                                            `length` DECIMAL(2) NULL,
+                                                            `net_weight` DECIMAL(2) NULL,
+                                                            `expiration_rate` VARCHAR(15) NULL,
+                                                            `recommended_freezing_temperature` DECIMAL(2) NULL,
+                                                            `freezing_rate` DECIMAL(2) NULL,
+                                                            `product_type_id` BIGINT UNSIGNED,
+                                                            `seller_id` BIGINT UNSIGNED,
+                                                            PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
 -- -----------------------------------------------------

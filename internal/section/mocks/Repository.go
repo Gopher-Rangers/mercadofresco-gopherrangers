@@ -12,20 +12,20 @@ type Repository struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID
-func (_m *Repository) Create(id int, secNum int, curTemp int, minTemp int, curCap int, minCap int, maxCap int, wareID int, typeID int) (section.Section, error) {
-	ret := _m.Called(id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID)
+// Create provides a mock function with given fields: secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID
+func (_m *Repository) Create(secNum int, curTemp int, minTemp int, curCap int, minCap int, maxCap int, wareID int, typeID int) (section.Section, error) {
+	ret := _m.Called(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID)
 
 	var r0 section.Section
-	if rf, ok := ret.Get(0).(func(int, int, int, int, int, int, int, int, int) section.Section); ok {
-		r0 = rf(id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID)
+	if rf, ok := ret.Get(0).(func(int, int, int, int, int, int, int, int) section.Section); ok {
+		r0 = rf(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID)
 	} else {
 		r0 = ret.Get(0).(section.Section)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int, int, int, int, int, int, int, int) error); ok {
-		r1 = rf(id, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID)
+	if rf, ok := ret.Get(1).(func(int, int, int, int, int, int, int, int) error); ok {
+		r1 = rf(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -48,7 +48,7 @@ func (_m *Repository) DeleteSection(id int) error {
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *Repository) GetAll() []section.Section {
+func (_m *Repository) GetAll() ([]section.Section, error) {
 	ret := _m.Called()
 
 	var r0 []section.Section
@@ -60,7 +60,14 @@ func (_m *Repository) GetAll() []section.Section {
 		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetByID provides a mock function with given fields: id

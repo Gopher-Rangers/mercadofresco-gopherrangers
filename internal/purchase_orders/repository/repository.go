@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase-orders/domain"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/domain"
 )
 
 type repository struct {

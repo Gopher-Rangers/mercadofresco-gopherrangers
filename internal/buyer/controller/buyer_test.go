@@ -254,7 +254,7 @@ func TestStore(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, response.Code, resp.Code)
 		assert.Equal(t, domain.Buyer{}, resp.Data)
-		assert.Equal(t, resp.Error, "Validation error")
+		assert.Equal(t, resp.Error, "validation error")
 	})
 }
 

@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase-orders/domain"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/domain"
 )
 
 type service struct {

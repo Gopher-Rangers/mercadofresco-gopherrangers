@@ -45,6 +45,8 @@ func main() {
 		routes.Products(baseRoute)
 
 		routes.Buyers(baseRoute)
+		
+		routes.PurchaseOrders(baseRoute)
 
 		routes.Sections(baseRoute)
 

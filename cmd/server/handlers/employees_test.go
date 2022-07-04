@@ -24,6 +24,12 @@ type response struct {
 	Error string
 }
 
+type responseCreate struct {
+	Code  int
+	Data  employee.Employee
+	Error string
+}
+
 func createEmployeeArray() []employee.Employee {
 	var emps []employee.Employee
 	employee1 := employee.Employee{
@@ -60,42 +66,36 @@ func TestEmployeeStore(t *testing.T) {
 
 		emps := createEmployeeArray()
 		expected := `{"id": 1,
-										"card_number": 117899,
+					"card_number": 117899,
 										"first_name": "Jose",
 										"last_name": "Neves",
-										"ware_house_id": 456521,}`
+										"ware_house_id": 456521}`
 		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, expected)
+		mockService.On("GetAll").Return(emps)
 		mockService.On("Create", emps[0]).Return(emps[0], nil)
 		employeesRouterGroup.POST("/", handlerEmployee.Create())
 		server.ServeHTTP(rr, req)
 
-		resp := response{}
+		resp := responseCreate{}
 		json.Unmarshal(rr.Body.Bytes(), &resp)
 
 		assert.Equal(t, http.StatusCreated, rr.Code, resp.Code)
 		assert.Equal(t, emps[0], resp.Data)
-		assert.Equal(t, resp.Error, "")
+		// assert.Equal(t, resp.Error, "")
 	})
 	// 	t.Run("create_conflict", func(t *testing.T) {
 	// 		mockService := mocks.NewService(t)
-	// 		handlerProduct := handler.NewProduct(mockService)
+	// 		handlerEmployee := handler.NewEmployee(mockService)
 
 	// 		server := gin.Default()
-	// 		productRouterGroup := server.Group(URL_PRODUCTS)
+	// 		productRouterGroup := server.Group(URL_EMPLOYEES)
 
-	// 		ps := createProductsArray()
+	// 		emps := createEmployeesArray()
 	// 		expected := `{"id": 1,
-	// 										"product_code": "01",
-	// 										"description": "leite",
-	// 										"width": 0.1,
-	// 										"height": 0.1,
-	// 										"length": 0.1,
-	// 										"net_weight": 0.1,
-	// 										"expiration_rate": "01/01/2022",
-	// 										"recommended_freezing_temperature": 1.1,
-	// 										"freezing_rate": 1.1,
-	// 										"product_type_id": 1,
-	// 										"seller_id": 1}`
+	// 								"card_number": 117899,
+	// "first_name": "Jose",
+	// "last_name": "Neves",
+	// "ware_house_id": 456521,}`
 	// 		req, rr := createProductRequestTest(http.MethodPost, URL_PRODUCTS, expected)
 	// 		mockService.On("Store", ps[0]).Return(products.Product{}, fmt.Errorf(products.ERROR_UNIQUE_PRODUCT_CODE))
 	// 		productRouterGroup.POST("/", handlerProduct.Store())

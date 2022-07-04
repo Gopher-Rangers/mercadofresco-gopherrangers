@@ -30,7 +30,7 @@ type responseCreate struct {
 	Error string
 }
 
-func createEmployeeArray() []employee.Employee {
+func createEmployeesArray() []employee.Employee {
 	var emps []employee.Employee
 	employee1 := employee.Employee{
 		ID:          1,
@@ -64,15 +64,15 @@ func TestEmployeeStore(t *testing.T) {
 		server := gin.Default()
 		employeesRouterGroup := server.Group(URL_EMPLOYEES)
 
-		emps := createEmployeeArray()
+		emps := createEmployeesArray()
 		expected := `{"id": 1,
-					"card_number": 117899,
+					"card_number_id": 117899,
 										"first_name": "Jose",
 										"last_name": "Neves",
-										"ware_house_id": 456521}`
+										"warehouse_id": 456521}`
 		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, expected)
-		mockService.On("GetAll").Return(emps)
-		mockService.On("Create", emps[0]).Return(emps[0], nil)
+		mockService.On("GetAll").Return([]employee.Employee{})
+		mockService.On("Create", emps[0]).Return(emps[0].CardNumber, emps[0].FirstName, emps[0].LastName, emps[0].WareHouseID, nil)
 		employeesRouterGroup.POST("/", handlerEmployee.Create())
 		server.ServeHTTP(rr, req)
 
@@ -81,7 +81,7 @@ func TestEmployeeStore(t *testing.T) {
 
 		assert.Equal(t, http.StatusCreated, rr.Code, resp.Code)
 		assert.Equal(t, emps[0], resp.Data)
-		// assert.Equal(t, resp.Error, "")
+		assert.Equal(t, resp.Error, "")
 	})
 	// 	t.Run("create_conflict", func(t *testing.T) {
 	// 		mockService := mocks.NewService(t)
@@ -139,3 +139,40 @@ func TestEmployeeStore(t *testing.T) {
 	// 		assert.Equal(t, resp.Error, handler.ERROR_PRODUCT_CODE)
 	// 	})
 }
+
+func TestEmployeesGetAll(t *testing.T) {
+	t.Run("find_all", func(t *testing.T) {
+		mockService := mocks.NewServices(t)
+		handlerEmployee := handler.NewEmployee(mockService)
+
+		server := gin.Default()
+		employeeRouterGroup := server.Group(URL_EMPLOYEES)
+
+		emps := createEmployeesArray()
+		req, rr := createEmployeeRequestTest(http.MethodGet, URL_EMPLOYEES, "")
+
+		mockService.On("GetAll").Return(emps, nil)
+		employeeRouterGroup.GET("/", handlerEmployee.GetAll())
+		server.ServeHTTP(rr, req)
+
+		resp := response{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusOK, rr.Code, resp.Code)
+		assert.Equal(t, emps, resp.Data)
+		assert.Equal(t, resp.Error, "")
+	})
+}
+
+// func TestEmployeesDelete(t *testing.T) {
+// 	t.Run("delete_ok", func(t *testing.T) {
+// 		mockService := mocks.NewServices(t)
+// 		handlerEmployee := handler.NewEmployee(mockService)
+
+// 		server := gin.Default()
+// 		employeeRouterGroup := server.Group(URL_EMPLOYEES)
+
+// 		emps := createEmployeesArray()
+// 		req, rr :
+// 	})
+// }

@@ -75,7 +75,8 @@ func TestService_Update(t *testing.T) {
 
 		mockRepo.On("GetOne", context.Background(), 1).Return(sellerList[0], nil)
 		mockRepo.On("GetAll", context.Background()).Return(sellerList, nil)
-		mockRepo.On("Update", context.Background(), expectedResult.CompanyId, expectedResult.CompanyName, expectedResult.Address, expectedResult.Telephone, sellerList[0]).Return(expectedResult, nil)
+		mockRepo.On("Update", context.Background(), expectedResult.CompanyId, expectedResult.CompanyName, expectedResult.Address,
+			expectedResult.Telephone, sellerList[0]).Return(expectedResult, nil)
 
 		service := seller.NewService(mockRepo)
 		response, _ := service.Update(context.Background(), 1, 7, "Meli", "América do Sul", "5501154545454")

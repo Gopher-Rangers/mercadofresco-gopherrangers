@@ -65,6 +65,13 @@ func (s *Seller) Update(ctx *gin.Context) {
 		return
 	}
 
+	_, err = s.service.GetOne(ctx, idConvertido)
+
+	if err != nil {
+		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		return
+	}
+
 	var req requestSeller
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -93,7 +100,6 @@ func (s *Seller) Create(ctx *gin.Context) {
 	newSeller, err := s.service.Create(ctx, req.CompanyId, req.CompanyName, req.Address, req.Telephone)
 
 	if err != nil {
-		fmt.Println(err)
 		ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 		return
 	}

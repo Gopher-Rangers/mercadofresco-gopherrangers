@@ -5,6 +5,8 @@ const (
 
 	sqlGetById = "SELECT * FROM `mercado-fresco`.`buyers` where id=?"
 
+	sqlCountOrdersByBuyerId = "SELECT COUNT(*) FROM `mercado-fresco`.`purchase_orders` where buyer_id=?"
+
 	sqlStore = "INSERT INTO `mercado-fresco`.`buyers` (`card_number_id`, `first_name`, `last_name`) VALUES (?, ?, ?)"
 
 	sqlLastID = "SELECT MAX(id) as last_id FROM `mercado-fresco`.`buyers`"

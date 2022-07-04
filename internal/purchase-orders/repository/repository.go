@@ -52,3 +52,23 @@ func (r repository) Create(ctx context.Context, purchaseOrder domain.PurchaseOrd
 
 	return purchaseOrder, nil
 }
+
+func (r *repository) ValidadeOrderNumber(orderNumber string, ctx context.Context) (bool, error) {
+	var result bool
+
+	rows, err := r.db.QueryContext(ctx, sqlExistsOrderNumber, orderNumber)
+	if err != nil {
+		return true, err
+	}
+
+	defer rows.Close() // Impedir vazamento de memória
+
+	for rows.Next() {
+		err := rows.Scan(&result)
+		if err != nil {
+			return true, err
+		}
+	}
+
+	return result, nil
+}

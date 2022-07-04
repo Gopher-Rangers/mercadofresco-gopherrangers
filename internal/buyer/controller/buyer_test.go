@@ -1,11 +1,11 @@
-package buyers_test
+package controller_test
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/buyers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/controller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/domain"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/domain/mocks"
 	"net/http"
@@ -49,7 +49,7 @@ func createRequestTestIvalidToken(method string, url string, body string) (*http
 func TestGetAll(t *testing.T) {
 	t.Run("find_all", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -69,7 +69,7 @@ func TestGetAll(t *testing.T) {
 	})
 	t.Run("find_all_invalid_token", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -107,7 +107,7 @@ func createBaseData() []domain.Buyer {
 func TestDelete(t *testing.T) {
 	t.Run("delete_ok", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
 
@@ -121,7 +121,7 @@ func TestDelete(t *testing.T) {
 	})
 	t.Run("delete_non_existent", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
 
@@ -135,7 +135,7 @@ func TestDelete(t *testing.T) {
 	})
 	t.Run("delete_id_non_number", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
 
@@ -148,7 +148,7 @@ func TestDelete(t *testing.T) {
 	})
 	t.Run("delete_invalid_token", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
 
@@ -215,7 +215,7 @@ func TestStore(t *testing.T) {
 	//})
 	t.Run("create_invalid_token", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -235,7 +235,7 @@ func TestStore(t *testing.T) {
 	})
 	t.Run("create_wrong_body", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -258,7 +258,7 @@ func TestStore(t *testing.T) {
 func TestGetById(t *testing.T) {
 	t.Run("find_by_id_existent", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -279,7 +279,7 @@ func TestGetById(t *testing.T) {
 	})
 	t.Run("find_by_id_non_existent", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -300,7 +300,7 @@ func TestGetById(t *testing.T) {
 	})
 	t.Run("find_by_id_invalid_token", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -320,7 +320,7 @@ func TestGetById(t *testing.T) {
 	})
 	t.Run("find_by_id_id_non_number", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -343,7 +343,7 @@ func TestGetById(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	t.Run("update_ok", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -370,7 +370,7 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("update_invalid_first_name", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -390,7 +390,7 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("update_invalid_last_name", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -410,7 +410,7 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("update_conflict", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -436,7 +436,7 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("update_invalid_token", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)
@@ -455,7 +455,7 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("update_id_non_number", func(t *testing.T) {
 		mockService := mocks.NewService(t)
-		buyerHandler := buyers.NewBuyer(mockService)
+		buyerHandler := controller.NewBuyer(mockService)
 
 		server := gin.Default()
 		buyerRouterGroup := server.Group(URL)

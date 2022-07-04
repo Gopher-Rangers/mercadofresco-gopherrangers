@@ -77,3 +77,11 @@ func (s *service) Delete(ctx context.Context, id int) error {
 	}
 	return nil
 }
+
+func (s *service) GetBuyerOrdersById(ctx context.Context, id int) (domain.BuyerTotalOrders, error) {
+	buyerWithOrders, err := s.repository.GetBuyerOrdersById(ctx, id)
+	if err != nil {
+		return domain.BuyerTotalOrders{}, err
+	}
+	return buyerWithOrders, nil
+}

@@ -99,3 +99,40 @@ func (r repository) Delete(ctx context.Context, id int) error {
 
 	return nil
 }
+
+func (r repository) GetBuyerOrdersById(ctx context.Context, id int) (domain.BuyerTotalOrders, error) {
+
+	buyerWithOrders, err := r.getTotalOrderByBuyer(ctx, id)
+	if err != nil {
+		return buyerWithOrders, err
+	}
+
+	buyerData, err := r.GetById(ctx, id)
+
+	buyerWithOrders.ID = buyerData.ID
+	buyerWithOrders.CardNumberId = buyerData.CardNumberId
+	buyerWithOrders.FirstName = buyerData.FirstName
+	buyerWithOrders.LastName = buyerData.LastName
+
+	return buyerWithOrders, nil
+}
+
+func (r repository) getTotalOrderByBuyer(ctx context.Context, id int) (domain.BuyerTotalOrders, error) {
+	var buyerOrders domain.BuyerTotalOrders
+
+	rows, err := r.db.QueryContext(ctx, sqlCountOrdersByBuyerId, id)
+	if err != nil {
+		return domain.BuyerTotalOrders{}, err
+	}
+
+	defer rows.Close() // Impedir vazamento de memória
+
+	for rows.Next() {
+		err := rows.Scan(&buyerOrders.PurchaseOrdersCount)
+		if err != nil {
+			return domain.BuyerTotalOrders{}, err
+		}
+	}
+
+	return buyerOrders, nil
+}

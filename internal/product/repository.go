@@ -33,7 +33,7 @@ type Product struct {
 	Height                         float64 `json:"height" validate:"required,gt=0"`
 	Length                         float64 `json:"length" validate:"required,gt=0"`
 	NetWeight                      float64 `json:"net_weight" validate:"required,gt=0"`
-	ExpirationRate                 string  `json:"expiration_rate" validate:"required"`
+	ExpirationRate                 float64 `json:"expiration_rate" validate:"required"`
 	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature" validate:"required,gt=0"`
 	FreezingRate                   float64 `json:"freezing_rate" validate:"required,gt=0"`
 	ProductTypeId                  int     `json:"product_type_id" validate:"required,gt=0"`
@@ -135,8 +135,6 @@ func (r *repository) Update(prod Product, id int) (Product, error) {
 		return Product{}, err
 	}
 	rowsAffected, _ := result.RowsAffected()
-	fmt.Println(olderProduct)
-	fmt.Println(prod)
 	if rowsAffected == 0 && prod != olderProduct {
 		return Product{}, fmt.Errorf("product %d not found", id)
 	}

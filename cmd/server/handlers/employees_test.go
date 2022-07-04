@@ -160,13 +160,25 @@ func TestEmployeesGetAll(t *testing.T) {
 	})
 }
 
-// func TestEmployeesDelete(t *testing.T) {
-// 	t.Run("delete_ok", func(t *testing.T) {
-//  		mockService := mocks.NewServices(t)
-// 		handlerEmployee := handler.NewEmployee(mockService)
-// 		server := gin.Default()
-// 		employeeRouterGroup := server.Group(URL_EMPLOYEES)
-// 		emps := createEmployeesArray()
-// 		req, rr := createEmployeeRequestTest(http.MethodDelete, URL_EMPLOYEES+"1", "")
-// 	})
-// }
+func TestEmployeesDelete(t *testing.T) {
+	t.Run("delete_ok", func(t *testing.T) {
+		mockService := mocks.NewServices(t)
+		handlerEmployee := handler.NewEmployee(mockService)
+
+		server := gin.Default()
+		employeeRouterGroup := server.Group(URL_EMPLOYEES)
+
+		req, rr := createEmployeeRequestTest(http.MethodDelete, URL_EMPLOYEES+"1", "")
+
+		mockService.On("Delete", 1).Return(nil)
+		employeeRouterGroup.DELETE("/:id", handlerEmployee.Delete())
+		server.ServeHTTP(rr, req)
+
+		resp := response{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusNoContent, rr.Code, resp.Code)
+		assert.Equal(t, resp.Data, []employee.Employee([]employee.Employee(nil)))
+		assert.Equal(t, resp.Error, "")
+	})
+}

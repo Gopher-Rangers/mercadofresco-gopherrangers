@@ -162,57 +162,60 @@ func TestDelete(t *testing.T) {
 }
 
 func TestStore(t *testing.T) {
-	//t.Run("create_ok", func(t *testing.T) {
-	//	mockService := mocks.NewService(t)
-	//	buyerHandler := handler.NewBuyer(mockService)
-	//
-	//	server := gin.Default()
-	//	buyerRouterGroup := server.Group(URL)
-	//
-	//	buyerData := createBaseData()
-	//	expected := `{"id":25735482,"card_number_id":"Card1","first_name":"Victor","last_name":"Beltramini"}`
-	//
-	//	req, response := createRequestTest(http.MethodPost, URL, expected)
-	//	mockService.On("Create", context.Background(), buyer.Buyer{
-	//		ID:           25735482,
-	//		CardNumberId: "Card1",
-	//		FirstName:    "Victor",
-	//		LastName:     "Beltramini",
-	//	}).Return(buyerData[0], nil)
-	//	buyerRouterGroup.POST("/", buyerHandler.Create)
-	//	server.ServeHTTP(response, req)
-	//
-	//	resp := responseData{}
-	//	json.Unmarshal(response.Body.Bytes(), &resp)
-	//
-	//	assert.Equal(t, http.StatusCreated, response.Code, resp.Code)
-	//	assert.Equal(t, buyerData[0], resp.Data)
-	//	assert.Equal(t, resp.Error, "")
-	//})
-	//t.Run("create_conflict", func(t *testing.T) {
-	//	ctx := context.Background()
-	//	mockService := mocks.NewService(t)
-	//	buyerHandler := handler.NewBuyer(mockService)
-	//
-	//	server := gin.Default()
-	//	buyerRouterGroup := server.Group(URL)
-	//
-	//	buyersData := createBaseData()
-	//	expected := `{"id":25735482,"card_number_id":"Card1","first_name":"Victor","last_name":"Beltramini"}`
-	//
-	//	req, response := createRequestTest(http.MethodPost, URL, expected)
-	//	mockService.On("Create", ctx, buyersData[0]).Return(buyer.Buyer{},
-	//		fmt.Errorf("buyer with card_number_id %s already exists", buyersData[0].CardNumberId))
-	//	buyerRouterGroup.POST("/", buyerHandler.AuthToken, buyerHandler.Create)
-	//	server.ServeHTTP(response, req)
-	//
-	//	resp := responseData{}
-	//	json.Unmarshal(response.Body.Bytes(), &resp)
-	//
-	//	assert.Equal(t, http.StatusNotFound, response.Code, resp.Code)
-	//	assert.Equal(t, buyer.Buyer{}, resp.Data)
-	//	assert.Equal(t, resp.Error, "buyer with card_number_id Card1 already exists")
-	//})
+	t.Run("create_ok", func(t *testing.T) {
+		mockService := mocks.NewService(t)
+		buyerHandler := controller.NewBuyer(mockService)
+
+		server := gin.Default()
+		buyerRouterGroup := server.Group(URL)
+
+		buyerData := createBaseData()
+		expected := `{"card_number_id":"Card1","first_name":"Victor","last_name":"Beltramini"}`
+
+		req, response := createRequestTest(http.MethodPost, URL, expected)
+		mockService.On("Create", context.Background(), domain.Buyer{
+			ID:           0,
+			CardNumberId: "Card1",
+			FirstName:    "Victor",
+			LastName:     "Beltramini",
+		}).Return(buyerData[0], nil)
+		buyerRouterGroup.POST("/", buyerHandler.Create)
+		server.ServeHTTP(response, req)
+
+		resp := responseData{}
+		json.Unmarshal(response.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusCreated, response.Code, resp.Code)
+		assert.Equal(t, buyerData[0], resp.Data)
+		assert.Equal(t, resp.Error, "")
+	})
+	t.Run("create_conflict", func(t *testing.T) {
+		mockService := mocks.NewService(t)
+		buyerHandler := controller.NewBuyer(mockService)
+
+		server := gin.Default()
+		buyerRouterGroup := server.Group(URL)
+
+		expected := `{"card_number_id":"Card1","first_name":"Victor","last_name":"Beltramini"}`
+
+		req, response := createRequestTest(http.MethodPost, URL, expected)
+		mockService.On("Create", context.Background(), domain.Buyer{
+			ID:           0,
+			CardNumberId: "Card1",
+			FirstName:    "Victor",
+			LastName:     "Beltramini",
+		}).Return(domain.Buyer{},
+			fmt.Errorf("buyer with card_number_id Card1 already exists"))
+		buyerRouterGroup.POST("/", buyerHandler.Create)
+		server.ServeHTTP(response, req)
+
+		resp := responseData{}
+		json.Unmarshal(response.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusNotFound, response.Code, resp.Code)
+		assert.Equal(t, domain.Buyer{}, resp.Data)
+		assert.Equal(t, resp.Error, "buyer with card_number_id Card1 already exists")
+	})
 	t.Run("create_invalid_token", func(t *testing.T) {
 		mockService := mocks.NewService(t)
 		buyerHandler := controller.NewBuyer(mockService)
@@ -387,6 +390,26 @@ func TestUpdate(t *testing.T) {
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code, resp.Code)
 		assert.Equal(t, domain.Buyer{}, resp.Data)
 		assert.Equal(t, resp.Error, "first_name is mandatory")
+	})
+	t.Run("update_invalid_card_number", func(t *testing.T) {
+		mockService := mocks.NewService(t)
+		buyerHandler := controller.NewBuyer(mockService)
+
+		server := gin.Default()
+		buyerRouterGroup := server.Group(URL)
+
+		expected := `{"id":25735482,"card_number_id":"","first_name":"Victor","last_name":"Beltramini"}`
+
+		req, response := createRequestTest(http.MethodPut, URL+"25735482", expected)
+		buyerRouterGroup.PUT("/:id", buyerHandler.ValidateID, buyerHandler.AuthToken, buyerHandler.Update)
+		server.ServeHTTP(response, req)
+
+		resp := responseData{}
+		json.Unmarshal(response.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code, resp.Code)
+		assert.Equal(t, domain.Buyer{}, resp.Data)
+		assert.Equal(t, resp.Error, "card_number_id is mandatory")
 	})
 	t.Run("update_invalid_last_name", func(t *testing.T) {
 		mockService := mocks.NewService(t)

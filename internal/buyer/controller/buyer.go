@@ -143,8 +143,8 @@ func (b *Buyer) Create(c *gin.Context) {
 				"message": "Invalid inputs. Please check your inputs"})
 		return
 	}
-
-	newBuyer, err := b.service.Create(c.Request.Context(), domain.Buyer{CardNumberId: req.CardNumberId, FirstName: req.FirstName, LastName: req.LastName})
+	buyer := domain.Buyer{CardNumberId: req.CardNumberId, FirstName: req.FirstName, LastName: req.LastName}
+	newBuyer, err := b.service.Create(c.Request.Context(), buyer)
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return

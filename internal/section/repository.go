@@ -2,6 +2,7 @@ package section
 
 import (
 	"database/sql"
+	"fmt"
 )
 
 type Section struct {
@@ -29,10 +30,6 @@ type CodeError struct {
 	Message error
 }
 
-func (c CodeError) Error() error {
-	return c.Message
-}
-
 type repository struct {
 	db *sql.DB
 }
@@ -44,7 +41,7 @@ func NewRepository(db *sql.DB) Repository {
 func (r repository) GetAll() ([]Section, error) {
 	var sections []Section
 
-	rows, err := r.db.Query(sqlGetAll)
+	rows, err := r.db.Query(SqlGetAll)
 	if err != nil {
 		return sections, err
 	}
@@ -69,7 +66,7 @@ func (r repository) GetAll() ([]Section, error) {
 func (r repository) GetByID(id int) (Section, error) {
 	var sec Section
 
-	rows, err := r.db.Query(sqlGetById, id)
+	rows, err := r.db.Query(SqlGetById, id)
 	if err != nil {
 		return Section{}, err
 	}
@@ -88,24 +85,31 @@ func (r repository) GetByID(id int) (Section, error) {
 }
 
 func (r repository) Create(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error) {
-	res, err := r.db.Exec(sqlStore, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID)
+	res, err := r.db.Exec(SqlStore, secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID)
 	if err != nil {
 		return Section{}, err
 	}
 
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return Section{}, err
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected <= 0 {
+		return Section{}, fmt.Errorf("rows not affected")
 	}
+
+	lastID, _ := res.LastInsertId()
 
 	sec := Section{int(lastID), secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID}
 	return sec, nil
 }
 
 func (r repository) UpdateSecID(id, secNum int) (Section, CodeError) {
-	_, err := r.db.Exec(sqlUpdateSecID, secNum, id)
+	res, err := r.db.Exec(SqlUpdateSecID, secNum, id)
 	if err != nil {
 		return Section{}, CodeError{500, err}
+	}
+
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected <= 0 {
+		return Section{}, CodeError{500, fmt.Errorf("rows not affected")}
 	}
 
 	sec, _ := r.GetByID(id)
@@ -113,9 +117,14 @@ func (r repository) UpdateSecID(id, secNum int) (Section, CodeError) {
 }
 
 func (r repository) DeleteSection(id int) error {
-	_, err := r.db.Exec(sqlDelete, id)
+	res, err := r.db.Exec(SqlDelete, id)
 	if err != nil {
 		return err
+	}
+
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected <= 0 {
+		return fmt.Errorf("rows not affected")
 	}
 
 	return nil

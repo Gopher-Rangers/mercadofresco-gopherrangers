@@ -120,6 +120,31 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 	c.JSON(web.NewResponse(http.StatusOK, data))
 }
 
+// GetAllBuyerPurchaseOrdersById GetPurchaseOrders godoc
+// @Summary List buyer
+// @Tags Buyers
+// @Description Get number of purchase Orders by an ID of a specific buyer
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 404 {object} web.Response
+// @Success 200 {object} web.Response
+// @Router /api/v1/buyers/{id} [GET]
+func (b *Buyer) GetAllBuyerPurchaseOrdersById(c *gin.Context) {
+
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	data, err := b.service.GetById(c.Request.Context(), id)
+
+	if err != nil {
+		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		return
+	}
+
+	c.JSON(web.NewResponse(http.StatusOK, data))
+}
+
 // Create CreateBuyer godoc
 // @Summary Create buyer
 // @Tags Buyers

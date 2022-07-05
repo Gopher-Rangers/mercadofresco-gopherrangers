@@ -103,6 +103,30 @@ func TestEmployeeCreate(t *testing.T) {
 		assert.Equal(t, employee.Employee{}, resp.Data)
 		assert.Equal(t, resp.Error, "funcionário com cartão nº: 117899 já existe no banco de dados")
 	})
+
+	t.Run("create_fail", func(t *testing.T) {
+		mockService := mocks.NewServices(t)
+		handlerEmployee := handler.NewEmployee(mockService)
+
+		server := gin.Default()
+		employeesRouterGroup := server.Group(URL_EMPLOYEES)
+
+		emps := createEmployeesArray()
+		expected := `{"id": 1, "first_name": "Jose", "last_name": "Neves", "warehouse_id": 456521}`
+		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, expected)
+
+		mockService.On("GetAll").Return([]employee.Employee{})
+		mockService.On("Create", emps[0].CardNumber, emps[0].FirstName, emps[0].LastName, emps[0].WareHouseID).Return(employee.Employee{}, fmt.Errorf(""))
+		employeesRouterGroup.POST("/", handlerEmployee.Create())
+		server.ServeHTTP(rr, req)
+
+		resp := responseOne{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusUnprocessableEntity, rr.Code, resp.Code)
+		assert.Equal(t, employee.Employee{}, resp.Data)
+		assert.Equal(t, resp.Error, "preencha todos os campos")
+	})
 }
 
 func TestEmployeesGetAll(t *testing.T) {
@@ -246,5 +270,32 @@ func TestEmployeesUpdate(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rr.Code, resp.Code)
 		assert.Equal(t, newEmployee1, resp.Data)
 
+	})
+	t.Run("update_non_existent", func(t *testing.T) {
+		mockService := mocks.NewServices(t)
+		handlerEmployee := handler.NewEmployee(mockService)
+
+		server := gin.Default()
+		employeeRouterGroup := server.Group(URL_EMPLOYEES)
+
+		expected := `{"id": 1, "card_number_id": 111133, "first_name": "Novo", "last_name": "Nome", "warehouse_id": 7711}`
+		req, rr := createEmployeeRequestTest(http.MethodPatch, URL_EMPLOYEES+"8765", expected)
+
+		newEmployee1 := employee.Employee{
+			ID:          1,
+			CardNumber:  111133,
+			FirstName:   "Novo",
+			LastName:    "Nome",
+			WareHouseID: 7711,
+		}
+
+		mockService.On("Update", newEmployee1, 8765).Return(employee.Employee{}, fmt.Errorf(""))
+		employeeRouterGroup.PATCH("/:id", handlerEmployee.Update())
+		server.ServeHTTP(rr, req)
+
+		resp := responseOne{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusNotFound, rr.Code, resp.Code)
 	})
 }

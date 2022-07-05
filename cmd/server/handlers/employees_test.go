@@ -202,7 +202,7 @@ func TestEmployeesGetById(t *testing.T) {
 		employeeRouterGroup := server.Group(URL_EMPLOYEES)
 
 		emps := employee.Employee{}
-		req, rr := createProductRequestTest(http.MethodGet, URL_EMPLOYEES+"8765", "")
+		req, rr := createEmployeeRequestTest(http.MethodGet, URL_EMPLOYEES+"8765", "")
 
 		mockService.On("GetById", 8765).Return(emps, fmt.Errorf(""))
 		employeeRouterGroup.GET("/:id", handlerEmployee.GetById())
@@ -214,5 +214,37 @@ func TestEmployeesGetById(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, rr.Code, resp.Code)
 		assert.Equal(t, emps, resp.Data)
 		assert.Equal(t, resp.Error, "")
+	})
+}
+
+func TestEmployeesUpdate(t *testing.T) {
+	t.Run("update_ok", func(t *testing.T) {
+		mockService := mocks.NewServices(t)
+		handlerEmployee := handler.NewEmployee(mockService)
+
+		server := gin.Default()
+		employeeRouterGroup := server.Group(URL_EMPLOYEES)
+
+		expected := `{"id": 1, "card_number_id": 111133, "first_name": "Novo", "last_name": "Nome", "warehouse_id": 7711}`
+		req, rr := createEmployeeRequestTest(http.MethodPatch, URL_EMPLOYEES+"1", expected)
+
+		newEmployee1 := employee.Employee{
+			ID:          1,
+			CardNumber:  111133,
+			FirstName:   "Novo",
+			LastName:    "Nome",
+			WareHouseID: 7711,
+		}
+
+		mockService.On("Update", newEmployee1, 1).Return(newEmployee1, nil)
+		employeeRouterGroup.PATCH("/:id", handlerEmployee.Update())
+		server.ServeHTTP(rr, req)
+
+		resp := responseOne{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusOK, rr.Code, resp.Code)
+		assert.Equal(t, newEmployee1, resp.Data)
+
 	})
 }

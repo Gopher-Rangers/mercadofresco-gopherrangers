@@ -11,6 +11,53 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	WithValue = true
+	FailScan  = false
+)
+
+func CreateReportArray() []productbatch.Report {
+	var exp = []productbatch.Report{
+		{1, 22, 5},
+		{3, 483, 28},
+		{5, 7843, 90},
+	}
+
+	return exp
+}
+
+func MockRowsArray(flag bool) *sqlmock.Rows {
+	exp := CreateReportArray()
+
+	rows := sqlmock.NewRows([]string{"section_id", "section_number", "products_count"})
+
+	if !flag {
+		rows.AddRow("", "", "")
+		return rows
+	}
+
+	for i := range exp {
+		rows.AddRow(exp[i].SecID, exp[i].SecNum, exp[i].ProdCount)
+	}
+
+	return rows
+}
+
+func MockRow(flag bool) *sqlmock.Rows {
+	exp := CreateReportArray()[0]
+
+	rows := sqlmock.NewRows([]string{"section_id", "section_number", "products_count"})
+
+	if !flag {
+		rows.AddRow("", "", "")
+		return rows
+	}
+
+	rows.AddRow(exp.SecID, exp.SecNum, exp.ProdCount)
+
+	return rows
+}
+
 func InitTest(t *testing.T) (sqlmock.Sqlmock, productbatch.Repository) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
@@ -58,5 +105,65 @@ func TestRepositoryCreate(t *testing.T) {
 		assert.Equal(t, productbatch.ProductBatch{}, pb)
 		assert.Error(t, err)
 		assert.Equal(t, errors.New("sql: rows not affected"), err)
+	})
+}
+
+func TestReport(t *testing.T) {
+	mock, mockRepository := InitTest(t)
+	exp := CreateReportArray()
+	rows := MockRowsArray(WithValue)
+
+	t.Run("report_ok", func(t *testing.T) {
+		mock.ExpectQuery(regexp.QuoteMeta(productbatch.SqlReportBatchAll)).WillReturnRows(rows)
+
+		pb, err := mockRepository.Report()
+
+		assert.NoError(t, err)
+		assert.Equal(t, exp, pb)
+	})
+
+	t.Run("report_fail_query", func(t *testing.T) {
+		mock.ExpectQuery(regexp.QuoteMeta(productbatch.SqlReportBatchAll)).WillReturnError(sql.ErrNoRows)
+
+		pb, err := mockRepository.Report()
+
+		assert.Equal(t, []productbatch.Report{}, pb)
+		assert.Error(t, err)
+		assert.Equal(t, errors.New("sql: no rows in result set"), err)
+	})
+
+	t.Run("report_fail_scan", func(t *testing.T) {
+		rows := MockRowsArray(FailScan)
+		mock.ExpectQuery(regexp.QuoteMeta(productbatch.SqlReportBatchAll)).WillReturnRows(rows)
+
+		pb, err := mockRepository.Report()
+
+		assert.Equal(t, []productbatch.Report{}, pb)
+		assert.Error(t, err)
+	})
+}
+
+func TestReportByID(t *testing.T) {
+	mock, mockRepository := InitTest(t)
+	exp := CreateReportArray()[0]
+	row := MockRow(WithValue)
+
+	t.Run("report_ok", func(t *testing.T) {
+		mock.ExpectQuery(regexp.QuoteMeta(productbatch.SqlReportBatchByID)).WillReturnRows(row)
+
+		pb, err := mockRepository.ReportByID(1)
+
+		assert.NoError(t, err)
+		assert.Equal(t, exp, pb)
+	})
+
+	t.Run("report_fail_scan", func(t *testing.T) {
+		row := MockRow(FailScan)
+		mock.ExpectQuery(regexp.QuoteMeta(productbatch.SqlReportBatchAll)).WillReturnRows(row)
+
+		pb, err := mockRepository.ReportByID(1)
+
+		assert.Equal(t, productbatch.Report{}, pb)
+		assert.Error(t, err)
 	})
 }

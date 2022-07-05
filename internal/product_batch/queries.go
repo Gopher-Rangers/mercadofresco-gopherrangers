@@ -1,7 +1,9 @@
 package productbatch
 
 const (
-	sqlReportBatch = "SELECT * FROM section WHERE id=?"
+	sqlReportBatchAll = "SELECT a.section_id, b.section_number, COUNT(*) FROM product_batches as a INNER JOIN section as b ON a.section_id = b.id GROUP BY section_id"
 
-	sqlCreateBatch = "INSERT INTO section (`section_number`, `current_temperature`, `minimum_temperature`, `current_capacity`, `minimum_capacity`, `maximum_capacity`, `warehouse_id`, `product_type_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+	sqlReportBatchByID = "SELECT a.section_id, b.section_number, COUNT(*) FROM product_batches as a INNER JOIN section as b ON a.section_id = b.id WHERE a.section_id = ? GROUP BY section_id"
+
+	sqlCreateBatch = "INSERT INTO product_batches (batch_number, current_quantity, current_temperature, due_date, initial_quantity, manufacturing_date, manufacturing_hour, minimum_temperature, product_id, section_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 )

@@ -1,7 +1,8 @@
 package productbatch
 
 type Services interface {
-	GetByID(id int) (ProductBatch, error)
+	Report() ([]Report, error)
+	ReportByID(id int) (Report, error)
 	Create(pb ProductBatch) (ProductBatch, error)
 }
 
@@ -14,10 +15,30 @@ func NewService(r Repository) Services {
 	return &s
 }
 
-func (r service) GetByID(id int) (ProductBatch, error) {
-	return ProductBatch{}, nil
+func (s service) Create(pb ProductBatch) (ProductBatch, error) {
+	ps, err := s.repository.Create(pb)
+	if err != nil {
+		return ProductBatch{}, err
+	}
+	return ps, nil
 }
 
-func (r service) Create(pb ProductBatch) (ProductBatch, error) {
-	return ProductBatch{}, nil
+func (s service) Report() ([]Report, error) {
+	pb, err := s.repository.Report()
+
+	if err != nil {
+		return []Report{}, err
+	}
+
+	return pb, nil
+}
+
+func (s service) ReportByID(id int) (Report, error) {
+	pb, err := s.repository.ReportByID(id)
+
+	if err != nil {
+		return Report{}, err
+	}
+
+	return pb, nil
 }

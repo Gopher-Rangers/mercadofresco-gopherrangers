@@ -17,19 +17,6 @@ func NewProductBatch(p productbatch.Services) ProductBatch {
 	return ProductBatch{p}
 }
 
-func (p *ProductBatch) GetByID() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		id, _ := strconv.Atoi(c.Param("id"))
-
-		sec, err := p.service.GetByID(id)
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
-		}
-		c.JSON(web.NewResponse(http.StatusOK, sec))
-	}
-}
-
 func (p *ProductBatch) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req productbatch.ProductBatch
@@ -38,12 +25,32 @@ func (p *ProductBatch) Create() gin.HandlerFunc {
 			return
 		}
 
-		sec, err := p.service.Create(req)
+		pb, err := p.service.Create(req)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 			return
 		}
 
-		c.JSON(web.NewResponse(http.StatusCreated, sec))
+		c.JSON(web.NewResponse(http.StatusCreated, pb))
+	}
+}
+
+func (p *ProductBatch) Report() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var repID interface{}
+		var err error
+
+		id, _ := strconv.Atoi(c.Query("id"))
+		if id == 0 {
+			repID, err = p.service.Report()
+		} else {
+			repID, err = p.service.ReportByID(id)
+		}
+
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+		c.JSON(web.NewResponse(http.StatusOK, repID))
 	}
 }

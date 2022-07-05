@@ -58,7 +58,7 @@ func MockRow(flag bool) *sqlmock.Rows {
 	return rows
 }
 
-func InitTest(t *testing.T) (sqlmock.Sqlmock, productbatch.Repository) {
+func InitTestRepository(t *testing.T) (sqlmock.Sqlmock, productbatch.Repository) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	mockRepository := productbatch.NewRepository(db)
@@ -67,7 +67,7 @@ func InitTest(t *testing.T) (sqlmock.Sqlmock, productbatch.Repository) {
 }
 
 func TestRepositoryCreate(t *testing.T) {
-	mock, mockRepository := InitTest(t)
+	mock, mockRepository := InitTestRepository(t)
 
 	exp := productbatch.ProductBatch{1, 111, 200, 20, "2022-04-04", 10, "2020-04-04", 10, 5, 1, 1}
 
@@ -109,7 +109,7 @@ func TestRepositoryCreate(t *testing.T) {
 }
 
 func TestReport(t *testing.T) {
-	mock, mockRepository := InitTest(t)
+	mock, mockRepository := InitTestRepository(t)
 	exp := CreateReportArray()
 	rows := MockRowsArray(WithValue)
 
@@ -144,7 +144,7 @@ func TestReport(t *testing.T) {
 }
 
 func TestReportByID(t *testing.T) {
-	mock, mockRepository := InitTest(t)
+	mock, mockRepository := InitTestRepository(t)
 	exp := CreateReportArray()[0]
 	row := MockRow(WithValue)
 

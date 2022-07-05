@@ -25,20 +25,16 @@ func (s service) Create(pb ProductBatch) (ProductBatch, error) {
 
 func (s service) Report() ([]Report, error) {
 	pb, err := s.repository.Report()
-
 	if err != nil {
 		return []Report{}, err
 	}
-
 	return pb, nil
 }
 
 func (s service) ReportByID(id int) (Report, error) {
 	pb, err := s.repository.ReportByID(id)
-
 	if err != nil {
 		return Report{}, err
 	}
-
 	return pb, nil
 }

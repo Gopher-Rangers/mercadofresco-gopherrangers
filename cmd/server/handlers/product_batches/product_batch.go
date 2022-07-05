@@ -51,6 +51,7 @@ func (p *ProductBatch) Report() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
+
 		c.JSON(web.NewResponse(http.StatusOK, repID))
 	}
 }

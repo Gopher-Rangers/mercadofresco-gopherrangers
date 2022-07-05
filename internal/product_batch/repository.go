@@ -48,25 +48,24 @@ func (r repository) Create(pb ProductBatch) (ProductBatch, error) {
 
 	rowsAffected, _ := res.RowsAffected()
 	if rowsAffected <= 0 {
-		return ProductBatch{}, fmt.Errorf("rows not affected")
+		return ProductBatch{}, fmt.Errorf("sql: rows not affected")
 	}
 
 	lastID, _ := res.LastInsertId()
-
 	pb.ID = int(lastID)
+
 	return pb, nil
 }
 
 func (r repository) Report() ([]Report, error) {
-	var rep []Report
-
 	rows, err := r.db.Query(sqlReportBatchAll)
 	if err != nil {
-		return rep, err
+		return []Report{}, err
 	}
 
 	defer rows.Close()
 
+	var rep []Report
 	for rows.Next() {
 		var row Report
 
@@ -82,10 +81,9 @@ func (r repository) Report() ([]Report, error) {
 }
 
 func (r repository) ReportByID(id int) (Report, error) {
-	var rep Report
-
 	rows := r.db.QueryRow(sqlReportBatchByID, id)
 
+	var rep Report
 	err := rows.Scan(&rep.SecID, &rep.SecNum, &rep.ProdCount)
 	if err != nil {
 		return Report{}, err

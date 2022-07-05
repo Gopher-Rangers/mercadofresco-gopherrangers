@@ -51,9 +51,7 @@ func (s service) CreateWarehouse(code, address, tel string, minCap, minTemp int)
 		return domain.Warehouse{}, fmt.Errorf("o `warehouse_code` já está em uso")
 	}
 
-	id := s.repository.IncrementID()
-
-	warehouse, err := s.repository.CreateWarehouse(id, code, address, tel, minCap, minTemp)
+	warehouse, err := s.repository.CreateWarehouse(code, address, tel, minCap, minTemp)
 
 	if err != nil {
 		return domain.Warehouse{}, err

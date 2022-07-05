@@ -6,7 +6,6 @@ type Repository interface {
 	GetAll() []domain.Warehouse
 	GetByID(id int) (domain.Warehouse, error)
 	CreateWarehouse(
-		id int,
 		code,
 		address,
 		tel string,
@@ -14,6 +13,5 @@ type Repository interface {
 		minTemp int) (domain.Warehouse, error)
 	UpdatedWarehouseID(id int, code string) (domain.Warehouse, error)
 	DeleteWarehouse(id int) error
-	IncrementID() int
 	FindByWarehouseCode(code string) (domain.Warehouse, error)
 }

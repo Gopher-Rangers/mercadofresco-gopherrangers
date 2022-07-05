@@ -9,6 +9,6 @@ services:
       - ./db/:/docker-entrypoint-initdb.d
       - ./db/.data:/var/lib/mysql
     ports:
-      - 3306:3306
+      - 3305:3306
     environment:
       - MARIADB_ROOT_PASSWORD=${DB_PASS}

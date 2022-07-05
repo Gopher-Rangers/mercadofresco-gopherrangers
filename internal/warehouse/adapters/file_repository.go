@@ -37,7 +37,6 @@ func (r fileRepository) GetByID(id int) (domain.Warehouse, error) {
 }
 
 func (r *fileRepository) CreateWarehouse(
-	id int,
 	code,
 	address,
 	tel string,
@@ -51,6 +50,8 @@ func (r *fileRepository) CreateWarehouse(
 	if err != nil {
 		return domain.Warehouse{}, fmt.Errorf("não foi possível ler o arquivo")
 	}
+
+	id := r.incrementID()
 
 	w := domain.Warehouse{id, code, address, tel, minCap, minTemp}
 
@@ -96,7 +97,7 @@ func (r *fileRepository) DeleteWarehouse(id int) error {
 	return fmt.Errorf("não foi achado warehouse com esse id: %d", id)
 }
 
-func (r fileRepository) IncrementID() int {
+func (r fileRepository) incrementID() int {
 	var ListWarehouse []domain.Warehouse
 
 	r.db.Read(&ListWarehouse)

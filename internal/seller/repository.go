@@ -3,6 +3,7 @@ package seller
 import (
 	"context"
 	"database/sql"
+	"fmt"
 )
 
 type Repository interface {
@@ -38,6 +39,8 @@ func (m mariaDBRepository) GetOne(ctx context.Context, id int) (Seller, error) {
 		if err != nil {
 			return seller, err
 		}
+
+		return seller, nil
 	}
 
 	err = rows.Err()
@@ -45,7 +48,7 @@ func (m mariaDBRepository) GetOne(ctx context.Context, id int) (Seller, error) {
 		return Seller{}, err
 	}
 
-	return seller, nil
+	return seller, fmt.Errorf("id does not exists")
 }
 
 func (m *mariaDBRepository) GetAll(ctx context.Context) ([]Seller, error) {

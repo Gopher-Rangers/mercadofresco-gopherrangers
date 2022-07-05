@@ -20,7 +20,7 @@ func TestService_Delete(t *testing.T) {
 			{Id: 3, CompanyId: 6, CompanyName: "TestDelete", Address: "BR", Telephone: "5501154545454"},
 			{Id: 4, CompanyId: 6, CompanyName: "TestDelete", Address: "BR", Telephone: "5501154545454"}}
 
-		mockRepo.On("GetOne", context.Background(), id).Return(sellerList[0], nil)
+		mockRepo.On("GetById", context.Background(), id).Return(sellerList[0], nil)
 		mockRepo.On("Delete", context.Background(), 1).Return(nil)
 
 		service := seller.NewService(mockRepo)
@@ -36,7 +36,7 @@ func TestService_Delete(t *testing.T) {
 
 		expectedError := fmt.Errorf("the id %d does not exists", id)
 
-		mockRepo.On("GetOne", context.Background(), id).Return(seller.Seller{}, expectedError)
+		mockRepo.On("GetById", context.Background(), id).Return(seller.Seller{}, expectedError)
 
 		service := seller.NewService(mockRepo)
 		err := service.Delete(context.Background(), id)
@@ -53,7 +53,7 @@ func TestService_Delete(t *testing.T) {
 			{Id: 3, CompanyId: 6, CompanyName: "TestDelete", Address: "BR", Telephone: "5501154545454"},
 			{Id: 4, CompanyId: 6, CompanyName: "TestDelete", Address: "BR", Telephone: "5501154545454"}}
 
-		mockRepo.On("GetOne", context.Background(), id).Return(sellerList[0], nil)
+		mockRepo.On("GetById", context.Background(), id).Return(sellerList[0], nil)
 		mockRepo.On("Delete", context.Background(), 1).Return(fmt.Errorf("error"))
 
 		service := seller.NewService(mockRepo)
@@ -73,7 +73,7 @@ func TestService_Update(t *testing.T) {
 
 		expectedResult := seller.Seller{Id: 1, CompanyId: 7, CompanyName: "Meli", Address: "América do Sul", Telephone: "5501154545454"}
 
-		mockRepo.On("GetOne", context.Background(), 1).Return(sellerList[0], nil)
+		mockRepo.On("GetById", context.Background(), 1).Return(sellerList[0], nil)
 		mockRepo.On("GetAll", context.Background()).Return(sellerList, nil)
 		mockRepo.On("Update", context.Background(), expectedResult.CompanyId, expectedResult.CompanyName, expectedResult.Address,
 			expectedResult.Telephone, sellerList[0]).Return(expectedResult, nil)
@@ -92,7 +92,7 @@ func TestService_Update(t *testing.T) {
 		expectedResult := seller.Seller{}
 		expectedError := fmt.Errorf("the id %d does not exists", id)
 
-		mockRepo.On("GetOne", context.Background(), id).Return(seller.Seller{}, expectedError)
+		mockRepo.On("GetById", context.Background(), id).Return(seller.Seller{}, expectedError)
 
 		service := seller.NewService(mockRepo)
 		response, err := service.Update(context.Background(), id, 5, "Meli", "América do Sul", "5501154545454")
@@ -110,7 +110,7 @@ func TestService_Update(t *testing.T) {
 
 		expectedError := errors.New("the cid already exists")
 
-		mockRepo.On("GetOne", context.Background(), 1).Return(sellerList[0], nil)
+		mockRepo.On("GetById", context.Background(), 1).Return(sellerList[0], nil)
 		mockRepo.On("GetAll", context.Background()).Return(sellerList, nil)
 
 		service := seller.NewService(mockRepo)
@@ -129,7 +129,7 @@ func TestService_Update(t *testing.T) {
 
 		expectedResult := seller.Seller{Id: 1, CompanyId: 7, CompanyName: "Meli", Address: "América do Sul", Telephone: "5501154545454"}
 
-		mockRepo.On("GetOne", context.Background(), 1).Return(sellerList[0], nil)
+		mockRepo.On("GetById", context.Background(), 1).Return(sellerList[0], nil)
 		mockRepo.On("GetAll", context.Background()).Return(sellerList, nil)
 		mockRepo.On("Update", context.Background(), expectedResult.CompanyId, expectedResult.CompanyName, expectedResult.Address, expectedResult.Telephone, sellerList[0]).
 			Return(seller.Seller{}, fmt.Errorf("error"))
@@ -148,13 +148,13 @@ func TestService_GetOne(t *testing.T) {
 		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestGetOne", Address: "BR", Telephone: "5501154545454"},
 			{Id: 3, CompanyId: 5, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454"}}
 
-		mockrepo.On("GetOne", context.Background(), 1).Return(sellerList[0], nil)
+		mockrepo.On("GetById", context.Background(), 1).Return(sellerList[0], nil)
 
 		service := seller.NewService(mockrepo)
 		response1, _ := service.GetOne(context.Background(), sellerList[0].Id)
 		assert.Equal(t, sellerList[0], response1)
 
-		mockrepo.On("GetOne", context.Background(), 3).Return(sellerList[1], nil)
+		mockrepo.On("GetById", context.Background(), 3).Return(sellerList[1], nil)
 		response2, _ := service.GetOne(context.Background(), 3)
 		assert.Equal(t, sellerList[1], response2)
 	})
@@ -166,7 +166,7 @@ func TestService_GetOne(t *testing.T) {
 
 		expectedError := fmt.Errorf("the id %d does not exists", id)
 
-		mockRepo.On("GetOne", context.Background(), id).Return(seller.Seller{}, expectedError)
+		mockRepo.On("GetById", context.Background(), id).Return(seller.Seller{}, expectedError)
 
 		service := seller.NewService(mockRepo)
 		_, err := service.GetOne(context.Background(), id)

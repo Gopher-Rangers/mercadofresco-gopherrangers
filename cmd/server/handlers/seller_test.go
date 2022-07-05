@@ -43,7 +43,7 @@ func TestSeller_Update(t *testing.T) {
 
 		dataJson, _ := json.Marshal(expected)
 
-		mockService.On("GetOne", mock.Anything, 2).Return(seller.Seller{}, expectedError)
+		mockService.On("GetById", mock.Anything, 2).Return(seller.Seller{}, expectedError)
 
 		server := gin.Default()
 		serverSellerGroup := server.Group(URL)
@@ -65,7 +65,7 @@ func TestSeller_Update(t *testing.T) {
 
 		dataJson, _ := json.Marshal(expected)
 
-		mockService.On("GetOne", mock.Anything, 1).Return(data, nil)
+		mockService.On("GetById", mock.Anything, 1).Return(data, nil)
 		mockService.On("Update", mock.Anything, 1, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).
 			Return(expected, nil)
 
@@ -89,7 +89,7 @@ func TestSeller_Update(t *testing.T) {
 
 		dataJson, _ := json.Marshal(expected)
 
-		mockService.On("GetOne", mock.Anything, 1).Return(seller.Seller{}, nil)
+		mockService.On("GetById", mock.Anything, 1).Return(seller.Seller{}, nil)
 
 		server := gin.Default()
 		serverSellerGroup := server.Group(URL)
@@ -199,7 +199,7 @@ func TestSeller_GetOne(t *testing.T) {
 		handlerSeller := NewSeller(mockService)
 
 		expectedError := fmt.Errorf("the id %d does not exists", id)
-		mockService.On("GetOne", mock.Anything, id).Return(seller.Seller{}, expectedError)
+		mockService.On("GetById", mock.Anything, id).Return(seller.Seller{}, expectedError)
 
 		server := gin.Default()
 		serverSellerGroup := server.Group(URL)
@@ -221,7 +221,7 @@ func TestSeller_GetOne(t *testing.T) {
 		expectedJson, _ := json.Marshal(sellerOne)
 
 		req, rr := createRequestTest(http.MethodGet, URL+"1", string(expectedJson))
-		mockService.On("GetOne", mock.Anything, 1).Return(sellerOne, nil)
+		mockService.On("GetById", mock.Anything, 1).Return(sellerOne, nil)
 
 		server := gin.Default()
 		sellerServerGroup := server.Group(URL)

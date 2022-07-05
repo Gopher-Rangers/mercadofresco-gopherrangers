@@ -29,7 +29,9 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
-	err := godotenv.Load("../../.env")
+	//TODO DESFAZER
+	//err := godotenv.Load("../../.env")
+	err := godotenv.Load("./.env")
 	if err != nil {
 		log.Fatal("failed to load .env")
 	}
@@ -50,6 +52,8 @@ func main() {
 		routes.Sections(baseRoute)
 
 		routes.Sellers(baseRoute)
+
+		routes.Localities(baseRoute)
 
 		employeeRouterGroup := baseRoute.Group("/employees")
 		{

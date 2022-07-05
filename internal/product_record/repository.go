@@ -3,10 +3,10 @@ package productrecord
 import (
 	"database/sql"
 	"fmt"
+	"context"
 )
 
 const (
-	GET    = `SELECT * FROM product_records`
 	GETALL = `SELECT p.id, p.description, COUNT(pr.product_id)
 				FROM product_records pr 
 				JOIN products p ON p.id = pr.product_id
@@ -35,10 +35,9 @@ type ProductRecordGet struct {
 }
 
 type Repository interface {
-	Store(prod ProductRecord) (ProductRecord, error)
-	GetById(id int) (ProductRecordGet, error)
-	GetAll() ([]ProductRecordGet, error)
-	GetAllProductRecords() ([]ProductRecord, error)
+	Store(ctx context.Context, prod ProductRecord) (ProductRecord, error)
+	GetById(ctx context.Context, id int) (ProductRecordGet, error)
+	GetAll(ctx context.Context) ([]ProductRecordGet, error)
 }
 
 type repository struct {
@@ -49,7 +48,7 @@ func NewRepository(db *sql.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) Store(prod ProductRecord) (ProductRecord, error) {
+func (r *repository) Store(ctx context.Context, prod ProductRecord) (ProductRecord, error) {
 	stmt, err := r.db.Prepare(STORE)
 	if err != nil {
 		return ProductRecord{}, err
@@ -72,7 +71,7 @@ func (r *repository) Store(prod ProductRecord) (ProductRecord, error) {
 	return prod, nil
 }
 
-func (r *repository) GetById(id int) (ProductRecordGet, error) {
+func (r *repository) GetById(ctx context.Context, id int) (ProductRecordGet, error) {
 	var prod ProductRecordGet
 	stmt, err := r.db.Prepare(GETBYID)
 	if err != nil {
@@ -87,7 +86,7 @@ func (r *repository) GetById(id int) (ProductRecordGet, error) {
 	return prod, nil
 }
 
-func (r *repository) GetAll() ([]ProductRecordGet, error) {
+func (r *repository) GetAll(ctx context.Context) ([]ProductRecordGet, error) {
 	var ps []ProductRecordGet
 	rows, err := r.db.Query(GETALL)
 	if err != nil {
@@ -98,25 +97,6 @@ func (r *repository) GetAll() ([]ProductRecordGet, error) {
 		var prod ProductRecordGet
 		err := rows.Scan(&prod.ProductId, &prod.Description,
 			&prod.RecordsCount)
-		if err != nil {
-			return ps, err
-		}
-		ps = append(ps, prod)
-	}
-	return ps, nil
-}
-
-func (r *repository) GetAllProductRecords() ([]ProductRecord, error) {
-	var ps []ProductRecord
-	rows, err := r.db.Query(GETALL)
-	if err != nil {
-		return ps, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var prod ProductRecord
-		err := rows.Scan(&prod.ID, &prod.LastUpdateDate, &prod.PurchasePrice,
-			&prod.SalePrice, &prod.ProductId)
 		if err != nil {
 			return ps, err
 		}

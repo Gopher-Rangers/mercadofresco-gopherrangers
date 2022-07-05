@@ -82,7 +82,7 @@ func (prod *ProductRecord) Store() gin.HandlerFunc {
 				}
 			}
 		}
-		p, err := prod.service.Store(req)
+		p, err := prod.service.Store(c.Request.Context(), req)
 		if err != nil {
 			if err.Error() == ERROR_INEXISTENT_PRODUCT ||
 				err.Error() == ERROR_WRONG_LAST_UPDATE_DATE {
@@ -124,14 +124,14 @@ func (prod *ProductRecord) GetById() gin.HandlerFunc {
 			return
 		}
 		if idStr == "" {
-			p, err := prod.service.GetAll()
+			p, err := prod.service.GetAll(c.Request.Context())
 			if err != nil {
 				c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 				return
 			}
 			c.JSON(web.NewResponse(http.StatusOK, p))
 		} else {
-			p, err := prod.service.GetById(idNum)
+			p, err := prod.service.GetById(c.Request.Context(), idNum)
 			if err != nil {
 				c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 				return

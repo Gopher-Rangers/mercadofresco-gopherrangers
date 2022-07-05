@@ -3,6 +3,7 @@ package productrecord
 import (
 	"fmt"
 	"time"
+	"context"
 
 	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 )
@@ -13,10 +14,9 @@ const (
 )
 
 type Service interface {
-	Store(prod ProductRecord) (ProductRecord, error)
-	GetAll() ([]ProductRecordGet, error)
-	GetById(id int) (ProductRecordGet, error)
-	GetAllProductRecords() ([]ProductRecord, error)
+	Store(ctx context.Context, prod ProductRecord) (ProductRecord, error)
+	GetAll(ctx context.Context) ([]ProductRecordGet, error)
+	GetById(ctx context.Context, id int) (ProductRecordGet, error)
 }
 
 type service struct {
@@ -47,34 +47,29 @@ func (s *service) checkDatetime(last_update_time string) bool {
 	return diff > 0
 }
 
-func (s *service) Store(prod ProductRecord) (ProductRecord, error) {
+func (s *service) Store(ctx context.Context, prod ProductRecord) (ProductRecord, error) {
 	if !s.checkIfProductExists(prod) {
 		return ProductRecord{}, fmt.Errorf(ERROR_INEXISTENT_PRODUCT)
 	}
 	if !s.checkDatetime(prod.LastUpdateDate) {
 		return ProductRecord{}, fmt.Errorf(ERROR_WRONG_LAST_UPDATE_DATE)
 	}
-	product, err := s.repository.Store(prod)
+	product, err := s.repository.Store(ctx, prod)
 	if err != nil {
 		return ProductRecord{}, err
 	}
 	return product, nil
 }
 
-func (s *service) GetById(id int) (ProductRecordGet, error) {
-	ps, err := s.repository.GetById(id)
+func (s *service) GetById(ctx context.Context, id int) (ProductRecordGet, error) {
+	ps, err := s.repository.GetById(ctx, id)
 	if err != nil {
 		return ProductRecordGet{}, err
 	}
 	return ps, nil
 }
 
-func (s *service) GetAll() ([]ProductRecordGet, error) {
-	ps, _ := s.repository.GetAll()
-	return ps, nil
-}
-
-func (s *service) GetAllProductRecords() ([]ProductRecord, error) {
-	ps, _ := s.repository.GetAllProductRecords()
+func (s *service) GetAll(ctx context.Context) ([]ProductRecordGet, error) {
+	ps, _ := s.repository.GetAll(ctx)
 	return ps, nil
 }

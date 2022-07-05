@@ -40,7 +40,7 @@ func NewRepository(db *sql.DB) Repository {
 }
 
 func (r repository) Create(pb ProductBatch) (ProductBatch, error) {
-	res, err := r.db.Exec(sqlCreateBatch, pb.BatchNumber, pb.CurQuantity, pb.CurTemperature, pb.DueDate,
+	res, err := r.db.Exec(SqlCreateBatch, pb.BatchNumber, pb.CurQuantity, pb.CurTemperature, pb.DueDate,
 		pb.InitialQuantity, pb.ManufactDate, pb.ManufactHour, pb.MinTemperature, pb.ProductTypeID, pb.SectionID)
 	if err != nil {
 		return ProductBatch{}, err
@@ -58,7 +58,7 @@ func (r repository) Create(pb ProductBatch) (ProductBatch, error) {
 }
 
 func (r repository) Report() ([]Report, error) {
-	rows, err := r.db.Query(sqlReportBatchAll)
+	rows, err := r.db.Query(SqlReportBatchAll)
 	if err != nil {
 		return []Report{}, err
 	}
@@ -81,7 +81,7 @@ func (r repository) Report() ([]Report, error) {
 }
 
 func (r repository) ReportByID(id int) (Report, error) {
-	rows := r.db.QueryRow(sqlReportBatchByID, id)
+	rows := r.db.QueryRow(SqlReportBatchByID, id)
 
 	var rep Report
 	err := rows.Scan(&rep.SecID, &rep.SecNum, &rep.ProdCount)

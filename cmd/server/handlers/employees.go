@@ -127,7 +127,7 @@ func (e Employee) GetById() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
-		c.JSON(web.NewResponse(http.StatusAccepted, employee))
+		c.JSON(web.NewResponse(http.StatusOK, employee))
 	}
 }
 

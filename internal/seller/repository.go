@@ -9,7 +9,7 @@ import (
 type Repository interface {
 	GetOne(ctx context.Context, id int) (Seller, error)
 	GetAll(ctx context.Context) ([]Seller, error)
-	Create(ctx context.Context, cid int, companyName, address, telephone string) (Seller, error)
+	Create(ctx context.Context, cid int, companyName, address, telephone string, locality int) (Seller, error)
 	Update(ctx context.Context, cid int, companyName, address, telephone string, seller Seller) (Seller, error)
 	Delete(ctx context.Context, id int) error
 }
@@ -25,7 +25,7 @@ func NewMariaDBRepository(db *sql.DB) Repository {
 func (m mariaDBRepository) GetOne(ctx context.Context, id int) (Seller, error) {
 	var seller Seller
 
-	rows, err := m.db.QueryContext(ctx, "SELECT *  FROM seller WHERE id=?", id)
+	rows, err := m.db.QueryContext(ctx, "SELECT localities.id FROM seller LEFT JOIN localities ON seller.locality_id= localities.id WHERE seller.id = ?", id)
 
 	if err != nil {
 		return seller, err
@@ -34,7 +34,7 @@ func (m mariaDBRepository) GetOne(ctx context.Context, id int) (Seller, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&seller.Id, &seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone)
+		err := rows.Scan(&seller.Id, &seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone, &seller.LocalityID)
 
 		if err != nil {
 			return seller, err
@@ -65,7 +65,7 @@ func (m *mariaDBRepository) GetAll(ctx context.Context) ([]Seller, error) {
 	for rows.Next() {
 		var seller Seller
 
-		err := rows.Scan(&seller.Id, &seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone)
+		err := rows.Scan(&seller.Id, &seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone, &seller.LocalityID)
 
 		if err != nil {
 			return sellerList, err
@@ -77,12 +77,12 @@ func (m *mariaDBRepository) GetAll(ctx context.Context) ([]Seller, error) {
 	return sellerList, err
 }
 
-func (m *mariaDBRepository) Create(ctx context.Context, cid int, companyName, address, telephone string) (Seller, error) {
+func (m *mariaDBRepository) Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error) {
 	var seller Seller
 
-	seller = Seller{CompanyId: cid, CompanyName: companyName, Address: address, Telephone: telephone}
+	seller = Seller{CompanyId: cid, CompanyName: companyName, Address: address, Telephone: telephone, LocalityID: localityID}
 
-	stmt, err := m.db.PrepareContext(ctx, "INSERT INTO seller (cid, company_name, address, telephone) VALUES (?,?,?,?)")
+	stmt, err := m.db.PrepareContext(ctx, "INSERT INTO seller (cid, company_name, address, telephone, locality_id) VALUES (?,?,?,?,?)")
 
 	if err != nil {
 		return seller, err
@@ -90,7 +90,7 @@ func (m *mariaDBRepository) Create(ctx context.Context, cid int, companyName, ad
 
 	defer stmt.Close()
 
-	res, err := stmt.ExecContext(ctx, &seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone)
+	res, err := stmt.ExecContext(ctx, &seller.CompanyId, &seller.CompanyName, &seller.Address, &seller.Telephone, &seller.LocalityID)
 
 	if err != nil {
 		return seller, err

@@ -16,6 +16,7 @@ func Localities(routerGroup *gin.RouterGroup) {
 	{
 		localityRouterGroup.GET("/", localityController.GetAll)
 		localityRouterGroup.GET("/:id", localityController.GetById)
+		localityRouterGroup.GET("/reportSellers", localityController.ReportSellers)
 		localityRouterGroup.POST("/", localityController.Create)
 	}
 }

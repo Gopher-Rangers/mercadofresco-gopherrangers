@@ -24,6 +24,30 @@ func NewLocality(s locality.Service) *Locality {
 	return &Locality{service: s}
 }
 
+func (l *Locality) ReportSellers(ctx *gin.Context) {
+	id, ok := ctx.GetQuery("id")
+
+	if !ok {
+		ctx.JSON(web.DecodeError(http.StatusBadRequest, "missing parameter url"))
+		return
+	}
+
+	idConvertido, err := strconv.Atoi(id)
+
+	if err != nil {
+		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
+	}
+
+	reportSeller, err := l.service.ReportSellers(ctx, idConvertido)
+
+	if err != nil {
+		ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+		return
+	}
+
+	ctx.JSON(web.NewResponse(http.StatusOK, reportSeller))
+}
+
 func (l *Locality) Create(ctx *gin.Context) {
 	var req requestLocality
 

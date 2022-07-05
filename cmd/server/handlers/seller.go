@@ -3,12 +3,17 @@ package handlers
 import (
 	"errors"
 	"fmt"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"net/http"
 	"strconv"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
+)
+
+const (
+	ERR_UNIQUE_CID_VALUE          = "the cid already exists"
+	ERR_LOCALITY_NON_EXISTS_VALUE = "locality_id does not exists"
 )
 
 type requestSeller struct {
@@ -16,6 +21,7 @@ type requestSeller struct {
 	CompanyName string `json:"company_name" binding:"required"`
 	Address     string `json:"address" binding:"required"`
 	Telephone   string `json:"telephone" binding:"required"`
+	LocalityID  int    `json:"locality_id" binding:"required"`
 }
 
 type Seller struct {
@@ -97,12 +103,18 @@ func (s *Seller) Create(ctx *gin.Context) {
 		return
 	}
 
-	newSeller, err := s.service.Create(ctx, req.CompanyId, req.CompanyName, req.Address, req.Telephone)
+	newSeller, err := s.service.Create(ctx, req.CompanyId, req.CompanyName, req.Address, req.Telephone, req.LocalityID)
 
-	if err != nil {
+	switch err.Error() {
+	case ERR_UNIQUE_CID_VALUE:
 		ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 		return
+
+	case ERR_LOCALITY_NON_EXISTS_VALUE:
+		ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+		return
 	}
+
 	ctx.JSON(web.NewResponse(http.StatusCreated, newSeller))
 }
 
@@ -140,6 +152,10 @@ func validateFields(req requestSeller) error {
 
 	if req.Telephone == "" {
 		return errors.New("field telephone is required")
+	}
+
+	if req.LocalityID == 0 {
+		return errors.New("locality_id is required")
 	}
 	return nil
 }

@@ -3,12 +3,13 @@ package seller
 import (
 	"context"
 	"errors"
+	"fmt"
 )
 
 type Service interface {
 	GetOne(ctx context.Context, id int) (Seller, error)
 	GetAll(ctx context.Context) ([]Seller, error)
-	Create(ctx context.Context, cid int, companyName, address, telephone string) (Seller, error)
+	Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error)
 	Update(ctx context.Context, id, cid int, companyName, address, telephone string) (Seller, error)
 	Delete(ctx context.Context, id int) error
 }
@@ -18,7 +19,9 @@ type service struct {
 }
 
 func NewService(r Repository) Service {
-	return &service{repository: r}
+	return &service{
+		repository: r,
+	}
 }
 
 func (s *service) GetAll(ctx context.Context) ([]Seller, error) {
@@ -30,7 +33,11 @@ func (s *service) GetAll(ctx context.Context) ([]Seller, error) {
 	return sellerList, nil
 }
 
-func (s *service) Create(ctx context.Context, cid int, companyName, address, telephone string) (Seller, error) {
+func (s *service) Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error) {
+
+	if err := s.existsLocality(ctx, localityID); err != nil {
+		return Seller{}, err
+	}
 
 	err := s.findByCid(ctx, cid)
 
@@ -38,7 +45,7 @@ func (s *service) Create(ctx context.Context, cid int, companyName, address, tel
 		return Seller{}, err
 	}
 
-	newSeller, err := s.repository.Create(ctx, cid, companyName, address, telephone)
+	newSeller, err := s.repository.Create(ctx, cid, companyName, address, telephone, localityID)
 
 	if err != nil {
 		return Seller{}, err
@@ -89,6 +96,23 @@ func (s *service) Delete(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+func (s service) existsLocality(ctx context.Context, localityID int) error {
+	var sellerList []Seller
+
+	sellerList, err := s.GetAll(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	for i := range sellerList {
+		if sellerList[i].LocalityID == localityID {
+			return nil
+		}
+	}
+	return fmt.Errorf("locality_id does not exists")
 }
 
 func (s service) findByCid(ctx context.Context, cid int) error {

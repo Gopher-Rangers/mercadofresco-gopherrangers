@@ -114,27 +114,16 @@ func (r repository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r repository) GetBuyerOrdersById(ctx context.Context, id int) (domain.BuyerTotalOrders, error) {
+func (r *repository) GetBuyerOrdersById(ctx context.Context, id int) (domain.BuyerTotalOrders, error) {
 
-	buyerWithOrders, err := r.getTotalOrderByBuyer(ctx, id)
+	total, err := r.getTotalOrderByBuyer(ctx, id)
 	if err != nil {
-		return buyerWithOrders, err
+		return domain.BuyerTotalOrders{}, err
 	}
 
-	buyerData, err := r.GetById(ctx, id)
+	var buyerData domain.Buyer
 
-	buyerWithOrders.ID = buyerData.ID
-	buyerWithOrders.CardNumberId = buyerData.CardNumberId
-	buyerWithOrders.FirstName = buyerData.FirstName
-	buyerWithOrders.LastName = buyerData.LastName
-
-	return buyerWithOrders, nil
-}
-
-func (r repository) getTotalOrderByBuyer(ctx context.Context, id int) (domain.BuyerTotalOrders, error) {
-	var buyerOrders domain.BuyerTotalOrders
-
-	rows, err := r.db.QueryContext(ctx, SqlCountOrdersByBuyerId, id)
+	rows, err := r.db.QueryContext(ctx, SqlGetById, id)
 	if err != nil {
 		return domain.BuyerTotalOrders{}, err
 	}
@@ -142,11 +131,32 @@ func (r repository) getTotalOrderByBuyer(ctx context.Context, id int) (domain.Bu
 	defer rows.Close() // Impedir vazamento de memória
 
 	for rows.Next() {
-		err := rows.Scan(&buyerOrders.PurchaseOrdersCount)
+		err := rows.Scan(&buyerData.ID, &buyerData.CardNumberId, &buyerData.FirstName, &buyerData.LastName)
 		if err != nil {
-			return domain.BuyerTotalOrders{}, err
+			return domain.BuyerTotalOrders{}, fmt.Errorf("buyer with id (%d) not founded", id)
 		}
+
 	}
+
+	fmt.Printf("test id final %d \n", id)
+
+	fmt.Println(buyerData)
+
+	return domain.BuyerTotalOrders{ID: buyerData.ID, CardNumberId: buyerData.CardNumberId, FirstName: buyerData.FirstName, LastName: buyerData.LastName, PurchaseOrdersCount: total}, nil
+}
+
+func (r repository) getTotalOrderByBuyer(ctx context.Context, id int) (int, error) {
+	var buyerOrders int
+
+	query := r.db.QueryRow(SqlCountOrdersByBuyerId, id)
+
+	err := query.Scan(&buyerOrders)
+
+	if err != nil {
+		return 0, err
+	}
+
+	fmt.Printf("Total order buyers %d ", buyerOrders)
 
 	return buyerOrders, nil
 }

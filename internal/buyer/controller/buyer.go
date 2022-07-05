@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/domain"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
@@ -37,29 +36,6 @@ type Buyer struct {
 
 func NewBuyer(s domain.Service) Buyer {
 	return Buyer{s}
-}
-
-func (Buyer) AuthToken(context *gin.Context) {
-	privateToken := os.Getenv("TOKEN")
-
-	providedToken := context.GetHeader("token")
-
-	if providedToken != privateToken {
-		context.AbortWithStatusJSON(web.DecodeError(http.StatusUnauthorized, "invalid token"))
-		return
-	}
-
-	context.Next()
-}
-
-func (Buyer) ValidateID(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil || id < 0 {
-		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusBadRequest, "Id need to be a valid integer"))
-		return
-	}
-
-	ctx.Next()
 }
 
 func (Buyer) validateBody(req domain.Buyer, c *gin.Context) bool {
@@ -132,10 +108,19 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 // @Success 200 {object} web.Response
 // @Router /api/v1/buyers/{id} [GET]
 func (b *Buyer) GetAllBuyerPurchaseOrdersById(c *gin.Context) {
+	id, bool := c.GetQuery("id")
+	if bool != true {
+		c.JSON(web.DecodeError(http.StatusBadRequest, "You must inform and id param."))
+		return
+	}
 
-	id, _ := strconv.Atoi(c.Param("id"))
+	idFormated, _ := strconv.Atoi(id)
+	if idFormated < 1 {
+		c.JSON(web.DecodeError(http.StatusBadRequest, "Invalid id"+c.Param("id")))
+		return
+	}
 
-	data, err := b.service.GetById(c.Request.Context(), id)
+	data, err := b.service.GetBuyerOrdersById(c.Request.Context(), idFormated)
 
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))

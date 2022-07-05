@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/database"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/validation"
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/controller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/repository/myslq"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/service"
@@ -18,12 +19,13 @@ func Buyers(routerGroup *gin.RouterGroup) {
 	buyerRouterGroup := routerGroup.Group("/buyers")
 	{
 
-		buyerRouterGroup.Use(buyerHandler.AuthToken)
+		buyerRouterGroup.Use(validation.AuthToken)
 
 		buyerRouterGroup.GET("/", buyerHandler.GetAll)
 		buyerRouterGroup.POST("/", buyerHandler.Create)
-		buyerRouterGroup.GET("/:id", buyerHandler.ValidateID, buyerHandler.GetBuyerById)
-		buyerRouterGroup.PUT("/:id", buyerHandler.ValidateID, buyerHandler.Update)
-		buyerRouterGroup.DELETE("/:id", buyerHandler.ValidateID, buyerHandler.Delete)
+		buyerRouterGroup.GET("/:id", validation.ValidateID, buyerHandler.GetBuyerById)
+		buyerRouterGroup.PUT("/:id", validation.ValidateID, buyerHandler.Update)
+		buyerRouterGroup.DELETE("/:id", validation.ValidateID, buyerHandler.Delete)
+		buyerRouterGroup.GET("/report-purchase-orders", buyerHandler.GetAllBuyerPurchaseOrdersById)
 	}
 }

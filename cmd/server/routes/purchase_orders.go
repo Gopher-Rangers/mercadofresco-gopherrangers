@@ -16,10 +16,11 @@ func PurchaseOrders(routerGroup *gin.RouterGroup) {
 	service := purchaseOrdersService.NewService(repo)
 	handler := purchaseOrdersHandler.NewPurchaseOrder(service)
 
-	purchaseOrderGroup := routerGroup.Group("/buyers")
+	purchaseOrderGroup := routerGroup.Group("/purchase-orders")
 	{
 		purchaseOrderGroup.Use(validation.AuthToken)
 
 		purchaseOrderGroup.POST("/", handler.Create)
+		purchaseOrderGroup.GET("/:id", validation.ValidateID, handler.GetPurchaseOrderById)
 	}
 }

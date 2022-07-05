@@ -16,11 +16,11 @@ func NewService(r Repository) Services {
 }
 
 func (s service) Create(pb ProductBatch) (ProductBatch, error) {
-	ps, err := s.repository.Create(pb)
+	pb, err := s.repository.Create(pb)
 	if err != nil {
 		return ProductBatch{}, err
 	}
-	return ps, nil
+	return pb, nil
 }
 
 func (s service) Report() ([]Report, error) {

@@ -58,8 +58,79 @@ type ExpectedIdJSON struct {
 }
 
 type ExpectedCreateJSON struct {
-	Code int                          `json:"code"`
-	Data product_batches.ProductBatch `json:"data"`
+	Code int                       `json:"code"`
+	Data productbatch.ProductBatch `json:"data"`
+}
+
+func TestBatchCreate(t *testing.T) {
+	router, mockRepository, pb := InitTest(t)
+	exp := productbatch.ProductBatch{
+		ID:              1,
+		BatchNumber:     111,
+		CurQuantity:     200,
+		CurTemperature:  20,
+		DueDate:         "2022-04-04",
+		InitialQuantity: 10,
+		ManufactDate:    "2020-04-04",
+		ManufactHour:    10,
+		MinTemperature:  5,
+		ProductTypeID:   1,
+		SectionID:       1,
+	}
+
+	router.POST(URL_PRODUCTS_BATCH+"productBatches", pb.Create())
+
+	t.Run("create_ok", func(t *testing.T) {
+		mockRepository.On("Create", exp).Return(exp, nil)
+
+		expected, _ := json.Marshal(exp)
+		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
+		router.ServeHTTP(w, req)
+
+		exp := ExpectedCreateJSON{201, exp}
+		expJSON, _ := json.Marshal(exp)
+
+		assert.Equal(t, exp.Code, w.Code)
+		assert.Equal(t, string(expJSON), w.Body.String())
+	})
+
+	t.Run("create_fail_bind", func(t *testing.T) {
+		exp.SectionID = 0
+		exp.ProductTypeID = 0
+
+		expected, _ := json.Marshal(exp)
+		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, 422, w.Code)
+		assert.Equal(t, "{\"code\":422,\"error\":\"Key: 'ProductBatch.ProductTypeID' Error:Field validation for 'ProductTypeID' failed on the 'required' tag\\nKey: 'ProductBatch.SectionID' Error:Field validation for 'SectionID' failed on the 'required' tag\"}", w.Body.String())
+	})
+
+	t.Run("create_fail_conflict_sec", func(t *testing.T) {
+		exp.SectionID = 99
+		exp.ProductTypeID = 1
+
+		mockRepository.On("Create", exp).Return(productbatch.ProductBatch{}, errors.New("Error 1452: Cannot add or update a child row: a foreign key constraint fails (`mercado-fresco`.`product_batches`, CONSTRAINT `FK_PRODUCT_BATCHES_SECTION` FOREIGN KEY (`section_id`) REFERENCES `section` (`id`))"))
+		expected, _ := json.Marshal(exp)
+		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, 409, w.Code)
+		assert.Equal(t, "{\"code\":409,\"error\":\"Error 1452: Cannot add or update a child row: a foreign key constraint fails (`mercado-fresco`.`product_batches`, CONSTRAINT `FK_PRODUCT_BATCHES_SECTION` FOREIGN KEY (`section_id`) REFERENCES `section` (`id`))\"}", w.Body.String())
+	})
+
+	t.Run("create_fail_conflict_prod", func(t *testing.T) {
+		exp.SectionID = 1
+		exp.ProductTypeID = 99
+
+		mockRepository.On("Create", exp).Return(productbatch.ProductBatch{}, errors.New("Error 1452: Cannot add or update a child row: a foreign key constraint fails (`mercado-fresco`.`product_batches`, CONSTRAINT `FK_PRODUCT_BATCHES_PRODUCT` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`))"))
+		expected, _ := json.Marshal(exp)
+		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, 409, w.Code)
+		assert.Equal(t, "{\"code\":409,\"error\":\"Error 1452: Cannot add or update a child row: a foreign key constraint fails (`mercado-fresco`.`product_batches`, CONSTRAINT `FK_PRODUCT_BATCHES_PRODUCT` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`))\"}", w.Body.String())
+	})
 }
 
 func TestBatchReport(t *testing.T) {

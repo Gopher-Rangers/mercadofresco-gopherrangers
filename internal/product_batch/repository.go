@@ -15,8 +15,8 @@ type ProductBatch struct {
 	ManufactDate    string `json:"manufacturing_date"`
 	ManufactHour    int    `json:"manufacturing_hour"`
 	MinTemperature  int    `json:"minimum_temperature"`
-	ProductTypeID   int    `json:"product_id"`
-	SectionID       int    `json:"section_id"`
+	ProductTypeID   int    `json:"product_id" binding:"required"`
+	SectionID       int    `json:"section_id" binding:"required"`
 }
 
 type Report struct {

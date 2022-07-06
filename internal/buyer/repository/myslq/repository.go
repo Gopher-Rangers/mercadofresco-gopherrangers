@@ -71,8 +71,8 @@ func (r repository) Create(ctx context.Context, buyer domain.Buyer) (domain.Buye
 	}
 
 	lastID, err := res.LastInsertId()
-	if err != nil {
-		return buyer, err
+	if err != nil || lastID < 1 {
+		return domain.Buyer{}, err
 	}
 
 	buyer.ID = int(lastID)

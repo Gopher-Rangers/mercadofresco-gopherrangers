@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/domain"
 )
 
@@ -17,7 +18,7 @@ func NewRepository(db *sql.DB) domain.Repository {
 func (r *repository) GetById(ctx context.Context, id int) (domain.PurchaseOrders, error) {
 	var purchaseOrder domain.PurchaseOrders
 
-	rows, err := r.db.QueryContext(ctx, sqlGetById, id)
+	rows, err := r.db.QueryContext(ctx, SqlGetById, id)
 	if err != nil {
 		return domain.PurchaseOrders{}, err
 	}
@@ -28,7 +29,7 @@ func (r *repository) GetById(ctx context.Context, id int) (domain.PurchaseOrders
 		err := rows.Scan(&purchaseOrder.ID, &purchaseOrder.OrderNumber, &purchaseOrder.OrderDate,
 			&purchaseOrder.TrackingCode, &purchaseOrder.BuyerId, &purchaseOrder.ProductRecordId, &purchaseOrder.OrderStatusId)
 		if err != nil {
-			return domain.PurchaseOrders{}, err
+			return domain.PurchaseOrders{}, fmt.Errorf("purchase order with id (%d) not founded", id)
 		}
 
 	}
@@ -37,15 +38,19 @@ func (r *repository) GetById(ctx context.Context, id int) (domain.PurchaseOrders
 }
 
 func (r repository) Create(ctx context.Context, purchaseOrder domain.PurchaseOrders) (domain.PurchaseOrders, error) {
-	res, err := r.db.ExecContext(ctx, sqlCreate, &purchaseOrder.OrderNumber, &purchaseOrder.OrderDate,
+	res, err := r.db.ExecContext(ctx, SqlCreate, &purchaseOrder.OrderNumber, &purchaseOrder.OrderDate,
 		&purchaseOrder.TrackingCode, &purchaseOrder.BuyerId, &purchaseOrder.ProductRecordId, &purchaseOrder.OrderStatusId)
 	if err != nil {
 		return domain.PurchaseOrders{}, err
 	}
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected == 0 {
+		return domain.PurchaseOrders{}, fmt.Errorf("error while saving")
+	}
 
 	lastID, err := res.LastInsertId()
-	if err != nil {
-		return purchaseOrder, err
+	if err != nil || lastID < 1 {
+		return domain.PurchaseOrders{}, fmt.Errorf("error while saving")
 	}
 
 	purchaseOrder.ID = int(lastID)
@@ -53,10 +58,10 @@ func (r repository) Create(ctx context.Context, purchaseOrder domain.PurchaseOrd
 	return purchaseOrder, nil
 }
 
-func (r *repository) ValidadeOrderNumber(orderNumber string, ctx context.Context) (bool, error) {
+func (r *repository) ValidadeOrderNumber(orderNumber string) (bool, error) {
 	var result bool
 
-	query := r.db.QueryRow(sqlExistsOrderNumber, orderNumber)
+	query := r.db.QueryRow(SqlExistsOrderNumber, orderNumber)
 
 	err := query.Scan(&result)
 
@@ -65,18 +70,4 @@ func (r *repository) ValidadeOrderNumber(orderNumber string, ctx context.Context
 	}
 
 	return !result, nil
-
-	//rows, err := r.db.QueryContext(ctx, sqlExistsOrderNumber, orderNumber)
-	//if err != nil {
-	//	return true, err
-	//}
-	//
-	//defer rows.Close() // Impedir vazamento de memória
-	//
-	//for rows.Next() {
-	//	err := rows.Scan(&result)
-	//	if err != nil {
-	//		return true, err
-	//	}
-	//}
 }

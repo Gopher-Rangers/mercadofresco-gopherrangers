@@ -98,7 +98,7 @@ func TestGetAllFailSelect(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestDBRepositoryStore(t *testing.T) {
+func TestRepositoryCreate(t *testing.T) {
 	t.Run("create_ok", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -139,7 +139,7 @@ func TestDBRepositoryStore(t *testing.T) {
 	})
 }
 
-func TestDBRepositoryGetById(t *testing.T) {
+func TestRepositoryGetById(t *testing.T) {
 	t.Run("find_by_id_existent", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -196,7 +196,7 @@ func TestDBRepositoryGetById(t *testing.T) {
 	})
 }
 
-func TestDBRepositoryUpdate(t *testing.T) {
+func TestRepositoryUpdate(t *testing.T) {
 	t.Run("update_ok", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -239,7 +239,7 @@ func TestDBRepositoryUpdate(t *testing.T) {
 	})
 }
 
-func TestDBRepositoryDelete(t *testing.T) {
+func TestRepositoryDelete(t *testing.T) {
 	t.Run("delete_ok", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)

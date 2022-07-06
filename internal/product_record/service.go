@@ -35,23 +35,27 @@ func (s *service) checkIfProductExists(prod ProductRecord) bool {
 	return err == nil
 }
 
-func (s *service) checkDatetime(last_update_time string) bool {
+func (s *service) checkDatetime(last_update_time string) (bool, error) {
 	currentTime := time.Now()
 	loc := currentTime.Location()
 	layout := "2006-01-02 15:04:00"
 	lastTime, err := time.ParseInLocation(layout, last_update_time, loc)
 	if err != nil {
-		fmt.Println(err)
+		return false, err
 	}
 	diff := lastTime.Sub(currentTime)
-	return diff > 0
+	return diff > 0, nil
 }
 
 func (s *service) Store(ctx context.Context, prod ProductRecord) (ProductRecord, error) {
 	if !s.checkIfProductExists(prod) {
 		return ProductRecord{}, fmt.Errorf(ERROR_INEXISTENT_PRODUCT)
 	}
-	if !s.checkDatetime(prod.LastUpdateDate) {
+	dateTimeOk, err := s.checkDatetime(prod.LastUpdateDate)
+	if err != nil {
+		return ProductRecord{}, err
+	}
+	if !dateTimeOk {
 		return ProductRecord{}, fmt.Errorf(ERROR_WRONG_LAST_UPDATE_DATE)
 	}
 	product, err := s.repository.Store(ctx, prod)

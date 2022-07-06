@@ -18,6 +18,6 @@ func ProductRecord(routerGroup *gin.RouterGroup, productsService products.Servic
 	productRecordRouterGroup := routerGroup.Group("/productRecords")
 	{
 		productRecordRouterGroup.POST("/", productRecordHandler.Store())
-		productRecordRouterGroup.GET("/", productRecordHandler.GetById())
+		productRecordRouterGroup.GET("/", productRecordHandler.Get())
 	}
 }

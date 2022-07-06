@@ -110,7 +110,7 @@ func (prod *ProductRecord) Store() gin.HandlerFunc {
 // @Failure 404 {object} web.Response "Can not find ID"
 // @Success 200 {object} web.Response
 // @Router /api/v1/productRecords/{id} [GET]
-func (prod *ProductRecord) GetById() gin.HandlerFunc {
+func (prod *ProductRecord) Get() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
 		if token != os.Getenv("TOKEN") {

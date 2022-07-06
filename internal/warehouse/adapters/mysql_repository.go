@@ -23,9 +23,7 @@ const (
 
 	queryUpdateWarehouse = "UPDATE warehouse SET warehouse_code=? WHERE id=?"
 
-	// queryUpdateName = "UPDATE `mercado-fresco`.`buyers` SET first_name=? WHERE id=?"
-
-	// queryDelete = "DELETE FROM `mercado-fresco`.`buyers` WHERE id=?"
+	queryDeleteWarehouse = "DELETE FROM warehouse WHERE id=?"
 )
 
 func NewMySqlRepository(db *sql.DB) usecases.Repository {
@@ -141,8 +139,21 @@ func (r *mysqlRepository) UpdatedWarehouseID(id int, code string) (domain.Wareho
 }
 
 func (r *mysqlRepository) DeleteWarehouse(id int) error {
-	return nil
+	stmt, err := r.db.Prepare(queryDeleteWarehouse)
 
+	if err != nil {
+		return fmt.Errorf("erro ao preparar a query: %v", err)
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id)
+
+	if err != nil {
+		return fmt.Errorf("erro ao executar query: %v", err)
+	}
+
+	return nil
 }
 
 func (r mysqlRepository) FindByWarehouseCode(code string) (domain.Warehouse, error) {

@@ -81,7 +81,7 @@ func (r *repository) GetById(ctx context.Context, id int) (ProductRecordGet, err
 	err = stmt.QueryRow(id).Scan(&prod.ProductId, &prod.Description,
 		&prod.RecordsCount)
 	if err != nil {
-		return ProductRecordGet{}, fmt.Errorf("produt record %d not found", id)
+		return ProductRecordGet{}, fmt.Errorf("product record %d not found", id)
 	}
 	return prod, nil
 }

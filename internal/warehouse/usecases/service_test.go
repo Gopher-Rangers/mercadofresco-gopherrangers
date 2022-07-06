@@ -40,8 +40,7 @@ func Test_CreateWarehouse(t *testing.T) {
 		mockRepository.On("FindByWarehouseCode", mock.AnythingOfType("string")).Return(domain.Warehouse{},
 			fmt.Errorf("o warehouse com esse `warehouse_code`: %s não foi encontrado", data.WarehouseCode))
 
-		mockRepository.On("IncrementID").Return(1)
-		mockRepository.On("CreateWarehouse", 1, data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature).Return(expected, nil)
+		mockRepository.On("CreateWarehouse", data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature).Return(expected, nil)
 
 		result, err := service.CreateWarehouse(data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature)
 
@@ -91,8 +90,7 @@ func Test_CreateWarehouse(t *testing.T) {
 
 		mockRepository.On("FindByWarehouseCode", mock.AnythingOfType("string")).Return(expected, fmt.Errorf("o warehouse com esse `warehouse_code`: %s não foi encontrado", data.WarehouseCode))
 
-		mockRepository.On("IncrementID").Return(1)
-		mockRepository.On("CreateWarehouse", 1, data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature).Return(expected, fmt.Errorf("não foi possível ler o arquivo"))
+		mockRepository.On("CreateWarehouse", data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature).Return(expected, fmt.Errorf("não foi possível ler o arquivo"))
 
 		result, err := service.CreateWarehouse(data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature)
 

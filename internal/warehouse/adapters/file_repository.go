@@ -53,7 +53,14 @@ func (r *fileRepository) CreateWarehouse(
 
 	id := r.incrementID()
 
-	w := domain.Warehouse{id, code, address, tel, minCap, minTemp}
+	w := domain.Warehouse{
+		ID:             id,
+		WarehouseCode:  code,
+		Address:        address,
+		Telephone:      tel,
+		MinCapacity:    minCap,
+		MinTemperature: minTemp,
+	}
 
 	ListWarehouse = append(ListWarehouse, w)
 

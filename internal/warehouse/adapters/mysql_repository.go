@@ -124,7 +124,7 @@ func (r *mysqlRepository) UpdatedWarehouseID(id int, code string) (domain.Wareho
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(id, code)
+	_, err = stmt.Exec(code, id)
 
 	if err != nil {
 		return domain.Warehouse{}, fmt.Errorf("erro ao executar a query")

@@ -138,29 +138,6 @@ func (b *Buyer) ReportPurchaseOrdersByBuyer(c *gin.Context) {
 	return
 }
 
-// GetAllBuyerWithPurchaseOrders GetPurchaseOrdersByBuyerId godoc
-// @Summary List buyer
-// @Tags Buyers
-// @Description Get all buyers with the count of purchase orders per buyer
-// @Accept json
-// @Produce json
-// @Param token header string true "token"
-// @Failure 401 {object} web.Response "We need token"
-// @Failure 404 {object} web.Response
-// @Success 200 {object} web.Response
-// @Router /api/v1/buyers/{id} [GET]
-func (b *Buyer) GetAllBuyerWithPurchaseOrders(c *gin.Context) {
-
-	data, err := b.service.GetBuyerTotalOrders(c.Request.Context())
-
-	if err != nil {
-		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-		return
-	}
-
-	c.JSON(web.NewResponse(http.StatusOK, data))
-}
-
 // Create CreateBuyer godoc
 // @Summary Create buyer
 // @Tags Buyers

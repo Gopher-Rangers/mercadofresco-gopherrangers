@@ -26,94 +26,103 @@ func NewSeller(s seller.Service) *Seller {
 	return &Seller{service: s}
 }
 
-func (s *Seller) GetAll(c *gin.Context) {
+func (s *Seller) GetAll(ctx *gin.Context) {
 
-	sellerList, err := s.service.GetAll()
+	sellerList, err := s.service.GetAll(ctx)
 
 	if err != nil {
-		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
 	}
-	c.JSON(web.NewResponse(http.StatusOK, sellerList))
+	ctx.JSON(web.NewResponse(http.StatusOK, sellerList))
 }
 
-func (s *Seller) GetOne(c *gin.Context) {
-	id := c.Param("id")
+func (s *Seller) GetOne(ctx *gin.Context) {
+	id := ctx.Param("id")
 
 	idConvertido, err := strconv.Atoi(id)
 	if err != nil {
-		c.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
-	}
-
-	oneSeller, err := s.service.GetOne(idConvertido)
-
-	if err != nil {
-		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
 		return
 	}
 
-	c.JSON(web.NewResponse(http.StatusOK, oneSeller))
+	oneSeller, err := s.service.GetOne(ctx, idConvertido)
+
+	if err != nil {
+		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		return
+	}
+
+	ctx.JSON(web.NewResponse(http.StatusOK, oneSeller))
 }
 
-func (s *Seller) Update(c *gin.Context) {
-	id := c.Param("id")
+func (s *Seller) Update(ctx *gin.Context) {
+	id := ctx.Param("id")
 
 	idConvertido, err := strconv.Atoi(id)
 	if err != nil {
-		c.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
+		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
+		return
+	}
+
+	_, err = s.service.GetOne(ctx, idConvertido)
+
+	if err != nil {
+		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		return
 	}
 
 	var req requestSeller
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, validateFields(req).Error()))
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(web.DecodeError(http.StatusUnprocessableEntity, validateFields(req).Error()))
 		return
 	}
 
-	updateSeller, err := s.service.Update(idConvertido, req.CompanyId, req.CompanyName, req.Address, req.Telephone)
+	updateSeller, err := s.service.Update(ctx, idConvertido, req.CompanyId, req.CompanyName, req.Address, req.Telephone)
 
 	if err != nil {
-		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
 	}
 
-	c.JSON(web.NewResponse(http.StatusOK, updateSeller))
+	ctx.JSON(web.NewResponse(http.StatusOK, updateSeller))
 }
 
-func (s *Seller) Create(c *gin.Context) {
+func (s *Seller) Create(ctx *gin.Context) {
 	var req requestSeller
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, validateFields(req).Error()))
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(web.DecodeError(http.StatusUnprocessableEntity, validateFields(req).Error()))
 		return
 	}
 
-	newSeller, err := s.service.Create(req.CompanyId, req.CompanyName, req.Address, req.Telephone)
+	newSeller, err := s.service.Create(ctx, req.CompanyId, req.CompanyName, req.Address, req.Telephone)
 
 	if err != nil {
-		fmt.Println(err)
-		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+		ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 		return
 	}
-	c.JSON(web.NewResponse(http.StatusCreated, newSeller))
+	ctx.JSON(web.NewResponse(http.StatusCreated, newSeller))
 }
 
-func (s *Seller) Delete(c *gin.Context) {
-	id := c.Param("id")
+func (s *Seller) Delete(ctx *gin.Context) {
+	id := ctx.Param("id")
 
 	idConvertido, err := strconv.Atoi(id)
 
 	if err != nil {
-		c.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
-	}
-
-	err = s.service.Delete(idConvertido)
-
-	if err != nil {
-		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
 		return
 	}
-	c.JSON(web.NewResponse(http.StatusNoContent, fmt.Sprintf("the seller %d was removed", idConvertido)))
+
+	err = s.service.Delete(ctx, idConvertido)
+
+	if err != nil {
+		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		return
+	}
+	ctx.JSON(web.NewResponse(http.StatusNoContent, fmt.Sprintf("the seller %d was removed", idConvertido)))
 }
 
 func validateFields(req requestSeller) error {

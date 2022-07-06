@@ -34,11 +34,6 @@ func (s *service) GetAll(ctx context.Context) ([]Seller, error) {
 }
 
 func (s *service) Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error) {
-
-	if err := s.existsLocality(ctx, localityID); err != nil {
-		return Seller{}, err
-	}
-
 	err := s.findByCid(ctx, cid)
 
 	if err != nil {

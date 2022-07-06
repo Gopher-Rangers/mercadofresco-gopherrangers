@@ -47,7 +47,14 @@ func createEmployeesArray() []employee.Employee {
 		LastName:    "Moraes",
 		WareHouseID: 11224411,
 	}
-	emps = append(emps, employee1, employee2)
+	employeeMissingFields := employee.Employee{
+		ID:          3,
+		CardNumber:  123432,
+		FirstName:   "",
+		LastName:    "Berere",
+		WareHouseID: 0,
+	}
+	emps = append(emps, employee1, employee2, employeeMissingFields)
 	return emps
 }
 
@@ -112,11 +119,11 @@ func TestEmployeeCreate(t *testing.T) {
 		employeesRouterGroup := server.Group(URL_EMPLOYEES)
 
 		emps := createEmployeesArray()
-		expected := `{"id": 1, "first_name": "Jose", "last_name": "Neves", "warehouse_id": 456521}`
+		expected := `{"id": 3, "card_number_id": 123432,"first_name": "", "last_name": "Berere", "warehouse_id": 0}`
 		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, expected)
-
 		mockService.On("GetAll").Return([]employee.Employee{})
-		mockService.On("Create", emps[0].CardNumber, emps[0].FirstName, emps[0].LastName, emps[0].WareHouseID).Return(employee.Employee{}, fmt.Errorf(""))
+
+		mockService.On("Create", emps[2].CardNumber, emps[2].FirstName, emps[2].LastName, emps[2].WareHouseID).Return(employee.Employee{}, fmt.Errorf(""))
 		employeesRouterGroup.POST("/", handlerEmployee.Create())
 		server.ServeHTTP(rr, req)
 

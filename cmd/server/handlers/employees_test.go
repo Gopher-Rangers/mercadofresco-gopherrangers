@@ -110,30 +110,6 @@ func TestEmployeeCreate(t *testing.T) {
 		assert.Equal(t, employee.Employee{}, resp.Data)
 		assert.Equal(t, resp.Error, "funcionário com cartão nº: 117899 já existe no banco de dados")
 	})
-
-	t.Run("create_fail", func(t *testing.T) {
-		mockService := mocks.NewServices(t)
-		handlerEmployee := handler.NewEmployee(mockService)
-
-		server := gin.Default()
-		employeesRouterGroup := server.Group(URL_EMPLOYEES)
-
-		emps := createEmployeesArray()
-		expected := `{"id": 3, "card_number_id": 123432,"first_name": "", "last_name": "Berere", "warehouse_id": 0}`
-		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, expected)
-		mockService.On("GetAll").Return([]employee.Employee{})
-
-		mockService.On("Create", emps[2].CardNumber, emps[2].FirstName, emps[2].LastName, emps[2].WareHouseID).Return(employee.Employee{}, fmt.Errorf(""))
-		employeesRouterGroup.POST("/", handlerEmployee.Create())
-		server.ServeHTTP(rr, req)
-
-		resp := responseOne{}
-		json.Unmarshal(rr.Body.Bytes(), &resp)
-
-		assert.Equal(t, http.StatusUnprocessableEntity, rr.Code, resp.Code)
-		assert.Equal(t, employee.Employee{}, resp.Data)
-		assert.Equal(t, resp.Error, "preencha todos os campos")
-	})
 }
 
 func TestEmployeesGetAll(t *testing.T) {

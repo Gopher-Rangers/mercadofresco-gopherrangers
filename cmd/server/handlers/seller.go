@@ -105,14 +105,16 @@ func (s *Seller) Create(ctx *gin.Context) {
 
 	newSeller, err := s.service.Create(ctx, req.CompanyId, req.CompanyName, req.Address, req.Telephone, req.LocalityID)
 
-	switch err.Error() {
-	case ERR_UNIQUE_CID_VALUE:
-		ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
-		return
+	if err != nil {
+		switch err.Error() {
+		case ERR_UNIQUE_CID_VALUE:
+			ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+			return
 
-	case ERR_LOCALITY_NON_EXISTS_VALUE:
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
-		return
+		case ERR_LOCALITY_NON_EXISTS_VALUE:
+			ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+			return
+		}
 	}
 
 	ctx.JSON(web.NewResponse(http.StatusCreated, newSeller))

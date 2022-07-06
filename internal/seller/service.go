@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/locality"
 )
 
 type Service interface {
@@ -15,12 +16,14 @@ type Service interface {
 }
 
 type service struct {
-	repository Repository
+	repository   Repository
+	localityRepo locality.Repository
 }
 
-func NewService(r Repository) Service {
+func NewService(r Repository, lr locality.Repository) Service {
 	return &service{
-		repository: r,
+		repository:   r,
+		localityRepo: lr,
 	}
 }
 
@@ -34,13 +37,19 @@ func (s *service) GetAll(ctx context.Context) ([]Seller, error) {
 }
 
 func (s *service) Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error) {
-	err := s.findByCid(ctx, cid)
+	locality, err := s.localityRepo.GetById(ctx, localityID)
+
+	if err != nil {
+		return Seller{}, fmt.Errorf("locality_id does not exists")
+	}
+
+	err = s.findByCid(ctx, cid)
 
 	if err != nil {
 		return Seller{}, err
 	}
 
-	newSeller, err := s.repository.Create(ctx, cid, companyName, address, telephone, localityID)
+	newSeller, err := s.repository.Create(ctx, cid, companyName, address, telephone, locality.Id)
 
 	if err != nil {
 		return Seller{}, err

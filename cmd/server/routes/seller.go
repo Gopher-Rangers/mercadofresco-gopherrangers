@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/database"
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/locality"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +11,7 @@ import (
 func Sellers(routerGroup *gin.RouterGroup) {
 
 	sellerRepository := seller.NewMariaDBRepository(database.GetInstance())
-	sellerService := seller.NewService(sellerRepository)
+	sellerService := seller.NewService(sellerRepository, locality.NewMariaDBRepository(database.GetInstance()))
 	sellerController := handler.NewSeller(sellerService)
 
 	sellerRouterGroup := routerGroup.Group("/sellers")

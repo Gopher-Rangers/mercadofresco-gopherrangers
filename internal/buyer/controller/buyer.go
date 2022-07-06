@@ -96,7 +96,7 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 	c.JSON(web.NewResponse(http.StatusOK, data))
 }
 
-// GetAllBuyerPurchaseOrdersById GetPurchaseOrders godoc
+// ReportPurchaseOrdersByBuyer GetPurchaseOrdersByBuyerId godoc
 // @Summary List buyer
 // @Tags Buyers
 // @Description Get number of purchase Orders by an ID of a specific buyer
@@ -107,20 +107,51 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 // @Failure 404 {object} web.Response
 // @Success 200 {object} web.Response
 // @Router /api/v1/buyers/{id} [GET]
-func (b *Buyer) GetAllBuyerPurchaseOrdersById(c *gin.Context) {
+func (b *Buyer) ReportPurchaseOrdersByBuyer(c *gin.Context) {
 	id, bool := c.GetQuery("id")
-	if bool != true {
-		c.JSON(web.DecodeError(http.StatusBadRequest, "You must inform and id param."))
+	if bool == true {
+		idFormated, _ := strconv.Atoi(id)
+		if idFormated < 1 {
+			c.JSON(web.DecodeError(http.StatusBadRequest, "Invalid id"+c.Param("id")))
+			return
+		}
+
+		data, err := b.service.GetBuyerOrdersById(c.Request.Context(), idFormated)
+
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+
+		c.JSON(web.NewResponse(http.StatusOK, data))
 		return
 	}
 
-	idFormated, _ := strconv.Atoi(id)
-	if idFormated < 1 {
-		c.JSON(web.DecodeError(http.StatusBadRequest, "Invalid id"+c.Param("id")))
+	data, err := b.service.GetBuyerTotalOrders(c.Request.Context())
+
+	if err != nil {
+		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
 	}
 
-	data, err := b.service.GetBuyerOrdersById(c.Request.Context(), idFormated)
+	c.JSON(web.NewResponse(http.StatusOK, data))
+	return
+}
+
+// GetAllBuyerWithPurchaseOrders GetPurchaseOrdersByBuyerId godoc
+// @Summary List buyer
+// @Tags Buyers
+// @Description Get all buyers with the count of purchase orders per buyer
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 404 {object} web.Response
+// @Success 200 {object} web.Response
+// @Router /api/v1/buyers/{id} [GET]
+func (b *Buyer) GetAllBuyerWithPurchaseOrders(c *gin.Context) {
+
+	data, err := b.service.GetBuyerTotalOrders(c.Request.Context())
 
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))

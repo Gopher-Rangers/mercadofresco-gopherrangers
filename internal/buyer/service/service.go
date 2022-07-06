@@ -85,3 +85,11 @@ func (s *service) GetBuyerOrdersById(ctx context.Context, id int) (domain.BuyerT
 	}
 	return buyerWithOrders, nil
 }
+
+func (s *service) GetBuyerTotalOrders(ctx context.Context) ([]domain.BuyerTotalOrders, error) {
+	buyerWithOrders, err := s.repository.GetBuyerTotalOrders(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return buyerWithOrders, nil
+}

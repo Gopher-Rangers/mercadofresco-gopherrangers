@@ -24,6 +24,7 @@ type Repository interface {
 	Delete(ctx context.Context, id int) error
 	GetById(ctx context.Context, id int) (Buyer, error)
 	GetBuyerOrdersById(ctx context.Context, id int) (BuyerTotalOrders, error)
+	GetBuyerTotalOrders(ctx context.Context) ([]BuyerTotalOrders, error)
 }
 
 type Service interface {
@@ -33,4 +34,5 @@ type Service interface {
 	Delete(ctx context.Context, id int) error
 	GetById(ctx context.Context, id int) (Buyer, error)
 	GetBuyerOrdersById(ctx context.Context, id int) (BuyerTotalOrders, error)
+	GetBuyerTotalOrders(ctx context.Context) ([]BuyerTotalOrders, error)
 }

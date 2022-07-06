@@ -116,14 +116,9 @@ func (r repository) Delete(ctx context.Context, id int) error {
 
 func (r *repository) GetBuyerOrdersById(ctx context.Context, id int) (domain.BuyerTotalOrders, error) {
 
-	total, err := r.getTotalOrderByBuyer(ctx, id)
-	if err != nil {
-		return domain.BuyerTotalOrders{}, err
-	}
+	var buyerData domain.BuyerTotalOrders
 
-	var buyerData domain.Buyer
-
-	rows, err := r.db.QueryContext(ctx, SqlGetById, id)
+	rows, err := r.db.QueryContext(ctx, SqlBuyerWithOrdersById, id)
 	if err != nil {
 		return domain.BuyerTotalOrders{}, err
 	}
@@ -131,32 +126,34 @@ func (r *repository) GetBuyerOrdersById(ctx context.Context, id int) (domain.Buy
 	defer rows.Close() // Impedir vazamento de memória
 
 	for rows.Next() {
-		err := rows.Scan(&buyerData.ID, &buyerData.CardNumberId, &buyerData.FirstName, &buyerData.LastName)
+		err := rows.Scan(&buyerData.ID, &buyerData.CardNumberId, &buyerData.FirstName, &buyerData.LastName, &buyerData.PurchaseOrdersCount)
 		if err != nil {
-			return domain.BuyerTotalOrders{}, fmt.Errorf("buyer with id (%d) not founded", id)
+			return domain.BuyerTotalOrders{}, err
 		}
-
 	}
 
-	fmt.Printf("test id final %d \n", id)
-
-	fmt.Println(buyerData)
-
-	return domain.BuyerTotalOrders{ID: buyerData.ID, CardNumberId: buyerData.CardNumberId, FirstName: buyerData.FirstName, LastName: buyerData.LastName, PurchaseOrdersCount: total}, nil
+	return buyerData, nil
 }
 
-func (r repository) getTotalOrderByBuyer(ctx context.Context, id int) (int, error) {
-	var buyerOrders int
+func (r *repository) GetBuyerTotalOrders(ctx context.Context) ([]domain.BuyerTotalOrders, error) {
 
-	query := r.db.QueryRow(SqlCountOrdersByBuyerId, id)
+	var buyersData []domain.BuyerTotalOrders
 
-	err := query.Scan(&buyerOrders)
-
+	rows, err := r.db.QueryContext(ctx, SqlBuyersWithOrders)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	fmt.Printf("Total order buyers %d ", buyerOrders)
+	defer rows.Close() // Impedir vazamento de memória
 
-	return buyerOrders, nil
+	for rows.Next() {
+		var rowData domain.BuyerTotalOrders
+		err := rows.Scan(&rowData.ID, &rowData.CardNumberId, &rowData.FirstName, &rowData.LastName, &rowData.PurchaseOrdersCount)
+		if err != nil {
+			return nil, err
+		}
+		buyersData = append(buyersData, rowData)
+	}
+
+	return buyersData, nil
 }

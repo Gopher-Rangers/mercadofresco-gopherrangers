@@ -26,6 +26,6 @@ func Buyers(routerGroup *gin.RouterGroup) {
 		buyerRouterGroup.GET("/:id", validation.ValidateID, buyerHandler.GetBuyerById)
 		buyerRouterGroup.PUT("/:id", validation.ValidateID, buyerHandler.Update)
 		buyerRouterGroup.DELETE("/:id", validation.ValidateID, buyerHandler.Delete)
-		buyerRouterGroup.GET("/report-purchase-orders", buyerHandler.GetAllBuyerPurchaseOrdersById)
+		buyerRouterGroup.GET("/report-purchase-orders", buyerHandler.ReportPurchaseOrdersByBuyer)
 	}
 }

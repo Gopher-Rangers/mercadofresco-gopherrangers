@@ -28,6 +28,17 @@ type responseDataArray struct {
 	Data []domain.Buyer
 }
 
+type responseDataOrdersArray struct {
+	Code int
+	Data []domain.BuyerTotalOrders
+}
+
+type responseDataOrders struct {
+	Code  int
+	Data  domain.BuyerTotalOrders
+	Error string
+}
+
 type responseData struct {
 	Code  int
 	Data  domain.Buyer
@@ -87,6 +98,85 @@ func TestGetAll(t *testing.T) {
 	})
 }
 
+func TestReportPurchaseOrdersByBuyer(t *testing.T) {
+	t.Run("find_all", func(t *testing.T) {
+		mockService := mocks.NewService(t)
+		buyerHandler := controller.NewBuyer(mockService)
+
+		server := gin.Default()
+		buyerRouterGroup := server.Group(URL)
+
+		baseData := createBaseDataReports()
+		req, response := createRequestTest(http.MethodGet, URL+"report-purchase-orders", "")
+
+		mockService.On("GetBuyerTotalOrders", context.Background()).Return(baseData, nil)
+		buyerRouterGroup.GET("/report-purchase-orders", buyerHandler.ReportPurchaseOrdersByBuyer)
+		server.ServeHTTP(response, req)
+
+		resp := responseDataOrdersArray{}
+		json.Unmarshal(response.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.Equal(t, baseData, resp.Data)
+	})
+	t.Run("find_by_id", func(t *testing.T) {
+		mockService := mocks.NewService(t)
+		buyerHandler := controller.NewBuyer(mockService)
+
+		server := gin.Default()
+		buyerRouterGroup := server.Group(URL)
+
+		baseData := createBaseDataReports()
+		req, response := createRequestTest(http.MethodGet, URL+"report-purchase-orders?id=1", "")
+
+		mockService.On("GetBuyerOrdersById", context.Background(), 1).Return(baseData[0], nil)
+		buyerRouterGroup.GET("/report-purchase-orders", buyerHandler.ReportPurchaseOrdersByBuyer)
+		server.ServeHTTP(response, req)
+
+		resp := responseDataOrders{}
+		json.Unmarshal(response.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.Equal(t, baseData[0], resp.Data)
+	})
+	t.Run("find_by_id_with_invalid_id", func(t *testing.T) {
+		mockService := mocks.NewService(t)
+		buyerHandler := controller.NewBuyer(mockService)
+
+		server := gin.Default()
+		buyerRouterGroup := server.Group(URL)
+
+		req, response := createRequestTest(http.MethodGet, URL+"report-purchase-orders?id=a", "")
+
+		buyerRouterGroup.GET("/report-purchase-orders", buyerHandler.ReportPurchaseOrdersByBuyer)
+		server.ServeHTTP(response, req)
+
+		resp := responseDataOrders{}
+		json.Unmarshal(response.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.Equal(t, resp.Error, "Invalid id")
+
+	})
+	t.Run("find_all_invalid_token", func(t *testing.T) {
+		mockService := mocks.NewService(t)
+		buyerHandler := controller.NewBuyer(mockService)
+
+		server := gin.Default()
+		buyerRouterGroup := server.Group(URL)
+
+		req, response := createRequestTestIvalidToken(http.MethodGet, URL+"report-purchase-orders", "")
+
+		buyerRouterGroup.GET("/report-purchase-orders", validation.AuthToken, buyerHandler.ReportPurchaseOrdersByBuyer)
+		server.ServeHTTP(response, req)
+
+		resp := responseDataArray{}
+		json.Unmarshal(response.Body.Bytes(), &resp)
+
+		assert.Equal(t, http.StatusUnauthorized, response.Code)
+	})
+}
+
 func createBaseData() []domain.Buyer {
 	var buyers []domain.Buyer
 	buyerOne := domain.Buyer{
@@ -100,6 +190,26 @@ func createBaseData() []domain.Buyer {
 		CardNumberId: "Card2",
 		FirstName:    "Victor",
 		LastName:     "Beltramini",
+	}
+	buyers = append(buyers, buyerOne, buyerTwo)
+	return buyers
+}
+
+func createBaseDataReports() []domain.BuyerTotalOrders {
+	var buyers []domain.BuyerTotalOrders
+	buyerOne := domain.BuyerTotalOrders{
+		ID:                  1,
+		CardNumberId:        "Card1",
+		FirstName:           "Victor",
+		LastName:            "Beltramini",
+		PurchaseOrdersCount: 2,
+	}
+	buyerTwo := domain.BuyerTotalOrders{
+		ID:                  2,
+		CardNumberId:        "Card2",
+		FirstName:           "Victor",
+		LastName:            "Beltramini",
+		PurchaseOrdersCount: 1,
 	}
 	buyers = append(buyers, buyerOne, buyerTwo)
 	return buyers

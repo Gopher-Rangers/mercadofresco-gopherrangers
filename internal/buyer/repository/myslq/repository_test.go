@@ -196,6 +196,123 @@ func TestRepositoryGetById(t *testing.T) {
 	})
 }
 
+func TestGetBuyerOrdersById(t *testing.T) {
+	t.Run("find_by_id_existent_with_purchase_orders", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		buyersData := createBaseDataWithPurchaseOrders()
+		mockBuyers := []domain.BuyerTotalOrders{
+			{
+				ID:                  1,
+				CardNumberId:        "Card1",
+				FirstName:           "Victor",
+				LastName:            "Beltramini",
+				PurchaseOrdersCount: 1,
+			},
+		}
+		rows := sqlmock.NewRows([]string{
+			"id", "card_number_id", "first_name", "last_name", "purchase_orders_count",
+		}).AddRow(
+			mockBuyers[0].ID,
+			mockBuyers[0].CardNumberId,
+			mockBuyers[0].FirstName,
+			mockBuyers[0].LastName,
+			mockBuyers[0].PurchaseOrdersCount,
+		)
+
+		mock.ExpectQuery(regexp.QuoteMeta(buyersRepository.SqlBuyerWithOrdersById)).WithArgs(1).WillReturnRows(rows)
+
+		buyersRepo := buyersRepository.NewRepository(db)
+		result, err := buyersRepo.GetBuyerOrdersById(context.Background(), buyersData[0].ID)
+		assert.NoError(t, err)
+		assert.Equal(t, buyersData[0], result)
+	})
+	t.Run("find_by_id_non_existent_with_purchase_orders", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		errNotFound := fmt.Errorf("buyer with id (10) not founded")
+
+		mock.ExpectQuery(regexp.QuoteMeta(buyersRepository.SqlBuyerWithOrdersById)).WithArgs(10).WillReturnError(errNotFound)
+
+		buyersRepo := buyersRepository.NewRepository(db)
+		result, err := buyersRepo.GetBuyerOrdersById(context.Background(), 10)
+		assert.Equal(t, err, errNotFound)
+		assert.Equal(t, result, domain.BuyerTotalOrders{})
+	})
+	t.Run("find_by_id_fail_exec_with_purchase_orders", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		prod := createBaseData()
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(buyersRepository.SqlBuyerWithOrdersById))
+		stmt.ExpectQuery().WithArgs(prod[0].ID).WillReturnError(sql.ErrNoRows)
+		buyersRepo := buyersRepository.NewRepository(db)
+		result, err := buyersRepo.GetBuyerOrdersById(context.Background(), prod[0].ID)
+		assert.Equal(t, result, domain.BuyerTotalOrders{})
+		assert.Error(t, err)
+	})
+}
+
+func TestGetBuyerOrders(t *testing.T) {
+	t.Run("get_all_existent_with_purchase_orders", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		buyersData := createBaseDataWithPurchaseOrders()
+
+		rows := sqlmock.NewRows([]string{
+			"id", "card_number_id", "first_name", "last_name", "purchase_orders_count",
+		}).AddRow(
+			buyersData[0].ID,
+			buyersData[0].CardNumberId,
+			buyersData[0].FirstName,
+			buyersData[0].LastName,
+			buyersData[0].PurchaseOrdersCount,
+		).AddRow(
+			buyersData[1].ID,
+			buyersData[1].CardNumberId,
+			buyersData[1].FirstName,
+			buyersData[1].LastName,
+			buyersData[1].PurchaseOrdersCount,
+		)
+
+		mock.ExpectQuery(regexp.QuoteMeta(buyersRepository.SqlBuyersWithOrders)).WillReturnRows(rows)
+
+		buyersRepo := buyersRepository.NewRepository(db)
+		result, err := buyersRepo.GetBuyerTotalOrders(context.Background())
+		assert.NoError(t, err)
+		assert.Equal(t, buyersData[0], result[0])
+		assert.Equal(t, buyersData[1], result[1])
+	})
+	t.Run("get_all_error_with_purchase_orders", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		errNotFound := fmt.Errorf("err")
+
+		mock.ExpectQuery(regexp.QuoteMeta(buyersRepository.SqlBuyersWithOrders)).WillReturnError(errNotFound)
+
+		buyersRepo := buyersRepository.NewRepository(db)
+		result, err := buyersRepo.GetBuyerTotalOrders(context.Background())
+		assert.Equal(t, err, errNotFound)
+		assert.Nil(t, result)
+	})
+	t.Run("get_all_fail_exec_with_purchase_orders", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		//order := createBaseData()
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(buyersRepository.SqlBuyersWithOrders))
+		stmt.ExpectQuery().WillReturnError(sql.ErrNoRows)
+		buyersRepo := buyersRepository.NewRepository(db)
+		result, err := buyersRepo.GetBuyerTotalOrders(context.Background())
+		assert.Nil(t, result)
+		assert.Error(t, err)
+	})
+}
+
 func TestRepositoryUpdate(t *testing.T) {
 	t.Run("update_ok", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
@@ -286,6 +403,25 @@ func createBaseData() []domain.Buyer {
 		CardNumberId: "Card2",
 		FirstName:    "Victor",
 		LastName:     "Beltramini",
+	}
+	buyers = append(buyers, buyerOne, buyerTwo)
+	return buyers
+}
+func createBaseDataWithPurchaseOrders() []domain.BuyerTotalOrders {
+	var buyers []domain.BuyerTotalOrders
+	buyerOne := domain.BuyerTotalOrders{
+		ID:                  1,
+		CardNumberId:        "Card1",
+		FirstName:           "Victor",
+		LastName:            "Beltramini",
+		PurchaseOrdersCount: 1,
+	}
+	buyerTwo := domain.BuyerTotalOrders{
+		ID:                  2,
+		CardNumberId:        "Card2",
+		FirstName:           "Victor",
+		LastName:            "Beltramini",
+		PurchaseOrdersCount: 1,
 	}
 	buyers = append(buyers, buyerOne, buyerTwo)
 	return buyers

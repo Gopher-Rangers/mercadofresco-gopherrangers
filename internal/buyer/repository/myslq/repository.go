@@ -128,7 +128,7 @@ func (r *repository) GetBuyerOrdersById(ctx context.Context, id int) (domain.Buy
 	for rows.Next() {
 		err := rows.Scan(&buyerData.ID, &buyerData.CardNumberId, &buyerData.FirstName, &buyerData.LastName, &buyerData.PurchaseOrdersCount)
 		if err != nil {
-			return domain.BuyerTotalOrders{}, err
+			return domain.BuyerTotalOrders{}, fmt.Errorf("buyer with id (%d) not founded", id)
 		}
 	}
 

@@ -72,6 +72,26 @@ func createBaseData() []domain.Buyer {
 	return buyers
 }
 
+func createBaseDataReports() []domain.BuyerTotalOrders {
+	var buyers []domain.BuyerTotalOrders
+	buyerOne := domain.BuyerTotalOrders{
+		ID:                  1,
+		CardNumberId:        "Card1",
+		FirstName:           "Victor",
+		LastName:            "Beltramini",
+		PurchaseOrdersCount: 2,
+	}
+	buyerTwo := domain.BuyerTotalOrders{
+		ID:                  2,
+		CardNumberId:        "Card2",
+		FirstName:           "Victor",
+		LastName:            "Beltramini",
+		PurchaseOrdersCount: 1,
+	}
+	buyers = append(buyers, buyerOne, buyerTwo)
+	return buyers
+}
+
 func TestGetById(t *testing.T) {
 	t.Run("find_by_id_existent", func(t *testing.T) {
 		ctx := context.Background()
@@ -91,6 +111,50 @@ func TestGetById(t *testing.T) {
 		foundedBuyer, err := service.GetById(ctx, 25735481)
 		assert.Equal(t, fmt.Errorf("buyer with id %d not founded", 25735481), err)
 		assert.Equal(t, foundedBuyer, domain.Buyer{})
+	})
+}
+
+func TestGetBuyerOrdersById(t *testing.T) {
+	t.Run("find_by_id_existent", func(t *testing.T) {
+		ctx := context.Background()
+		mockRepository := mocks.NewRepository(t)
+		newService := service.NewService(mockRepository)
+		mockedBuyers := createBaseDataReports()
+		mockRepository.On("GetBuyerOrdersById", ctx, 1).Return(mockedBuyers[0], nil)
+		foundedBuyer, err := newService.GetBuyerOrdersById(ctx, 1)
+		assert.Nil(t, err)
+		assert.Equal(t, foundedBuyer, mockedBuyers[0])
+	})
+	t.Run("find_by_id_non_existent", func(t *testing.T) {
+		ctx := context.Background()
+		mockRepository := mocks.NewRepository(t)
+		newService := service.NewService(mockRepository)
+		mockRepository.On("GetBuyerOrdersById", ctx, 25735481).Return(domain.BuyerTotalOrders{}, fmt.Errorf("buyer with id (%d) not founded", 25735481))
+		foundedBuyer, err := newService.GetBuyerOrdersById(ctx, 25735481)
+		assert.Equal(t, fmt.Errorf("buyer with id (%d) not founded", 25735481), err)
+		assert.Equal(t, foundedBuyer, domain.BuyerTotalOrders{})
+	})
+}
+
+func TestGetBuyerTotalOrders(t *testing.T) {
+	t.Run("find_buyers_with_orders", func(t *testing.T) {
+		ctx := context.Background()
+		mockRepository := mocks.NewRepository(t)
+		newService := service.NewService(mockRepository)
+		mockedBuyers := createBaseDataReports()
+		mockRepository.On("GetBuyerTotalOrders", ctx).Return(mockedBuyers, nil)
+		foundedBuyer, err := newService.GetBuyerTotalOrders(ctx)
+		assert.Nil(t, err)
+		assert.Equal(t, foundedBuyer, mockedBuyers)
+	})
+	t.Run("find_buyers_with_orders_err", func(t *testing.T) {
+		ctx := context.Background()
+		mockRepository := mocks.NewRepository(t)
+		newService := service.NewService(mockRepository)
+		mockRepository.On("GetBuyerTotalOrders", ctx).Return(nil, fmt.Errorf("err"))
+		buyersFounded, err := newService.GetBuyerTotalOrders(ctx)
+		assert.Equal(t, fmt.Errorf("err"), err)
+		assert.Nil(t, buyersFounded)
 	})
 }
 

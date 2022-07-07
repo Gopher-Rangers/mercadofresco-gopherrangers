@@ -60,13 +60,13 @@ func TestSeller_Update(t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerSeller := NewSeller(mockService)
 
-		data := seller.Seller{Id: 1, CompanyId: 2, CompanyName: "Data", Address: "ARG", Telephone: "9999999"}
-		expected := seller.Seller{CompanyId: 2, CompanyName: "Expected", Address: "BR", Telephone: "5501154545454"}
+		data := seller.Seller{Id: 1, CompanyId: 2, CompanyName: "Data", Address: "ARG", Telephone: "9999999", LocalityID: 1}
+		expected := seller.Seller{CompanyId: 2, CompanyName: "Expected", Address: "BR", Telephone: "5501154545454", LocalityID: 2}
 
 		dataJson, _ := json.Marshal(expected)
 
 		mockService.On("GetOne", mock.Anything, 1).Return(data, nil)
-		mockService.On("Update", mock.Anything, 1, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).
+		mockService.On("Update", mock.Anything, 1, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone, expected.LocalityID).
 			Return(expected, nil)
 
 		server := gin.Default()
@@ -128,12 +128,13 @@ func TestSeller_Create(t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerSeller := NewSeller(mockService)
 
-		input := seller.Seller{CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454"}
+		input := seller.Seller{CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
 		expectedError := errors.New("the cid already exists")
 
 		dataJson, _ := json.Marshal(input)
 
-		mockService.On("Create", mock.Anything, input.CompanyId, input.CompanyName, input.Address, input.Telephone).Return(seller.Seller{}, expectedError)
+		mockService.On("Create", mock.Anything, input.CompanyId, input.CompanyName, input.Address, input.Telephone, input.LocalityID).
+			Return(seller.Seller{}, expectedError)
 
 		server := gin.Default()
 
@@ -170,12 +171,12 @@ func TestSeller_Create(t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerSeller := NewSeller(mockService)
 
-		expected := seller.Seller{Id: 1, CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454"}
-		input := seller.Seller{CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454"}
+		expected := seller.Seller{Id: 1, CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
+		input := seller.Seller{CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
 
 		dataJson, _ := json.Marshal(input)
 
-		mockService.On("Create", mock.Anything, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).Return(expected, nil)
+		mockService.On("Create", mock.Anything, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone, expected.LocalityID).Return(expected, nil)
 
 		server := gin.Default()
 
@@ -391,7 +392,7 @@ func TestSeller_ValidateFields(t *testing.T) {
 	})
 
 	t.Run("Deve retornar nil quando não houver erro", func(t *testing.T) {
-		sellerOk := requestSeller{CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454"}
+		sellerOk := requestSeller{CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
 		errSellerOk := validateFields(sellerOk)
 
 		assert.Nil(t, errSellerOk)

@@ -10,7 +10,7 @@ type Repository interface {
 	GetAll(ctx context.Context) ([]Locality, error)
 	GetById(ctx context.Context, id int) (Locality, error)
 	Create(ctx context.Context, zipCode, localityName, provinceName, countryName string) (Locality, error)
-	ReportSellers(ctx context.Context, int int) (ReportSeller, error)
+	ReportSellers(ctx context.Context, id int) (ReportSeller, error)
 }
 
 type mariaDBRepository struct {

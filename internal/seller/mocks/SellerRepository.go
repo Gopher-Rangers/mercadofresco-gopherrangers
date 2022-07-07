@@ -15,18 +15,18 @@ type Repository struct {
 }
 
 // Create provides a mock function with given fields: ctx, cid, companyName, address, telephone, localityID
-func (_m *Repository) Create(ctx context.Context, cid int, companyName string, address string, telephone string, localityID string) (seller.Seller, error) {
+func (_m *Repository) Create(ctx context.Context, cid int, companyName string, address string, telephone string, localityID int) (seller.Seller, error) {
 	ret := _m.Called(ctx, cid, companyName, address, telephone, localityID)
 
 	var r0 seller.Seller
-	if rf, ok := ret.Get(0).(func(context.Context, int, string, string, string, string) seller.Seller); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int, string, string, string, int) seller.Seller); ok {
 		r0 = rf(ctx, cid, companyName, address, telephone, localityID)
 	} else {
 		r0 = ret.Get(0).(seller.Seller)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, int, string, string, string, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, int, string, string, string, int) error); ok {
 		r1 = rf(ctx, cid, companyName, address, telephone, localityID)
 	} else {
 		r1 = ret.Error(1)
@@ -94,18 +94,18 @@ func (_m *Repository) GetOne(ctx context.Context, id int) (seller.Seller, error)
 }
 
 // Update provides a mock function with given fields: ctx, cid, companyName, address, telephone, localityID, _a6
-func (_m *Repository) Update(ctx context.Context, cid int, companyName string, address string, telephone string, localityID string, _a6 seller.Seller) (seller.Seller, error) {
+func (_m *Repository) Update(ctx context.Context, cid int, companyName string, address string, telephone string, localityID int, _a6 seller.Seller) (seller.Seller, error) {
 	ret := _m.Called(ctx, cid, companyName, address, telephone, localityID, _a6)
 
 	var r0 seller.Seller
-	if rf, ok := ret.Get(0).(func(context.Context, int, string, string, string, string, seller.Seller) seller.Seller); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int, string, string, string, int, seller.Seller) seller.Seller); ok {
 		r0 = rf(ctx, cid, companyName, address, telephone, localityID, _a6)
 	} else {
 		r0 = ret.Get(0).(seller.Seller)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, int, string, string, string, string, seller.Seller) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, int, string, string, string, int, seller.Seller) error); ok {
 		r1 = rf(ctx, cid, companyName, address, telephone, localityID, _a6)
 	} else {
 		r1 = ret.Error(1)

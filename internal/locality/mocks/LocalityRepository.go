@@ -14,20 +14,20 @@ type Repository struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: ctx, id, localityName, provinceName, countryName
-func (_m *Repository) Create(ctx context.Context, id string, localityName string, provinceName string, countryName string) (locality.Locality, error) {
-	ret := _m.Called(ctx, id, localityName, provinceName, countryName)
+// Create provides a mock function with given fields: ctx, zipCode, localityName, provinceName, countryName
+func (_m *Repository) Create(ctx context.Context, zipCode string, localityName string, provinceName string, countryName string) (locality.Locality, error) {
+	ret := _m.Called(ctx, zipCode, localityName, provinceName, countryName)
 
 	var r0 locality.Locality
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) locality.Locality); ok {
-		r0 = rf(ctx, id, localityName, provinceName, countryName)
+		r0 = rf(ctx, zipCode, localityName, provinceName, countryName)
 	} else {
 		r0 = ret.Get(0).(locality.Locality)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, string) error); ok {
-		r1 = rf(ctx, id, localityName, provinceName, countryName)
+		r1 = rf(ctx, zipCode, localityName, provinceName, countryName)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -59,18 +59,18 @@ func (_m *Repository) GetAll(ctx context.Context) ([]locality.Locality, error) {
 }
 
 // GetById provides a mock function with given fields: ctx, id
-func (_m *Repository) GetById(ctx context.Context, id string) (locality.Locality, error) {
+func (_m *Repository) GetById(ctx context.Context, id int) (locality.Locality, error) {
 	ret := _m.Called(ctx, id)
 
 	var r0 locality.Locality
-	if rf, ok := ret.Get(0).(func(context.Context, string) locality.Locality); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int) locality.Locality); ok {
 		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Get(0).(locality.Locality)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
 		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
@@ -80,18 +80,18 @@ func (_m *Repository) GetById(ctx context.Context, id string) (locality.Locality
 }
 
 // ReportSellers provides a mock function with given fields: ctx, id
-func (_m *Repository) ReportSellers(ctx context.Context, id string) (locality.ReportSeller, error) {
+func (_m *Repository) ReportSellers(ctx context.Context, id int) (locality.ReportSeller, error) {
 	ret := _m.Called(ctx, id)
 
 	var r0 locality.ReportSeller
-	if rf, ok := ret.Get(0).(func(context.Context, string) locality.ReportSeller); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int) locality.ReportSeller); ok {
 		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Get(0).(locality.ReportSeller)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
 		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)

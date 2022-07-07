@@ -17,14 +17,14 @@ func TestRepository_Update(t *testing.T) {
 
 		defer db.Close()
 
-		mockSellers := []seller.Seller{{Id: 1, CompanyId: 1, CompanyName: "Meli", Address: "Osasco", Telephone: "99999", LocalityID: "6700"},
-			{Id: 2, CompanyId: 2, CompanyName: "Lojinha", Address: "Barueri", Telephone: "000000", LocalityID: "6701"}}
+		mockSellers := []seller.Seller{{Id: 1, CompanyId: 1, CompanyName: "Meli", Address: "Osasco", Telephone: "99999", LocalityID: 1},
+			{Id: 2, CompanyId: 2, CompanyName: "Lojinha", Address: "Barueri", Telephone: "000000", LocalityID: 1}}
 
 		stmt := mock.ExpectPrepare("UPDATE seller")
 		stmt.ExpectExec().WithArgs(3, "Melii", "Osascão", "9999", 7700, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		result, err := sellerRepo.Update(context.Background(), 3, "Melii", "Osascão", "9999", "7700", mockSellers[0])
+		result, err := sellerRepo.Update(context.Background(), 3, "Melii", "Osascão", "9999", 1, mockSellers[0])
 
 		assert.Equal(t, "Melii", result.CompanyName)
 	})
@@ -35,14 +35,14 @@ func TestRepository_Update(t *testing.T) {
 
 		defer db.Close()
 
-		mockSellers := []seller.Seller{{Id: 1, CompanyId: 1, CompanyName: "Meli", Address: "Osasco", Telephone: "99999"},
-			{Id: 2, CompanyId: 2, CompanyName: "Lojinha", Address: "Barueri", Telephone: "000000"}}
+		mockSellers := []seller.Seller{{Id: 1, CompanyId: 1, CompanyName: "Meli", Address: "Osasco", Telephone: "99999", LocalityID: 1},
+			{Id: 2, CompanyId: 2, CompanyName: "Lojinha", Address: "Barueri", Telephone: "000000", LocalityID: 1}}
 
 		stmt := mock.ExpectPrepare("UPDATE seller")
 		stmt.ExpectExec().WithArgs(2, "Melii", "Osascão", "9999", 1).WillReturnError(fmt.Errorf("error"))
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		_, err = sellerRepo.Update(context.Background(), 2, "Melii", "Osascão", "9999", "7000", mockSellers[1])
+		_, err = sellerRepo.Update(context.Background(), 2, "Melii", "Osascão", "9999", 1, mockSellers[1])
 
 		assert.Error(t, err)
 	})
@@ -99,14 +99,14 @@ func TestRepository_Create(t *testing.T) {
 
 		defer db.Close()
 
-		input := seller.Seller{CompanyId: 1, CompanyName: "Meli", Address: "A", Telephone: "9999999", LocalityID: "6700"}
+		input := seller.Seller{CompanyId: 1, CompanyName: "Meli", Address: "A", Telephone: "9999999", LocalityID: 1}
 
 		stmt := mock.ExpectPrepare("INSERT INTO seller")
 		stmt.ExpectExec().WithArgs(input.CompanyId, input.CompanyName, input.Address, input.Telephone, input.LocalityID).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		result, err := sellerRepo.Create(context.Background(), 1, "Meli", "A", "9999999", "6700")
+		result, err := sellerRepo.Create(context.Background(), 1, "Meli", "A", "9999999", 1)
 		assert.NoError(t, err)
 
 		if err := mock.ExpectationsWereMet(); err != nil {
@@ -136,7 +136,7 @@ func TestRepository_Create(t *testing.T) {
 		mock.ExpectCommit()
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		_, err = sellerRepo.Create(context.Background(), 10, "Meli", "A", "9999999", "6700")
+		_, err = sellerRepo.Create(context.Background(), 10, "Meli", "A", "9999999", 1)
 
 		assert.Error(t, err)
 	})
@@ -159,7 +159,7 @@ func TestRepository_Create(t *testing.T) {
 		mock.ExpectCommit()
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		_, err = sellerRepo.Create(context.Background(), 12, "Meli", "A", "9999999", "6700")
+		_, err = sellerRepo.Create(context.Background(), 12, "Meli", "A", "9999999", 1)
 
 		assert.Error(t, err)
 	})
@@ -180,7 +180,7 @@ func TestRepository_Create(t *testing.T) {
 		mock.ExpectCommit()
 
 		sellerRepo := seller.NewMariaDBRepository(db)
-		_, err = sellerRepo.Create(context.Background(), 12, "Meli", "A", "9999999", "6700")
+		_, err = sellerRepo.Create(context.Background(), 12, "Meli", "A", "9999999", 1)
 
 		assert.Error(t, err)
 	})
@@ -192,7 +192,7 @@ func TestRepository_GetOne(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
 
-		expectedResult := seller.Seller{Id: 1, CompanyId: 1, CompanyName: "Meli", Address: "Osasco", Telephone: "999999", LocalityID: "6700"}
+		expectedResult := seller.Seller{Id: 1, CompanyId: 1, CompanyName: "Meli", Address: "Osasco", Telephone: "999999", LocalityID: 1}
 
 		rows := sqlmock.NewRows([]string{
 			"id", "cid", "company_name", "address", "telephone", "locality_id",
@@ -263,13 +263,13 @@ func TestRepository_GetAll(t *testing.T) {
 
 		defer db.Close()
 
-		mockSellers := []seller.Seller{{Id: 1, CompanyId: 1, CompanyName: "Meli", Address: "Osasco", Telephone: "99999", LocalityID: "6700"},
-			{Id: 2, CompanyId: 2, CompanyName: "Lojinha", Address: "Barueri", Telephone: "000000", LocalityID: "6700"}}
+		mockSellers := []seller.Seller{{Id: 1, CompanyId: 1, CompanyName: "Meli", Address: "Osasco", Telephone: "99999", LocalityID: 1},
+			{Id: 2, CompanyId: 2, CompanyName: "Lojinha", Address: "Barueri", Telephone: "000000", LocalityID: 1}}
 
 		rows := sqlmock.NewRows([]string{
-			"id", "cid", "company_id", "address", "telephone",
-		}).AddRow(mockSellers[0].Id, mockSellers[0].CompanyId, mockSellers[0].CompanyName, mockSellers[0].Address, mockSellers[0].Telephone).
-			AddRow(mockSellers[1].Id, mockSellers[1].CompanyId, mockSellers[1].CompanyName, mockSellers[1].Address, mockSellers[1].Telephone)
+			"id", "cid", "company_id", "address", "telephone", "locality_id",
+		}).AddRow(mockSellers[0].Id, mockSellers[0].CompanyId, mockSellers[0].CompanyName, mockSellers[0].Address, mockSellers[0].Telephone, mockSellers[0].LocalityID).
+			AddRow(mockSellers[1].Id, mockSellers[1].CompanyId, mockSellers[1].CompanyName, mockSellers[1].Address, mockSellers[1].Telephone, mockSellers[1].LocalityID)
 
 		query := "SELECT \\* FROM seller"
 

@@ -77,18 +77,18 @@ func TestService_Update(t *testing.T) {
 		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454"},
 			{Id: 3, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454"}}
 
-		localityOne := locality.Locality{Id: "6700", LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
+		localityOne := locality.Locality{Id: 1, LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
 
-		expectedResult := seller.Seller{Id: 1, CompanyId: 7, CompanyName: "Meli", Address: "América do Sul", Telephone: "5501154545454", LocalityID: "6700"}
+		expectedResult := seller.Seller{Id: 1, CompanyId: 7, CompanyName: "Meli", Address: "América do Sul", Telephone: "5501154545454", LocalityID: 1}
 
-		mockLocalityRepo.On("GetById", context.Background(), "6700").Return(localityOne, nil)
+		mockLocalityRepo.On("GetById", context.Background(), 1).Return(localityOne, nil)
 		mockRepo.On("GetOne", context.Background(), 1).Return(sellerList[0], nil)
 		mockRepo.On("GetAll", context.Background()).Return(sellerList, nil)
 		mockRepo.On("Update", context.Background(), expectedResult.CompanyId, expectedResult.CompanyName, expectedResult.Address,
 			expectedResult.Telephone, expectedResult.LocalityID, sellerList[0]).Return(expectedResult, nil)
 
 		service := seller.NewService(mockRepo, mockLocalityRepo)
-		response, _ := service.Update(context.Background(), 1, 7, "Meli", "América do Sul", "5501154545454", "6700")
+		response, _ := service.Update(context.Background(), 1, 7, "Meli", "América do Sul", "5501154545454", 1)
 
 		assert.Equal(t, expectedResult, response)
 	})
@@ -105,7 +105,7 @@ func TestService_Update(t *testing.T) {
 		mockRepo.On("GetOne", context.Background(), id).Return(seller.Seller{}, expectedError)
 
 		service := seller.NewService(mockRepo, mockLocalityRepo)
-		response, err := service.Update(context.Background(), id, 5, "Meli", "América do Sul", "5501154545454", "6700")
+		response, err := service.Update(context.Background(), id, 5, "Meli", "América do Sul", "5501154545454", 1)
 
 		assert.Equal(t, expectedResult, response)
 		assert.Equal(t, expectedError, err)
@@ -115,18 +115,18 @@ func TestService_Update(t *testing.T) {
 		mockRepo := mocks.NewRepository(t)
 		mockLocalityRepo := localityMock.NewRepository(t)
 
-		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"},
-			{Id: 3, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"}}
-		localityOne := locality.Locality{Id: "6700", LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
+		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454", LocalityID: 1},
+			{Id: 3, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: 1}}
+		localityOne := locality.Locality{Id: 1, LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
 
 		expectedError := errors.New("the cid already exists")
 
-		mockLocalityRepo.On("GetById", context.Background(), "6700").Return(localityOne, nil)
+		mockLocalityRepo.On("GetById", context.Background(), 1).Return(localityOne, nil)
 		mockRepo.On("GetOne", context.Background(), 1).Return(sellerList[0], nil)
 		mockRepo.On("GetAll", context.Background()).Return(sellerList, nil)
 
 		service := seller.NewService(mockRepo, mockLocalityRepo)
-		_, err := service.Update(context.Background(), 1, 5, "Meli", "América do Sul", "5501154545454", "6700")
+		_, err := service.Update(context.Background(), 1, 5, "Meli", "América do Sul", "5501154545454", 1)
 
 		assert.NotNil(t, err)
 		assert.Equal(t, expectedError, err)
@@ -137,20 +137,20 @@ func TestService_Update(t *testing.T) {
 		mockRepo := mocks.NewRepository(t)
 		mockLocalityRepo := localityMock.NewRepository(t)
 
-		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"},
-			{Id: 3, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"}}
+		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454", LocalityID: 1},
+			{Id: 3, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: 1}}
 
-		expectedResult := seller.Seller{Id: 1, CompanyId: 7, CompanyName: "Meli", Address: "América do Sul", Telephone: "5501154545454", LocalityID: "6700"}
-		localityOne := locality.Locality{Id: "6700", LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
+		expectedResult := seller.Seller{Id: 1, CompanyId: 7, CompanyName: "Meli", Address: "América do Sul", Telephone: "5501154545454", LocalityID: 1}
+		localityOne := locality.Locality{Id: 1, LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
 
-		mockLocalityRepo.On("GetById", context.Background(), "6700").Return(localityOne, nil)
+		mockLocalityRepo.On("GetById", context.Background(), 1).Return(localityOne, nil)
 		mockRepo.On("GetOne", context.Background(), 1).Return(sellerList[0], nil)
 		mockRepo.On("GetAll", context.Background()).Return(sellerList, nil)
 		mockRepo.On("Update", context.Background(), expectedResult.CompanyId, expectedResult.CompanyName, expectedResult.Address, expectedResult.Telephone, expectedResult.LocalityID, sellerList[0]).
 			Return(seller.Seller{}, fmt.Errorf("error"))
 
 		service := seller.NewService(mockRepo, mockLocalityRepo)
-		_, err := service.Update(context.Background(), 1, 7, "Meli", "América do Sul", "5501154545454", "6700")
+		_, err := service.Update(context.Background(), 1, 7, "Meli", "América do Sul", "5501154545454", 1)
 
 		assert.Error(t, err)
 	})
@@ -161,8 +161,8 @@ func TestService_GetOne(t *testing.T) {
 		mockrepo := mocks.NewRepository(t)
 		mockLocalityRepo := localityMock.NewRepository(t)
 
-		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestGetOne", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"},
-			{Id: 3, CompanyId: 5, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"}}
+		sellerList := []seller.Seller{{Id: 1, CompanyId: 5, CompanyName: "TestGetOne", Address: "BR", Telephone: "5501154545454", LocalityID: 1},
+			{Id: 3, CompanyId: 5, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: 1}}
 
 		mockrepo.On("GetOne", context.Background(), 1).Return(sellerList[0], nil)
 
@@ -195,11 +195,11 @@ func TestService_Create(t *testing.T) {
 		mockRepo := mocks.NewRepository(t)
 		mockLocalityRepo := localityMock.NewRepository(t)
 
-		expected := seller.Seller{Id: 1, CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"}
-		input := seller.Seller{CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"}
-		localityOne := locality.Locality{Id: "6700", LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
+		expected := seller.Seller{Id: 1, CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
+		input := seller.Seller{CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
+		localityOne := locality.Locality{Id: 1, LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
 
-		mockLocalityRepo.On("GetById", context.Background(), "6700").Return(localityOne, nil)
+		mockLocalityRepo.On("GetById", context.Background(), 1).Return(localityOne, nil)
 		mockRepo.On("GetAll", context.Background()).Return([]seller.Seller{}, nil)
 		mockRepo.On("Create", context.Background(), expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone, localityOne.Id).Return(expected, nil)
 
@@ -214,15 +214,15 @@ func TestService_Create(t *testing.T) {
 		mockLocalityRepo := localityMock.NewRepository(t)
 
 		sellerList := []seller.Seller{
-			{Id: 1, CompanyId: 5, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"},
-			{Id: 2, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"},
+			{Id: 1, CompanyId: 5, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: 1},
+			{Id: 2, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: 1},
 		}
 
-		localityOne := locality.Locality{Id: "6700", LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
-		input := seller.Seller{CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"}
+		localityOne := locality.Locality{Id: 1, LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
+		input := seller.Seller{CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
 		expectedError := errors.New("the cid already exists")
 
-		mockLocalityRepo.On("GetById", context.Background(), "6700").Return(localityOne, nil)
+		mockLocalityRepo.On("GetById", context.Background(), 1).Return(localityOne, nil)
 		mockRepo.On("GetAll", context.Background()).Return(sellerList, nil)
 
 		service := seller.NewService(mockRepo, mockLocalityRepo)
@@ -236,10 +236,10 @@ func TestService_Create(t *testing.T) {
 		mockRepo := mocks.NewRepository(t)
 		mockLocalityRepo := localityMock.NewRepository(t)
 
-		input := seller.Seller{CompanyId: 7, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"}
-		localityOne := locality.Locality{Id: "6700", LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
+		input := seller.Seller{CompanyId: 7, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
+		localityOne := locality.Locality{Id: 1, LocalityName: "Cecap", ProvinceName: "Gru", CountryName: "SP"}
 
-		mockLocalityRepo.On("GetById", context.Background(), "6700").Return(localityOne, nil)
+		mockLocalityRepo.On("GetById", context.Background(), 1).Return(localityOne, nil)
 		mockRepo.On("GetAll", context.Background()).Return([]seller.Seller{}, nil)
 		mockRepo.On("Create", context.Background(), input.CompanyId, input.CompanyName, input.Address, input.Telephone, input.LocalityID).
 			Return(seller.Seller{}, fmt.Errorf("error"))
@@ -254,9 +254,9 @@ func TestService_Create(t *testing.T) {
 		mockRepo := mocks.NewRepository(t)
 		mockLocalityRepo := localityMock.NewRepository(t)
 
-		input := seller.Seller{CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"}
+		input := seller.Seller{CompanyId: 5, CompanyName: "TestCreate", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
 
-		mockLocalityRepo.On("GetById", context.Background(), "6700").Return(locality.Locality{}, nil)
+		mockLocalityRepo.On("GetById", context.Background(), 1).Return(locality.Locality{}, nil)
 		mockRepo.On("GetAll", context.Background()).Return([]seller.Seller{}, fmt.Errorf("error"))
 
 		service := seller.NewService(mockRepo, mockLocalityRepo)
@@ -273,8 +273,8 @@ func TestService_GetAll(t *testing.T) {
 		mockLocalityRepo := localityMock.NewRepository(t)
 
 		expectedResult := []seller.Seller{
-			{Id: 1, CompanyId: 5, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: "6700"},
-			{Id: 2, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: "6701"},
+			{Id: 1, CompanyId: 5, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: 1},
+			{Id: 2, CompanyId: 6, CompanyName: "ServiceSeller", Address: "BR", Telephone: "5501154545454", LocalityID: 2},
 		}
 
 		mockRepository.On("GetAll", context.Background()).Return(expectedResult, nil)

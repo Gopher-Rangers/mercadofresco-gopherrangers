@@ -111,7 +111,7 @@ func TestStore(t *testing.T) {
 		service := productrecord.NewService(mockRepository, ProductService)
 		expected := createProductRecordArray()[1]
 
-		mockProductRepository.On("GetById", 2).Return(ps[1], nil)
+		mockProductRepository.On("GetById", context.Background(), 2).Return(ps[1], nil)
 		mockRepository.On("Store",
 						context.Background(),
 						expected).Return(expected, nil)
@@ -128,7 +128,7 @@ func TestStore(t *testing.T) {
 		service := productrecord.NewService(mockRepository, ProductService)
 		expected := createProductRecordArray()[1]
 
-		mockProductRepository.On("GetById", 2).Return(
+		mockProductRepository.On("GetById", context.Background(), 2).Return(
 										products.Product{},
 										fmt.Errorf("produt record 2 not found"))
 
@@ -151,7 +151,7 @@ func TestStore(t *testing.T) {
 			ProductId:      3,
 		}
 
-		mockProductRepository.On("GetById", 3).Return(ps[2], nil)
+		mockProductRepository.On("GetById", context.Background(), 3).Return(ps[2], nil)
 
 		prod, err := service.Store(context.Background(), expected)
 		assert.Equal(t, err, fmt.Errorf(productrecord.ERROR_WRONG_LAST_UPDATE_DATE))
@@ -172,7 +172,7 @@ func TestStore(t *testing.T) {
 			ProductId:      3,
 		}
 
-		mockProductRepository.On("GetById", 3).Return(ps[2], nil)
+		mockProductRepository.On("GetById", context.Background(), 3).Return(ps[2], nil)
 
 		prod, err := service.Store(context.Background(), expected)
 		assert.NotNil(t, err)
@@ -188,7 +188,7 @@ func TestStore(t *testing.T) {
 		expected := createProductRecordArray()[1]
 
 		errFail := fmt.Errorf("fail to save")
-		mockProductRepository.On("GetById", 2).Return(ps[1], nil)
+		mockProductRepository.On("GetById", context.Background(), 2).Return(ps[1], nil)
 		mockRepository.On("Store",
 						context.Background(),
 						expected).Return(productrecord.ProductRecord{}, errFail)

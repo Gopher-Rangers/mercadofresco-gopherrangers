@@ -3,6 +3,7 @@ package products_test
 import (
 	"fmt"
 	"testing"
+	"context"
 
 	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product/mocks"
@@ -63,8 +64,8 @@ func TestStore(t *testing.T) {
 			SellerId:                       03,
 		}
 		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(true)
-		mockRepository.On("Store", expected).Return(expected, nil)
-		prod, err := service.Store(expected)
+		mockRepository.On("Store", context.Background(), expected).Return(expected, nil)
+		prod, err := service.Store(context.Background(), expected)
 		assert.Nil(t, err)
 		assert.Equal(t, expected, prod)
 	})
@@ -86,7 +87,7 @@ func TestStore(t *testing.T) {
 			SellerId:                       03,
 		}
 		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(false)
-		prod, err := service.Store(expected)
+		prod, err := service.Store(context.Background(), expected)
 		fmt.Println(err)
 		assert.Equal(t, err, fmt.Errorf("the product code must be unique"))
 		assert.Equal(t, products.Product{}, prod)
@@ -98,8 +99,8 @@ func TestGetAll(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
 		ps := createProductsArray()
-		mockRepository.On("GetAll").Return(ps, nil)
-		prod, err := service.GetAll()
+		mockRepository.On("GetAll", context.Background()).Return(ps, nil)
+		prod, err := service.GetAll(context.Background())
 		assert.Nil(t, err)
 		assert.Equal(t, prod, ps)
 	})
@@ -110,8 +111,8 @@ func TestGetById(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
 		ps := createProductsArray()
-		mockRepository.On("GetById", 1).Return(ps[0], nil)
-		prod, err := service.GetById(1)
+		mockRepository.On("GetById", context.Background(), 1).Return(ps[0], nil)
+		prod, err := service.GetById(context.Background(), 1)
 		assert.Nil(t, err)
 		assert.Equal(t, prod, ps[0])
 	})
@@ -119,8 +120,8 @@ func TestGetById(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
 		e := fmt.Errorf("produto 3 não encontrado")
-		mockRepository.On("GetById", 3).Return(products.Product{}, e)
-		prod, err := service.GetById(3)
+		mockRepository.On("GetById", context.Background(), 3).Return(products.Product{}, e)
+		prod, err := service.GetById(context.Background(), 3)
 		assert.Equal(t, e, err)
 		assert.Equal(t, prod, products.Product{})
 	})
@@ -145,8 +146,8 @@ func TestUpdate(t *testing.T) {
 			SellerId:                       01,
 		}
 		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(true)
-		mockRepository.On("Update", expected, 1).Return(expected, nil)
-		prod, err := service.Update(expected, 1)
+		mockRepository.On("Update", context.Background(), expected, 1).Return(expected, nil)
+		prod, err := service.Update(context.Background(), expected, 1)
 		assert.Nil(t, err)
 		assert.Equal(t, prod, expected)
 	})
@@ -169,8 +170,8 @@ func TestUpdate(t *testing.T) {
 		}
 		e := fmt.Errorf("produto 3 não encontrado")
 		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(true)
-		mockRepository.On("Update", expected, 3).Return(products.Product{}, e)
-		prod, err := service.Update(expected, 3)
+		mockRepository.On("Update", context.Background(), expected, 3).Return(products.Product{}, e)
+		prod, err := service.Update(context.Background(), expected, 3)
 		assert.Equal(t, e, err)
 		assert.Equal(t, prod, products.Product{})
 	})
@@ -192,7 +193,7 @@ func TestUpdate(t *testing.T) {
 			SellerId:                       01,
 		}
 		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(false)
-		prod, err := service.Update(expected, 1)
+		prod, err := service.Update(context.Background(), expected, 1)
 		assert.Equal(t, err, fmt.Errorf("the product code must be unique"))
 		assert.Equal(t, products.Product{}, prod)
 	})
@@ -202,16 +203,16 @@ func TestDelete(t *testing.T) {
 	t.Run("delete_ok", func(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
-		mockRepository.On("Delete", 1).Return(nil)
-		err := service.Delete(1)
+		mockRepository.On("Delete", context.Background(), 1).Return(nil)
+		err := service.Delete(context.Background(), 1)
 		assert.Nil(t, err)
 	})
 	t.Run("delete_non_existent", func(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
 		e := fmt.Errorf("produto 3 não encontrado")
-		mockRepository.On("Delete", 3).Return(e)
-		err := service.Delete(3)
+		mockRepository.On("Delete", context.Background(), 3).Return(e)
+		err := service.Delete(context.Background(), 3)
 		assert.Equal(t, e, err)
 	})
 }

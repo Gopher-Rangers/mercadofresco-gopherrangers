@@ -95,7 +95,7 @@ func (prod *Product) Store() gin.HandlerFunc {
 				}
 			}
 		}
-		p, err := prod.service.Store(req)
+		p, err := prod.service.Store(c.Request.Context(), req)
 		if err != nil {
 			if err.Error() == ERROR_UNIQUE_PRODUCT_CODE {
 				c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
@@ -127,7 +127,7 @@ func (prod *Product) GetAll() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
 			return
 		}
-		p, _ := prod.service.GetAll()
+		p, _ := prod.service.GetAll(c.Request.Context())
 		c.JSON(web.NewResponse(http.StatusOK, p))
 	}
 	return fn
@@ -158,7 +158,7 @@ func (prod *Product) GetById() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_ID))
 			return
 		}
-		p, err := prod.service.GetById(id)
+		p, err := prod.service.GetById(c.Request.Context(), id)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
@@ -216,7 +216,7 @@ func (prod *Product) Update() gin.HandlerFunc {
 				}
 			}
 		}
-		p, err := prod.service.Update(req, int(id))
+		p, err := prod.service.Update(c.Request.Context(), req, int(id))
 		if err != nil {
 			if err.Error() == ERROR_UNIQUE_PRODUCT_CODE {
 				c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
@@ -255,7 +255,7 @@ func (prod *Product) Delete() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_ID))
 			return
 		}
-		err = prod.service.Delete(int(id))
+		err = prod.service.Delete(c.Request.Context(), int(id))
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return

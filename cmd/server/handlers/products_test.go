@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"context"
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
@@ -103,7 +104,7 @@ func TestProductStore(t *testing.T) {
 										"product_type_id": 1,
 										"seller_id": 1}`
 		req, rr := createProductRequestTest(http.MethodPost, URL_PRODUCTS, expected)
-		mockService.On("Store", ps[0]).Return(ps[0], nil)
+		mockService.On("Store", context.Background(), ps[0]).Return(ps[0], nil)
 		productRouterGroup.POST("/", handlerProduct.Store())
 		server.ServeHTTP(rr, req)
 
@@ -135,7 +136,7 @@ func TestProductStore(t *testing.T) {
 										"product_type_id": 1,
 										"seller_id": 1}`
 		req, rr := createProductRequestTest(http.MethodPost, URL_PRODUCTS, expected)
-		mockService.On("Store", ps[0]).Return(products.Product{}, fmt.Errorf(products.ERROR_UNIQUE_PRODUCT_CODE))
+		mockService.On("Store", context.Background(), ps[0]).Return(products.Product{}, fmt.Errorf(products.ERROR_UNIQUE_PRODUCT_CODE))
 		productRouterGroup.POST("/", handlerProduct.Store())
 		server.ServeHTTP(rr, req)
 
@@ -219,7 +220,7 @@ func TestProductGetAll(t *testing.T) {
 		ps := createProductsArray()
 		req, rr := createProductRequestTest(http.MethodGet, URL_PRODUCTS, "")
 
-		mockService.On("GetAll").Return(ps, nil)
+		mockService.On("GetAll", context.Background()).Return(ps, nil)
 		productRouterGroup.GET("/", handlerProduct.GetAll())
 		server.ServeHTTP(rr, req)
 
@@ -262,7 +263,7 @@ func TestProductGetById(t *testing.T) {
 		ps := createProductsArray()
 		req, rr := createProductRequestTest(http.MethodGet, URL_PRODUCTS+"1", "")
 
-		mockService.On("GetById", 1).Return(ps[0], nil)
+		mockService.On("GetById", context.Background(), 1).Return(ps[0], nil)
 		productRouterGroup.GET("/:id", handlerProduct.GetById())
 		server.ServeHTTP(rr, req)
 
@@ -283,7 +284,7 @@ func TestProductGetById(t *testing.T) {
 		ps := products.Product{}
 		req, rr := createProductRequestTest(http.MethodGet, URL_PRODUCTS+"3", "")
 
-		mockService.On("GetById", 3).Return(ps, fmt.Errorf("produto 3 não encontrado"))
+		mockService.On("GetById", context.Background(), 3).Return(ps, fmt.Errorf("produto 3 não encontrado"))
 		productRouterGroup.GET("/:id", handlerProduct.GetById())
 		server.ServeHTTP(rr, req)
 
@@ -371,7 +372,7 @@ func TestProductUpdate(t *testing.T) {
 										"product_type_id": 1,
 										"seller_id": 1}`
 		req, rr := createProductRequestTest(http.MethodPatch, URL_PRODUCTS+"1", expected)
-		mockService.On("Update", ps, 1).Return(ps, nil)
+		mockService.On("Update", context.Background(), ps, 1).Return(ps, nil)
 		productRouterGroup.PATCH("/:id", handlerProduct.Update())
 		server.ServeHTTP(rr, req)
 
@@ -416,7 +417,7 @@ func TestProductUpdate(t *testing.T) {
 										"product_type_id": 1,
 										"seller_id": 1}`
 		req, rr := createProductRequestTest(http.MethodPatch, URL_PRODUCTS+"1", expected)
-		mockService.On("Update", ps, 1).Return(products.Product{}, fmt.Errorf(products.ERROR_UNIQUE_PRODUCT_CODE))
+		mockService.On("Update", context.Background(), ps, 1).Return(products.Product{}, fmt.Errorf(products.ERROR_UNIQUE_PRODUCT_CODE))
 		productRouterGroup.PATCH("/:id", handlerProduct.Update())
 		server.ServeHTTP(rr, req)
 
@@ -559,7 +560,7 @@ func TestProductDelete(t *testing.T) {
 
 		req, rr := createProductRequestTest(http.MethodDelete, URL_PRODUCTS+"1", "")
 
-		mockService.On("Delete", 1).Return(nil)
+		mockService.On("Delete", context.Background(), 1).Return(nil)
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)
 
@@ -579,7 +580,7 @@ func TestProductDelete(t *testing.T) {
 
 		req, rr := createProductRequestTest(http.MethodDelete, URL_PRODUCTS+"1", "")
 
-		mockService.On("Delete", 1).Return(fmt.Errorf("produto 1 não encontrado"))
+		mockService.On("Delete", context.Background(), 1).Return(fmt.Errorf("produto 1 não encontrado"))
 		productRouterGroup.DELETE("/:id", handlerProduct.Delete())
 		server.ServeHTTP(rr, req)
 

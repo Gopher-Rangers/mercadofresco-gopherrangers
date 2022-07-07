@@ -1,12 +1,11 @@
-package handlers
+package controller
 
 import (
 	"fmt"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/domain"
 	"net/http"
-	"os"
 	"strconv"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
 )
@@ -32,37 +31,14 @@ type buyerRequestUpdate struct {
 }
 
 type Buyer struct {
-	service buyer.Service
+	service domain.Service
 }
 
-func NewBuyer(s buyer.Service) Buyer {
+func NewBuyer(s domain.Service) Buyer {
 	return Buyer{s}
 }
 
-func (Buyer) AuthToken(context *gin.Context) {
-	privateToken := os.Getenv("TOKEN")
-
-	providedToken := context.GetHeader("token")
-
-	if providedToken != privateToken {
-		context.AbortWithStatusJSON(web.DecodeError(http.StatusUnauthorized, "invalid token"))
-		return
-	}
-
-	context.Next()
-}
-
-func (Buyer) ValidateID(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil || id < 0 {
-		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusBadRequest, "Id need to be a valid integer"))
-		return
-	}
-
-	ctx.Next()
-}
-
-func (Buyer) validateBody(req buyer.Buyer, c *gin.Context) bool {
+func (Buyer) validateBody(req domain.Buyer, c *gin.Context) bool {
 	if req.CardNumberId == "" {
 		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, ERROR_BUYER_CARD_NUMBER))
 		return false
@@ -120,6 +96,48 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 	c.JSON(web.NewResponse(http.StatusOK, data))
 }
 
+// ReportPurchaseOrdersByBuyer GetPurchaseOrdersByBuyerId godoc
+// @Summary List buyer
+// @Tags Buyers
+// @Description Get number of purchase Orders by an ID of a specific buyer
+// @Accept json
+// @Produce json
+// @Param token header string true "token"
+// @Failure 401 {object} web.Response "We need token"
+// @Failure 404 {object} web.Response
+// @Success 200 {object} web.Response
+// @Router /api/v1/buyers/{id} [GET]
+func (b *Buyer) ReportPurchaseOrdersByBuyer(c *gin.Context) {
+	id, bool := c.GetQuery("id")
+	if bool == true {
+		idFormated, _ := strconv.Atoi(id)
+		if idFormated < 1 {
+			c.JSON(web.DecodeError(http.StatusBadRequest, "Invalid id"+c.Param("id")))
+			return
+		}
+
+		data, err := b.service.GetBuyerOrdersById(c.Request.Context(), idFormated)
+
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+
+		c.JSON(web.NewResponse(http.StatusOK, data))
+		return
+	}
+
+	data, err := b.service.GetBuyerTotalOrders(c.Request.Context())
+
+	if err != nil {
+		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		return
+	}
+
+	c.JSON(web.NewResponse(http.StatusOK, data))
+	return
+}
+
 // Create CreateBuyer godoc
 // @Summary Create buyer
 // @Tags Buyers
@@ -139,12 +157,12 @@ func (b *Buyer) Create(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest,
 			gin.H{
-				"error":   "Validation error",
+				"error":   "validation error",
 				"message": "Invalid inputs. Please check your inputs"})
 		return
 	}
-
-	newBuyer, err := b.service.Create(c.Request.Context(), buyer.Buyer{CardNumberId: req.CardNumberId, FirstName: req.FirstName, LastName: req.LastName})
+	buyer := domain.Buyer{CardNumberId: req.CardNumberId, FirstName: req.FirstName, LastName: req.LastName}
+	newBuyer, err := b.service.Create(c.Request.Context(), buyer)
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
@@ -174,11 +192,11 @@ func (b *Buyer) Update(c *gin.Context) {
 
 	req.ID, _ = strconv.Atoi(c.Param("id"))
 
-	if !b.validateBody(buyer.Buyer{ID: req.ID, CardNumberId: req.CardNumberId, FirstName: req.FirstName, LastName: req.LastName}, c) {
+	if !b.validateBody(domain.Buyer{ID: req.ID, CardNumberId: req.CardNumberId, FirstName: req.FirstName, LastName: req.LastName}, c) {
 		return
 	}
 
-	newBuyer, err := b.service.Update(c.Request.Context(), buyer.Buyer(req))
+	newBuyer, err := b.service.Update(c.Request.Context(), domain.Buyer(req))
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 		return

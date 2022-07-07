@@ -34,7 +34,7 @@ func main() {
 		log.Fatal("failed to load .env")
 	}
 
-	//gin.SetMode("release")
+	gin.SetMode("release")
 
 	server := gin.Default()
 

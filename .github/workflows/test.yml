@@ -1,7 +1,7 @@
 name: Go Test
 on:
   push:
-    branches: [ "feature-product_records-4" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 jobs:

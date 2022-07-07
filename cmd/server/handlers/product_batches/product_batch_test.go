@@ -47,19 +47,9 @@ func InitServer(method string, url string, body []byte) (*http.Request, *httptes
 	return req, httptest.NewRecorder()
 }
 
-type ExpectedAllJSON struct {
-	Code int                   `json:"code"`
-	Data []productbatch.Report `json:"data"`
-}
-
-type ExpectedIdJSON struct {
-	Code int                 `json:"code"`
-	Data productbatch.Report `json:"data"`
-}
-
-type ExpectedCreateJSON struct {
-	Code int                       `json:"code"`
-	Data productbatch.ProductBatch `json:"data"`
+type ExpectedJSON struct {
+	Code int         `json:"code"`
+	Data interface{} `json:"data"`
 }
 
 func TestBatchCreate(t *testing.T) {
@@ -87,7 +77,7 @@ func TestBatchCreate(t *testing.T) {
 		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
 		router.ServeHTTP(w, req)
 
-		exp := ExpectedCreateJSON{201, exp}
+		exp := ExpectedJSON{201, exp}
 		expJSON, _ := json.Marshal(exp)
 
 		assert.Equal(t, exp.Code, w.Code)
@@ -144,7 +134,7 @@ func TestBatchReport(t *testing.T) {
 		req, w := InitServer(http.MethodGet, URL_PRODUCTS_BATCH+"sections/reportProducts", nil)
 		router.ServeHTTP(w, req)
 
-		exp := ExpectedAllJSON{200, exp}
+		exp := ExpectedJSON{200, exp}
 		expJSON, _ := json.Marshal(exp)
 
 		assert.Equal(t, exp.Code, w.Code)
@@ -163,7 +153,7 @@ func TestBatchReportID(t *testing.T) {
 		req, w := InitServer(http.MethodGet, URL_PRODUCTS_BATCH+"sections/reportProducts?id=1", nil)
 		router.ServeHTTP(w, req)
 
-		exp := ExpectedIdJSON{200, exp}
+		exp := ExpectedJSON{200, exp}
 		expJSON, _ := json.Marshal(exp)
 
 		assert.Equal(t, exp.Code, w.Code)

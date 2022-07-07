@@ -16,7 +16,7 @@ type Employee struct {
 type Repository interface {
 	Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 	// LastID() int
-	// GetAll() []Employee
+	GetAll() ([]Employee, error)
 	// Delete(id int) error
 	// GetById(id int) (Employee, error)
 	// Update(emp Employee, id int) (Employee, error)
@@ -82,12 +82,29 @@ func (r repository) Create(cardNum int, firstName string, lastName string, wareh
 // 	return Employees[len(Employees)-1].ID + 1
 // }
 
-// func (r repository) GetAll() []Employee {
-// 	var Employees []Employee
-// 	r.db.Read(&Employees)
+func (r repository) GetAll() ([]Employee, error) {
+	var employees []Employee
 
-// 	return Employees
-// }
+	rows, err := r.db.Query(SqlGetAll)
+	if err != nil {
+		return employees, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var emp Employee
+
+		err := rows.Scan(&emp.ID, &emp.CardNumber, &emp.FirstName, &emp.WareHouseID)
+		if err != nil {
+			return employees, err
+		}
+
+		employees = append(employees, emp)
+	}
+
+	return employees, nil
+}
 
 // func (r *repository) Delete(id int) error {
 // 	var Employees []Employee

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
@@ -32,7 +31,7 @@ func NewEmployee(e employee.Services) Employee {
 }
 
 func (emp *Employee) checkBody(req employeeRequest, c *gin.Context) bool {
-	employees := emp.service.GetAll()
+	employees, _ := emp.service.GetAll()
 	for i := range employees {
 		if employees[i].ID == req.ID || req.ID != 0 {
 			c.JSON(web.DecodeError(
@@ -91,61 +90,61 @@ func (e *Employee) Create() gin.HandlerFunc {
 	}
 }
 
-func (e Employee) GetAll() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		employees := e.service.GetAll()
-		c.JSON(web.NewResponse(http.StatusOK, employees))
-	}
-}
+// func (e Employee) GetAll() gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		employees := e.service.GetAll()
+// 		c.JSON(web.NewResponse(http.StatusOK, employees))
+// 	}
+// }
 
-func (e Employee) Delete() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
-			return
-		}
-		err = e.service.Delete(id)
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
-		}
+// func (e Employee) Delete() gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		id, err := strconv.Atoi(c.Param("id"))
+// 		if err != nil {
+// 			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
+// 			return
+// 		}
+// 		err = e.service.Delete(id)
+// 		if err != nil {
+// 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+// 			return
+// 		}
 
-		c.JSON(web.NewResponse(http.StatusNoContent, "funcionario deletado"))
-	}
-}
+// 		c.JSON(web.NewResponse(http.StatusNoContent, "funcionario deletado"))
+// 	}
+// }
 
-func (e Employee) GetById() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
-			return
-		}
-		employee, err := e.service.GetById(id)
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
-		}
-		c.JSON(web.NewResponse(http.StatusOK, employee))
-	}
-}
+// func (e Employee) GetById() gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		id, err := strconv.Atoi(c.Param("id"))
+// 		if err != nil {
+// 			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
+// 			return
+// 		}
+// 		employee, err := e.service.GetById(id)
+// 		if err != nil {
+// 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+// 			return
+// 		}
+// 		c.JSON(web.NewResponse(http.StatusOK, employee))
+// 	}
+// }
 
-func (e *Employee) Update() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var req employee.Employee
-		if err := c.Bind(&req); err != nil {
-			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
-			return
-		}
+// func (e *Employee) Update() gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		var req employee.Employee
+// 		if err := c.Bind(&req); err != nil {
+// 			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
+// 			return
+// 		}
 
-		id, _ := strconv.Atoi(c.Param("id"))
-		employee, err := e.service.Update(req, id)
-		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
-		}
+// 		id, _ := strconv.Atoi(c.Param("id"))
+// 		employee, err := e.service.Update(req, id)
+// 		if err != nil {
+// 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+// 			return
+// 		}
 
-		c.JSON(web.NewResponse(http.StatusOK, employee))
-	}
-}
+// 		c.JSON(web.NewResponse(http.StatusOK, employee))
+// 	}
+// }

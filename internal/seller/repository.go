@@ -9,8 +9,8 @@ import (
 type Repository interface {
 	GetOne(ctx context.Context, id int) (Seller, error)
 	GetAll(ctx context.Context) ([]Seller, error)
-	Create(ctx context.Context, cid int, companyName, address, telephone string, localityID string) (Seller, error)
-	Update(ctx context.Context, cid int, companyName, address, telephone string, localityID string, seller Seller) (Seller, error)
+	Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error)
+	Update(ctx context.Context, cid int, companyName, address, telephone string, localityID int, seller Seller) (Seller, error)
 	Delete(ctx context.Context, id int) error
 }
 
@@ -77,7 +77,7 @@ func (m *mariaDBRepository) GetAll(ctx context.Context) ([]Seller, error) {
 	return sellerList, err
 }
 
-func (m *mariaDBRepository) Create(ctx context.Context, cid int, companyName, address, telephone string, localityID string) (Seller, error) {
+func (m *mariaDBRepository) Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error) {
 	var seller Seller
 
 	seller = Seller{CompanyId: cid, CompanyName: companyName, Address: address, Telephone: telephone, LocalityID: localityID}
@@ -107,7 +107,7 @@ func (m *mariaDBRepository) Create(ctx context.Context, cid int, companyName, ad
 	return seller, nil
 }
 
-func (m *mariaDBRepository) Update(ctx context.Context, cid int, companyName, address, telephone string, localityID string, seller Seller) (Seller, error) {
+func (m *mariaDBRepository) Update(ctx context.Context, cid int, companyName, address, telephone string, localityID int, seller Seller) (Seller, error) {
 
 	seller.CompanyId = cid
 	seller.CompanyName = companyName

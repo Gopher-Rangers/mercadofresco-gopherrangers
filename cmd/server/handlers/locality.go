@@ -6,10 +6,11 @@ import (
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 type requestLocality struct {
-	Id           string `json:"id" binding:"required"`
+	ZipCode      string `json:"zip_code" binding:"required"`
 	LocalityName string `json:"locality_name" binding:"required"`
 	ProvinceName string `json:"province_name" binding:"required"`
 	CountryName  string `json:"country_name" binding:"required"`
@@ -26,12 +27,19 @@ func NewLocality(s locality.Service) *Locality {
 func (l *Locality) ReportSellers(ctx *gin.Context) {
 	id, ok := ctx.GetQuery("id")
 
+	idConvertido, err := strconv.Atoi(id)
+
+	if err != nil {
+		ctx.JSON(web.DecodeError(http.StatusInternalServerError, "missing parameter url"))
+		return
+	}
+
 	if !ok {
 		ctx.JSON(web.DecodeError(http.StatusBadRequest, "missing parameter url"))
 		return
 	}
 
-	reportSeller, err := l.service.ReportSellers(ctx, id)
+	reportSeller, err := l.service.ReportSellers(ctx, idConvertido)
 
 	if err != nil {
 		ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
@@ -49,7 +57,7 @@ func (l *Locality) Create(ctx *gin.Context) {
 		return
 	}
 
-	newLocality, err := l.service.Create(ctx, req.Id, req.LocalityName, req.ProvinceName, req.CountryName)
+	newLocality, err := l.service.Create(ctx, req.ZipCode, req.LocalityName, req.ProvinceName, req.CountryName)
 
 	if err != nil {
 		ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
@@ -75,7 +83,15 @@ func (l *Locality) GetById(ctx *gin.Context) {
 
 	id := ctx.Param("id")
 
-	localityOne, err := l.service.GetById(ctx, id)
+	idConvertido, err := strconv.Atoi(id)
+
+	if err != nil {
+		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
+		return
+	}
+
+	localityOne, err := l.service.GetById(ctx, idConvertido)
+
 	if err != nil {
 		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
@@ -86,7 +102,7 @@ func (l *Locality) GetById(ctx *gin.Context) {
 
 func validateLocalityFields(req requestLocality) error {
 
-	if req.Id == "" {
+	if req.ZipCode == "" {
 		return errors.New("invalid input in field id")
 	}
 	if req.LocalityName == "" {

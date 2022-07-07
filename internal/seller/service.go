@@ -10,8 +10,8 @@ import (
 type Service interface {
 	GetOne(ctx context.Context, id int) (Seller, error)
 	GetAll(ctx context.Context) ([]Seller, error)
-	Create(ctx context.Context, cid int, companyName, address, telephone string, localityID string) (Seller, error)
-	Update(ctx context.Context, id, cid int, companyName, address, telephone string, localityID string) (Seller, error)
+	Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error)
+	Update(ctx context.Context, id, cid int, companyName, address, telephone string, localityID int) (Seller, error)
 	Delete(ctx context.Context, id int) error
 }
 
@@ -36,7 +36,7 @@ func (s *service) GetAll(ctx context.Context) ([]Seller, error) {
 	return sellerList, nil
 }
 
-func (s *service) Create(ctx context.Context, cid int, companyName, address, telephone string, localityID string) (Seller, error) {
+func (s *service) Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error) {
 	locality, err := s.localityRepo.GetById(ctx, localityID)
 
 	if err != nil {
@@ -57,7 +57,7 @@ func (s *service) Create(ctx context.Context, cid int, companyName, address, tel
 	return newSeller, nil
 }
 
-func (s *service) Update(ctx context.Context, id, cid int, companyName, address, telephone string, localityID string) (Seller, error) {
+func (s *service) Update(ctx context.Context, id, cid int, companyName, address, telephone string, localityID int) (Seller, error) {
 	oneSeller, err := s.GetOne(ctx, id)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (s *service) Update(ctx context.Context, id, cid int, companyName, address,
 	locality, err := s.localityRepo.GetById(ctx, localityID)
 
 	if err != nil {
-		return Seller{}, err
+		return Seller{}, fmt.Errorf("locality_id does not exists")
 	}
 
 	err = s.findByCid(ctx, cid)

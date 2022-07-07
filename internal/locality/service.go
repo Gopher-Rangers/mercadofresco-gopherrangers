@@ -7,9 +7,9 @@ import (
 
 type Service interface {
 	GetAll(ctx context.Context) ([]Locality, error)
-	GetById(ctx context.Context, id string) (Locality, error)
-	ReportSellers(ctx context.Context, id string) (ReportSeller, error)
-	Create(ctx context.Context, id string, localityName, provinceName, countryName string) (Locality, error)
+	GetById(ctx context.Context, id int) (Locality, error)
+	ReportSellers(ctx context.Context, id int) (ReportSeller, error)
+	Create(ctx context.Context, zipCode, localityName, provinceName, countryName string) (Locality, error)
 }
 
 type service struct {
@@ -20,10 +20,11 @@ func NewService(r Repository) Service {
 	return &service{repository: r}
 }
 
-func (s service) ReportSellers(ctx context.Context, localityId string) (ReportSeller, error) {
+func (s service) ReportSellers(ctx context.Context, id int) (ReportSeller, error) {
 	var reportSeller ReportSeller
 
-	locality, err := s.repository.GetById(ctx, localityId)
+	//TODO ADICIONAR GETBYZIPCODE
+	locality, err := s.repository.GetById(ctx, id)
 
 	if err != nil {
 		return ReportSeller{}, err
@@ -37,9 +38,9 @@ func (s service) ReportSellers(ctx context.Context, localityId string) (ReportSe
 	return reportSeller, nil
 }
 
-func (s service) Create(ctx context.Context, id string, localityName, provinceName, countryName string) (Locality, error) {
+func (s service) Create(ctx context.Context, zipCode, localityName, provinceName, countryName string) (Locality, error) {
 
-	exists, err := s.cepIdExists(ctx, id)
+	exists, err := s.zipCodeExists(ctx, zipCode)
 
 	if err != nil {
 		return Locality{}, err
@@ -49,7 +50,7 @@ func (s service) Create(ctx context.Context, id string, localityName, provinceNa
 		return Locality{}, err
 	}
 
-	newLocality, err := s.repository.Create(ctx, id, localityName, provinceName, countryName)
+	newLocality, err := s.repository.Create(ctx, zipCode, localityName, provinceName, countryName)
 
 	if err != nil {
 		return Locality{}, err
@@ -68,7 +69,7 @@ func (s service) GetAll(ctx context.Context) ([]Locality, error) {
 	return localityList, err
 }
 
-func (s service) GetById(ctx context.Context, id string) (Locality, error) {
+func (s service) GetById(ctx context.Context, id int) (Locality, error) {
 
 	locality, err := s.repository.GetById(ctx, id)
 
@@ -79,7 +80,7 @@ func (s service) GetById(ctx context.Context, id string) (Locality, error) {
 	return locality, nil
 }
 
-func (s service) cepIdExists(ctx context.Context, id string) (bool, error) {
+func (s service) zipCodeExists(ctx context.Context, zipCode string) (bool, error) {
 
 	localities, err := s.GetAll(ctx)
 
@@ -88,7 +89,7 @@ func (s service) cepIdExists(ctx context.Context, id string) (bool, error) {
 	}
 
 	for i := range localities {
-		if localities[i].Id == id {
+		if localities[i].ZipCode == zipCode {
 			return true, fmt.Errorf("id already exists")
 		}
 	}

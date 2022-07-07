@@ -58,6 +58,7 @@ func createRequestTestIvalidToken(method string, url string, body string) (*http
 	req.Header.Add("TOKEN", "invalid_token")
 	return req, httptest.NewRecorder()
 }
+
 func TestGetAll(t *testing.T) {
 	t.Run("find_all", func(t *testing.T) {
 		mockService := mocks.NewService(t)
@@ -79,6 +80,7 @@ func TestGetAll(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, baseData, resp.Data)
 	})
+
 	t.Run("find_all_invalid_token", func(t *testing.T) {
 		mockService := mocks.NewService(t)
 		buyerHandler := controller.NewBuyer(mockService)
@@ -119,6 +121,7 @@ func TestReportPurchaseOrdersByBuyer(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, baseData, resp.Data)
 	})
+
 	t.Run("find_by_id", func(t *testing.T) {
 		mockService := mocks.NewService(t)
 		buyerHandler := controller.NewBuyer(mockService)
@@ -139,6 +142,7 @@ func TestReportPurchaseOrdersByBuyer(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, baseData[0], resp.Data)
 	})
+
 	t.Run("find_by_id_with_invalid_id", func(t *testing.T) {
 		mockService := mocks.NewService(t)
 		buyerHandler := controller.NewBuyer(mockService)
@@ -156,8 +160,8 @@ func TestReportPurchaseOrdersByBuyer(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 		assert.Equal(t, resp.Error, "Invalid id")
-
 	})
+
 	t.Run("find_all_invalid_token", func(t *testing.T) {
 		mockService := mocks.NewService(t)
 		buyerHandler := controller.NewBuyer(mockService)

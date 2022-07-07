@@ -50,7 +50,6 @@ func TestRepositoryGetAll(t *testing.T) {
 	assert.NoError(t, err)
 	defer db.Close()
 	rows := mockRows()
-
 	query := "SELECT \\* FROM `mercado-fresco`.`buyers`"
 
 	mock.ExpectQuery(query).WillReturnRows(rows)
@@ -169,6 +168,7 @@ func TestRepositoryGetById(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, buyersData[0], result)
 	})
+
 	t.Run("find_by_id_non_existent", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -182,6 +182,7 @@ func TestRepositoryGetById(t *testing.T) {
 		assert.Equal(t, err, errNotFound)
 		assert.Equal(t, result, domain.Buyer{})
 	})
+
 	t.Run("find_by_id_fail_exec", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)

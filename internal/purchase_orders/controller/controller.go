@@ -10,12 +10,12 @@ import (
 
 type PurchaseOrdersCreate struct {
 	ID              int    `json:"id"`
-	OrderNumber     string `json:"order_number"`
-	OrderDate       string `json:"order_date"`
-	TrackingCode    string `json:"tracking_code"`
-	BuyerId         int    `json:"buyer_id"`
-	ProductRecordId int    `json:"product_record_id"`
-	OrderStatusId   int    `json:"order_status_id"`
+	OrderNumber     string `json:"order_number" binding:"required"`
+	OrderDate       string `json:"order_date" binding:"required"`
+	TrackingCode    string `json:"tracking_code" binding:"required"`
+	BuyerId         int    `json:"buyer_id" binding:"required"`
+	ProductRecordId int    `json:"product_record_id" binding:"required"`
+	OrderStatusId   int    `json:"order_status_id" binding:"required"`
 }
 
 type PurchaseOrders struct {
@@ -43,17 +43,16 @@ func (b *PurchaseOrders) Create(c *gin.Context) {
 
 	var req PurchaseOrdersCreate
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest,
-			gin.H{
-				"error":   "validation error",
-				"message": "Invalid inputs. Please check your inputs"})
+		c.JSON(web.DecodeError(http.StatusUnprocessableEntity, "invalid body"))
 		return
 	}
 	purchaseOrder := domain.PurchaseOrders{OrderNumber: req.OrderNumber, OrderDate: req.OrderDate, TrackingCode: req.TrackingCode,
 		BuyerId: req.BuyerId, ProductRecordId: req.ProductRecordId, OrderStatusId: req.OrderStatusId}
+
 	newPurchaseOrder, err := b.service.Create(c.Request.Context(), purchaseOrder)
+
 	if err != nil {
-		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+		c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
 		return
 	}
 

@@ -17,6 +17,12 @@ import (
 
 const URL_PRODUCTS_BATCH = "/api/v1/"
 
+const (
+	ERROR_BIND          = "Key: 'ProductBatch.ProductTypeID' Error:Field validation for 'ProductTypeID' failed on the 'required' tag\nKey: 'ProductBatch.SectionID' Error:Field validation for 'SectionID' failed on the 'required' tag"
+	ERROR_CONFLICT_SEC  = "Error 1452: Cannot add or update a child row: a foreign key constraint fails (`mercado-fresco`.`product_batches`, CONSTRAINT `FK_PRODUCT_BATCHES_SECTION` FOREIGN KEY (`section_id`) REFERENCES `section` (`id`))"
+	ERROR_CONFLICT_PROD = "Error 1452: Cannot add or update a child row: a foreign key constraint fails (`mercado-fresco`.`product_batches`, CONSTRAINT `FK_PRODUCT_BATCHES_PRODUCT` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`))"
+)
+
 func CreateReportArray() []productbatch.Report {
 	var exp = []productbatch.Report{
 		{SecID: 1, SecNum: 22, ProdCount: 5},
@@ -50,6 +56,11 @@ func InitServer(method string, url string, body []byte) (*http.Request, *httptes
 type ExpectedJSON struct {
 	Code int         `json:"code"`
 	Data interface{} `json:"data"`
+}
+
+type ExpectedErrorJSON struct {
+	Code  int    `json:"code"`
+	Error string `json:"error"`
 }
 
 func TestBatchCreate(t *testing.T) {
@@ -92,34 +103,43 @@ func TestBatchCreate(t *testing.T) {
 		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
 		router.ServeHTTP(w, req)
 
-		assert.Equal(t, 422, w.Code)
-		assert.Equal(t, "{\"code\":422,\"error\":\"Key: 'ProductBatch.ProductTypeID' Error:Field validation for 'ProductTypeID' failed on the 'required' tag\\nKey: 'ProductBatch.SectionID' Error:Field validation for 'SectionID' failed on the 'required' tag\"}", w.Body.String())
+		exp := ExpectedErrorJSON{422, ERROR_BIND}
+		expectedJSON, _ := json.Marshal(exp)
+
+		assert.Equal(t, exp.Code, w.Code)
+		assert.Equal(t, string(expectedJSON), w.Body.String())
 	})
 
 	t.Run("create_fail_conflict_sec", func(t *testing.T) {
 		exp.SectionID = 99
 		exp.ProductTypeID = 1
 
-		mockRepository.On("Create", exp).Return(productbatch.ProductBatch{}, errors.New("Error 1452: Cannot add or update a child row: a foreign key constraint fails (`mercado-fresco`.`product_batches`, CONSTRAINT `FK_PRODUCT_BATCHES_SECTION` FOREIGN KEY (`section_id`) REFERENCES `section` (`id`))"))
+		mockRepository.On("Create", exp).Return(productbatch.ProductBatch{}, errors.New(ERROR_CONFLICT_SEC))
 		expected, _ := json.Marshal(exp)
 		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
 		router.ServeHTTP(w, req)
 
-		assert.Equal(t, 409, w.Code)
-		assert.Equal(t, "{\"code\":409,\"error\":\"Error 1452: Cannot add or update a child row: a foreign key constraint fails (`mercado-fresco`.`product_batches`, CONSTRAINT `FK_PRODUCT_BATCHES_SECTION` FOREIGN KEY (`section_id`) REFERENCES `section` (`id`))\"}", w.Body.String())
+		exp := ExpectedErrorJSON{409, ERROR_CONFLICT_SEC}
+		expectedJSON, _ := json.Marshal(exp)
+
+		assert.Equal(t, exp.Code, w.Code)
+		assert.Equal(t, string(expectedJSON), w.Body.String())
 	})
 
 	t.Run("create_fail_conflict_prod", func(t *testing.T) {
 		exp.SectionID = 1
 		exp.ProductTypeID = 99
 
-		mockRepository.On("Create", exp).Return(productbatch.ProductBatch{}, errors.New("Error 1452: Cannot add or update a child row: a foreign key constraint fails (`mercado-fresco`.`product_batches`, CONSTRAINT `FK_PRODUCT_BATCHES_PRODUCT` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`))"))
+		mockRepository.On("Create", exp).Return(productbatch.ProductBatch{}, errors.New(ERROR_CONFLICT_PROD))
 		expected, _ := json.Marshal(exp)
 		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
 		router.ServeHTTP(w, req)
 
-		assert.Equal(t, 409, w.Code)
-		assert.Equal(t, "{\"code\":409,\"error\":\"Error 1452: Cannot add or update a child row: a foreign key constraint fails (`mercado-fresco`.`product_batches`, CONSTRAINT `FK_PRODUCT_BATCHES_PRODUCT` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`))\"}", w.Body.String())
+		exp := ExpectedErrorJSON{409, ERROR_CONFLICT_PROD}
+		expectedJSON, _ := json.Marshal(exp)
+
+		assert.Equal(t, exp.Code, w.Code)
+		assert.Equal(t, string(expectedJSON), w.Body.String())
 	})
 }
 
@@ -165,7 +185,10 @@ func TestBatchReportID(t *testing.T) {
 		req, w := InitServer(http.MethodGet, URL_PRODUCTS_BATCH+"sections/reportProducts?id=99", nil)
 		router.ServeHTTP(w, req)
 
-		assert.Equal(t, 404, w.Code)
-		assert.Equal(t, "{\"code\":404,\"error\":\"sql: no rows in result set\"}", w.Body.String())
+		exp := ExpectedErrorJSON{404, "sql: no rows in result set"}
+		ExpectedJSON, _ := json.Marshal(exp)
+
+		assert.Equal(t, exp.Code, w.Code)
+		assert.Equal(t, string(ExpectedJSON), w.Body.String())
 	})
 }

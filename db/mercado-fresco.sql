@@ -165,14 +165,14 @@ CREATE TABLE IF NOT EXISTS `mercado-fresco`.`inbound_orders` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mercado-fresco`.`product_batches` (
                                                                   `id` SERIAL,
-                                                                  `batch_number` VARCHAR(255),
+                                                                  `batch_number` INT,
                                                                   `current_quantity` INT,
-                                                                  `current_temperature` DECIMAL(19,2),
+                                                                  `current_temperature` INT,
                                                                   `due_date` DATETIME(6),
                                                                   `initial_quantity` INT,
                                                                   `manufacturing_date` DATETIME(6),
-                                                                  `manufacturing_hour` DATETIME(6),
-                                                                  `minimum_temperature` DECIMAL(19,2),
+                                                                  `manufacturing_hour` INT,
+                                                                  `minimum_temperature` INT,
                                                                   `product_id` BIGINT UNSIGNED,
                                                                   `section_id` BIGINT UNSIGNED,
                                                                   PRIMARY KEY (`id`)

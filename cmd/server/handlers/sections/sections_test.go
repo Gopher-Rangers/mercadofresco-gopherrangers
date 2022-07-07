@@ -69,14 +69,9 @@ func InitServer(method string, url string, body []byte) (*http.Request, *httptes
 	return req, httptest.NewRecorder()
 }
 
-type ExpectedAllJSON struct {
-	Code int               `json:"code"`
-	Data []section.Section `json:"data"`
-}
-
 type ExpectedJSON struct {
-	Code int             `json:"code"`
-	Data section.Section `json:"data"`
+	Code int         `json:"code"`
+	Data interface{} `json:"data"`
 }
 
 func TestSectionGetAll(t *testing.T) {
@@ -89,7 +84,7 @@ func TestSectionGetAll(t *testing.T) {
 		req, w := InitServer(http.MethodGet, URL_SECTIONS, nil)
 		router.ServeHTTP(w, req)
 
-		exp := ExpectedAllJSON{200, exp}
+		exp := ExpectedJSON{200, exp}
 		expJSON, _ := json.Marshal(exp)
 		assert.Equal(t, exp.Code, w.Code)
 		assert.Equal(t, string(expJSON), w.Body.String())
@@ -273,7 +268,7 @@ func TestTokenAuth(t *testing.T) {
 
 		router.ServeHTTP(w, req)
 
-		exp := ExpectedAllJSON{200, exp}
+		exp := ExpectedJSON{200, exp}
 		expJSON, _ := json.Marshal(exp)
 		assert.Equal(t, exp.Code, w.Code)
 		assert.Equal(t, string(expJSON), w.Body.String())

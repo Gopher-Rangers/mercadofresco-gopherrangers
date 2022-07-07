@@ -49,6 +49,8 @@ func main() {
 
 		routes.Sections(baseRoute)
 
+		routes.ProductBatches(baseRoute)
+
 		routes.Sellers(baseRoute)
 
 		employeeRouterGroup := baseRoute.Group("/employees")

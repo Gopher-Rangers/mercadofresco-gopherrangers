@@ -15,9 +15,12 @@ func ProductRecord(routerGroup *gin.RouterGroup, productsService products.Servic
 	productRecordService := productrecord.NewService(productRecordRepository, productsService)
 	productRecordHandler := handler.NewProductRecord(productRecordService)
 
-	productRecordRouterGroup := routerGroup.Group("/productRecords")
+	productRecordRouterGroupPost := routerGroup.Group("/productRecords")
 	{
-		productRecordRouterGroup.POST("/", productRecordHandler.Store())
-		productRecordRouterGroup.GET("/", productRecordHandler.Get())
+		productRecordRouterGroupPost.POST("/", productRecordHandler.Store())
+	}
+	productRecordRouterGroupGet := routerGroup.Group("/reportRecords")
+	{
+		productRecordRouterGroupGet.GET("/", productRecordHandler.Get())
 	}
 }

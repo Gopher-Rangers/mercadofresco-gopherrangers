@@ -65,7 +65,7 @@ func (prod *ProductRecord) Store() gin.HandlerFunc {
 		var validate *validator.Validate = validator.New()
 		var req productrecord.ProductRecord
 		if err := c.Bind(&req); err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
 			return
 		}
 		errValidate := validate.Struct(req)
@@ -124,11 +124,7 @@ func (prod *ProductRecord) Get() gin.HandlerFunc {
 			return
 		}
 		if idStr == "" {
-			p, err := prod.service.GetAll(c.Request.Context())
-			if err != nil {
-				c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-				return
-			}
+			p, _ := prod.service.GetAll(c.Request.Context())
 			c.JSON(web.NewResponse(http.StatusOK, p))
 		} else {
 			p, err := prod.service.GetById(c.Request.Context(), idNum)

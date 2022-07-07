@@ -4,23 +4,23 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/locality"
+	l "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/locality"
 )
 
 type Service interface {
 	GetOne(ctx context.Context, id int) (Seller, error)
 	GetAll(ctx context.Context) ([]Seller, error)
-	Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error)
-	Update(ctx context.Context, id, cid int, companyName, address, telephone string) (Seller, error)
+	Create(ctx context.Context, cid int, companyName, address, telephone string, localityID string) (Seller, error)
+	Update(ctx context.Context, id, cid int, companyName, address, telephone string, localityID string) (Seller, error)
 	Delete(ctx context.Context, id int) error
 }
 
 type service struct {
 	repository   Repository
-	localityRepo locality.Repository
+	localityRepo l.Repository
 }
 
-func NewService(r Repository, lr locality.Repository) Service {
+func NewService(r Repository, lr l.Repository) Service {
 	return &service{
 		repository:   r,
 		localityRepo: lr,
@@ -36,7 +36,7 @@ func (s *service) GetAll(ctx context.Context) ([]Seller, error) {
 	return sellerList, nil
 }
 
-func (s *service) Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error) {
+func (s *service) Create(ctx context.Context, cid int, companyName, address, telephone string, localityID string) (Seller, error) {
 	locality, err := s.localityRepo.GetById(ctx, localityID)
 
 	if err != nil {
@@ -57,8 +57,14 @@ func (s *service) Create(ctx context.Context, cid int, companyName, address, tel
 	return newSeller, nil
 }
 
-func (s *service) Update(ctx context.Context, id, cid int, companyName, address, telephone string) (Seller, error) {
+func (s *service) Update(ctx context.Context, id, cid int, companyName, address, telephone string, localityID string) (Seller, error) {
 	oneSeller, err := s.GetOne(ctx, id)
+
+	if err != nil {
+		return Seller{}, err
+	}
+
+	locality, err := s.localityRepo.GetById(ctx, localityID)
 
 	if err != nil {
 		return Seller{}, err
@@ -70,7 +76,7 @@ func (s *service) Update(ctx context.Context, id, cid int, companyName, address,
 		return Seller{}, err
 	}
 
-	updateSeller, err := s.repository.Update(ctx, cid, companyName, address, telephone, oneSeller)
+	updateSeller, err := s.repository.Update(ctx, cid, companyName, address, telephone, locality.Id, oneSeller)
 
 	if err != nil {
 		return Seller{}, err
@@ -100,23 +106,6 @@ func (s *service) Delete(ctx context.Context, id int) error {
 	}
 
 	return nil
-}
-
-func (s service) existsLocality(ctx context.Context, localityID int) error {
-	var sellerList []Seller
-
-	sellerList, err := s.GetAll(ctx)
-
-	if err != nil {
-		return err
-	}
-
-	for i := range sellerList {
-		if sellerList[i].LocalityID == localityID {
-			return nil
-		}
-	}
-	return fmt.Errorf("locality_id does not exists")
 }
 
 func (s service) findByCid(ctx context.Context, cid int) error {

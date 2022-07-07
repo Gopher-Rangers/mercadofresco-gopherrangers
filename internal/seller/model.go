@@ -6,5 +6,5 @@ type Seller struct {
 	CompanyName string `json:"company_name"`
 	Address     string `json:"address"`
 	Telephone   string `json:"telephone"`
-	LocalityID  int    `json:"locality_id"`
+	LocalityID  string `json:"locality_id"`
 }

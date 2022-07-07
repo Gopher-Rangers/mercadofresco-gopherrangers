@@ -8,9 +8,9 @@ import (
 
 type Repository interface {
 	GetAll(ctx context.Context) ([]Locality, error)
-	GetById(ctx context.Context, id int) (Locality, error)
-	Create(ctx context.Context, id int, localityName, provinceName, countryName string) (Locality, error)
-	ReportSellers(ctx context.Context, id int) (ReportSeller, error)
+	GetById(ctx context.Context, id string) (Locality, error)
+	Create(ctx context.Context, id string, localityName, provinceName, countryName string) (Locality, error)
+	ReportSellers(ctx context.Context, id string) (ReportSeller, error)
 }
 
 type mariaDBRepository struct {
@@ -21,7 +21,7 @@ func NewMariaDBRepository(db *sql.DB) Repository {
 	return &mariaDBRepository{db: db}
 }
 
-func (m mariaDBRepository) ReportSellers(ctx context.Context, id int) (ReportSeller, error) {
+func (m mariaDBRepository) ReportSellers(ctx context.Context, id string) (ReportSeller, error) {
 	var reportSeller ReportSeller
 
 	rows, err := m.db.QueryContext(ctx, "SELECT l.id, l.locality_name, COUNT(seller.id) FROM localities l LEFT JOIN seller ON l.id  = seller.locality_id")
@@ -43,7 +43,7 @@ func (m mariaDBRepository) ReportSellers(ctx context.Context, id int) (ReportSel
 	return reportSeller, nil
 }
 
-func (m mariaDBRepository) Create(ctx context.Context, id int, localityName, provinceName, countryName string) (Locality, error) {
+func (m mariaDBRepository) Create(ctx context.Context, id string, localityName, provinceName, countryName string) (Locality, error) {
 
 	locality := Locality{Id: id, LocalityName: localityName, ProvinceName: provinceName, CountryName: countryName}
 
@@ -85,7 +85,7 @@ func (m mariaDBRepository) GetAll(ctx context.Context) ([]Locality, error) {
 	return localityList, err
 }
 
-func (m mariaDBRepository) GetById(ctx context.Context, id int) (Locality, error) {
+func (m mariaDBRepository) GetById(ctx context.Context, id string) (Locality, error) {
 	var locality Locality
 
 	rows, err := m.db.QueryContext(ctx, "SELECT * FROM localities WHERE id = ?", id)

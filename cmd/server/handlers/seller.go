@@ -21,7 +21,7 @@ type requestSeller struct {
 	CompanyName string `json:"company_name" binding:"required"`
 	Address     string `json:"address" binding:"required"`
 	Telephone   string `json:"telephone" binding:"required"`
-	LocalityID  int    `json:"locality_id" binding:"required"`
+	LocalityID  string `json:"locality_id" binding:"required"`
 }
 
 type Seller struct {
@@ -85,7 +85,7 @@ func (s *Seller) Update(ctx *gin.Context) {
 		return
 	}
 
-	updateSeller, err := s.service.Update(ctx, idConvertido, req.CompanyId, req.CompanyName, req.Address, req.Telephone)
+	updateSeller, err := s.service.Update(ctx, idConvertido, req.CompanyId, req.CompanyName, req.Address, req.Telephone, req.LocalityID)
 
 	if err != nil {
 		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
@@ -156,7 +156,7 @@ func validateFields(req requestSeller) error {
 		return errors.New("field telephone is required")
 	}
 
-	if req.LocalityID == 0 {
+	if req.LocalityID == "" {
 		return errors.New("locality_id is required")
 	}
 	return nil

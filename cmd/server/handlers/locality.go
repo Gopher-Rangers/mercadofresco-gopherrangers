@@ -6,11 +6,10 @@ import (
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 type requestLocality struct {
-	Id           int    `json:"id" binding:"required"`
+	Id           string `json:"id" binding:"required"`
 	LocalityName string `json:"locality_name" binding:"required"`
 	ProvinceName string `json:"province_name" binding:"required"`
 	CountryName  string `json:"country_name" binding:"required"`
@@ -32,13 +31,7 @@ func (l *Locality) ReportSellers(ctx *gin.Context) {
 		return
 	}
 
-	idConvertido, err := strconv.Atoi(id)
-
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
-	}
-
-	reportSeller, err := l.service.ReportSellers(ctx, idConvertido)
+	reportSeller, err := l.service.ReportSellers(ctx, id)
 
 	if err != nil {
 		ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
@@ -82,14 +75,7 @@ func (l *Locality) GetById(ctx *gin.Context) {
 
 	id := ctx.Param("id")
 
-	idConvertido, err := strconv.Atoi(id)
-
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
-		return
-	}
-
-	localityOne, err := l.service.GetById(ctx, idConvertido)
+	localityOne, err := l.service.GetById(ctx, id)
 	if err != nil {
 		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
@@ -100,7 +86,7 @@ func (l *Locality) GetById(ctx *gin.Context) {
 
 func validateLocalityFields(req requestLocality) error {
 
-	if req.Id == 0 {
+	if req.Id == "" {
 		return errors.New("invalid input in field id")
 	}
 	if req.LocalityName == "" {

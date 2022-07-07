@@ -7,9 +7,9 @@ import (
 
 type Service interface {
 	GetAll(ctx context.Context) ([]Locality, error)
-	GetById(ctx context.Context, id int) (Locality, error)
-	ReportSellers(ctx context.Context, id int) (ReportSeller, error)
-	Create(ctx context.Context, id int, localityName, provinceName, countryName string) (Locality, error)
+	GetById(ctx context.Context, id string) (Locality, error)
+	ReportSellers(ctx context.Context, id string) (ReportSeller, error)
+	Create(ctx context.Context, id string, localityName, provinceName, countryName string) (Locality, error)
 }
 
 type service struct {
@@ -20,7 +20,7 @@ func NewService(r Repository) Service {
 	return &service{repository: r}
 }
 
-func (s service) ReportSellers(ctx context.Context, localityId int) (ReportSeller, error) {
+func (s service) ReportSellers(ctx context.Context, localityId string) (ReportSeller, error) {
 	var reportSeller ReportSeller
 
 	locality, err := s.repository.GetById(ctx, localityId)
@@ -37,7 +37,7 @@ func (s service) ReportSellers(ctx context.Context, localityId int) (ReportSelle
 	return reportSeller, nil
 }
 
-func (s service) Create(ctx context.Context, id int, localityName, provinceName, countryName string) (Locality, error) {
+func (s service) Create(ctx context.Context, id string, localityName, provinceName, countryName string) (Locality, error) {
 
 	exists, err := s.cepIdExists(ctx, id)
 
@@ -68,7 +68,7 @@ func (s service) GetAll(ctx context.Context) ([]Locality, error) {
 	return localityList, err
 }
 
-func (s service) GetById(ctx context.Context, id int) (Locality, error) {
+func (s service) GetById(ctx context.Context, id string) (Locality, error) {
 
 	locality, err := s.repository.GetById(ctx, id)
 
@@ -79,7 +79,7 @@ func (s service) GetById(ctx context.Context, id int) (Locality, error) {
 	return locality, nil
 }
 
-func (s service) cepIdExists(ctx context.Context, id int) (bool, error) {
+func (s service) cepIdExists(ctx context.Context, id string) (bool, error) {
 
 	localities, err := s.GetAll(ctx)
 

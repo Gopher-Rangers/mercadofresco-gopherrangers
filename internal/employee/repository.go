@@ -17,7 +17,7 @@ type Repository interface {
 	Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 	GetAll() ([]Employee, error)
 	Delete(id int) error
-	// GetById(id int) (Employee, error)
+	GetById(id int) (Employee, error)
 	// Update(emp Employee, id int) (Employee, error)
 }
 
@@ -28,31 +28,6 @@ type repository struct {
 func NewRepository(db *sql.DB) Repository {
 	return &repository{db: db}
 }
-
-// func (r repository) Create(id int, cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
-// 	var Employees []Employee
-// 	r.db.Read(&Employees)
-
-// 	p := Employee{id, cardNum, firstName, lastName, warehouseId}
-
-// 	for i := range Employees {
-// 		if Employees[i].ID+1 == id {
-// 			post := make([]Employee, len(Employees[i+1:]))
-// 			copy(post, Employees[i+1:])
-
-// 			Employees = append(Employees[:i+1], p)
-// 			Employees = append(Employees, post...)
-// 			break
-// 		}
-// 	}
-
-// 	if id == 1 {
-// 		emp := []Employee{p}
-// 		Employees = append(emp, Employees...)
-// 	}
-// 	r.db.Write(Employees)
-// 	return p, nil
-// }
 
 func (r repository) Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
 	res, err := r.db.Exec(SqlCreate, cardNum, firstName, lastName, warehouseId)
@@ -75,55 +50,27 @@ func (r repository) GetAll() ([]Employee, error) {
 	var employees []Employee
 
 	rows, err := r.db.Query(SqlGetAll)
+
 	if err != nil {
 		return employees, err
 	}
 
-	fmt.Println("chegou no repo getall 1")
 	defer rows.Close()
 
 	for rows.Next() {
 		var emp Employee
 
-		err := rows.Scan(&emp.ID, &emp.CardNumber, &emp.FirstName, &emp.WareHouseID)
+		err := rows.Scan(&emp.ID, &emp.CardNumber, &emp.FirstName, &emp.LastName, &emp.WareHouseID)
+
 		if err != nil {
 			return employees, err
 		}
 
-		fmt.Println(emp.ID, emp.CardNumber, emp.FirstName)
 		employees = append(employees, emp)
 	}
 
-	fmt.Println("chegou no repo getall 2")
-	fmt.Println(employees)
-	return employees, nil
+	return employees, err
 }
-
-// func (r *repository) Delete(id int) error {
-// 	var Employees []Employee
-// 	r.db.Read(&Employees)
-
-// 	for i := range Employees {
-// 		if Employees[i].ID == id {
-// 			Employees = append(Employees[:i], Employees[i+1:]...)
-// 			r.db.Write(Employees)
-// 			return nil
-// 		}
-// 	}
-// 	return fmt.Errorf("usuário de ID: %d não existe", id)
-// }
-
-// func (r repository) GetById(id int) (Employee, error) {
-// 	var Employees []Employee
-// 	r.db.Read(&Employees)
-
-// 	for i := range Employees {
-// 		if Employees[i].ID == id {
-// 			return Employees[i], nil
-// 		}
-// 	}
-// 	return Employee{}, fmt.Errorf("o funcionário não existe")
-// }
 
 // func (r *repository) Update(emp Employee, id int) (Employee, error) {
 // 	var employees []Employee
@@ -172,6 +119,25 @@ func (r repository) Delete(id int) error {
 		return fmt.Errorf("row not affected")
 	}
 
-	fmt.Println("chegou no repo delete")
 	return nil
+}
+
+func (r repository) GetById(id int) (Employee, error) {
+	var emp Employee
+
+	rows, err := r.db.Query(SqlGetById, id)
+	if err != nil {
+		return Employee{}, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&emp.ID, &emp.CardNumber, &emp.FirstName, &emp.LastName, &emp.WareHouseID)
+		if err != nil {
+			return Employee{}, err
+		}
+	}
+
+	return emp, nil
 }

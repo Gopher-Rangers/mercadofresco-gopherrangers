@@ -1,12 +1,14 @@
 package employee
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Services interface {
 	Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 	GetAll() ([]Employee, error)
 	Delete(id int) error
-	// GetById(id int) (Employee, error)
+	GetById(id int) (Employee, error)
 	// Update(emp Employee, id int) (Employee, error)
 }
 
@@ -60,13 +62,13 @@ func (s service) Delete(id int) error {
 	return nil
 }
 
-// func (s service) GetById(id int) (Employee, error) {
-// 	employee, err := s.repository.GetById(id)
-// 	if err != nil {
-// 		return Employee{}, err
-// 	}
-// 	return employee, nil
-// }
+func (s service) GetById(id int) (Employee, error) {
+	employee, err := s.repository.GetById(id)
+	if err != nil {
+		return Employee{}, err
+	}
+	return employee, nil
+}
 
 // func (s *service) Update(emp Employee, id int) (Employee, error) {
 // 	employee, err := s.repository.Update(emp, id)

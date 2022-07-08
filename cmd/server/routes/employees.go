@@ -20,7 +20,7 @@ func Employees(routerGroup *gin.RouterGroup) {
 	{
 		employeesRouterGroup.POST("/", employeesHandler.Create())
 		employeesRouterGroup.GET("/", employeesHandler.GetAll())
-		// employeesRouterGroup.GET("/:id", employeesHandler.GetById())
+		employeesRouterGroup.GET("/:id", employeesHandler.GetById())
 		// employeesRouterGroup.PATCH("/:id", employeesHandler.Update())
 		employeesRouterGroup.DELETE("/:id", employeesHandler.Delete())
 	}

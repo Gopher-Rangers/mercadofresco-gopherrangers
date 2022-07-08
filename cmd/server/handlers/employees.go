@@ -114,21 +114,21 @@ func (e Employee) Delete() gin.HandlerFunc {
 	}
 }
 
-// func (e Employee) GetById() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		id, err := strconv.Atoi(c.Param("id"))
-// 		if err != nil {
-// 			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
-// 			return
-// 		}
-// 		employee, err := e.service.GetById(id)
-// 		if err != nil {
-// 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-// 			return
-// 		}
-// 		c.JSON(web.NewResponse(http.StatusOK, employee))
-// 	}
-// }
+func (e Employee) GetById() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
+			return
+		}
+		employee, err := e.service.GetById(id)
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+		c.JSON(web.NewResponse(http.StatusOK, employee))
+	}
+}
 
 // func (e *Employee) Update() gin.HandlerFunc {
 // 	return func(c *gin.Context) {

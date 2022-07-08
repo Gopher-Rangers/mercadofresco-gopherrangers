@@ -56,7 +56,9 @@ func (r mysqlLocalityRepository) GetAllCarriesLocalityByID() ([]domain.Locality,
 
 	for rows.Next() {
 		locality := domain.Locality{}
+
 		rows.Scan(&locality.ID, &locality.Name, &locality.Count)
+
 		localities = append(localities, locality)
 	}
 

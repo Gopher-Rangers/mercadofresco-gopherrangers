@@ -7,6 +7,10 @@ import (
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/usecases"
 )
 
+const (
+	queryCreateCarry = "INSERT INTO carriers () VALUES (?, ?, ?, ?, ?)"
+)
+
 type mysqlCarryRepository struct {
 	db *sql.DB
 }
@@ -15,13 +19,13 @@ func NewMySqlCarryRepository(db *sql.DB) usecases.RepositoryCarry {
 	return &mysqlCarryRepository{db: db}
 }
 
-func CreateCarry(carry domain.Carry) (domain.Carry, error) {
-	return domain.Carry{}, nil
+func CreateCarry(r *mysqlCarryRepository) (domain.Carry, error) {
+	stmt, err := r.db.Prepare()
 }
 
-func GetCaryPerLocality(id int) (domain.Carry, error) {
+func GetCaryPerLocality(r mysqlCarryRepository) (domain.Carry, error) {
 	return domain.Carry{}, nil
 }
-func GetCarryByCid(cid string) (domain.Carry, error) {
+func GetCarryByCid(r mysqlCarryRepository) (domain.Carry, error) {
 	return domain.Carry{}, nil
 }

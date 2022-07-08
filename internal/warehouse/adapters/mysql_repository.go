@@ -17,7 +17,7 @@ const (
 
 	queryGetByID = "SELECT * FROM warehouse WHERE id=?"
 
-	queryCreateWarehouse = "INSERT INTO warehouse (warehouse_code, address, telephone, minimun_capacity, minimun_temperature) VALUES (?, ?, ?, ?, ?)"
+	queryCreateWarehouse = "INSERT INTO warehouse (warehouse_code, address, telephone, minimum_capacity, minimum_temperature) VALUES (?, ?, ?, ?, ?)"
 
 	queryFindByWarehouseCode = "SELECT * FROM warehouse WHERE warehouse_code=?"
 

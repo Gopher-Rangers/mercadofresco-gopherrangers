@@ -1,7 +1,8 @@
 package usecases
 
-import "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carries/domain"
+import "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/domain"
 
 type RepositoryLocality interface {
-	GetLocalityByID(id int) (domain.Locality, error)
+	GetCarryLocalityByID(id int) (domain.Locality, error)
+	GetAllCarriesLocalityByID() ([]domain.Locality, error)
 }

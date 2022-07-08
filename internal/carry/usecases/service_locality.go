@@ -1,9 +1,10 @@
 package usecases
 
-import "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carries/domain"
+import "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/domain"
 
 type ServiceLocality interface {
-	GetLocalityByID(id int) (domain.Locality, error)
+	GetCarryLocalityByID(id int) (domain.Locality, error)
+	GetAllCarriesLocalityByID() ([]domain.Locality, error)
 }
 
 type serviceLocality struct {
@@ -14,8 +15,14 @@ func NewServiceLocality(r RepositoryLocality) ServiceLocality {
 	return &serviceLocality{r}
 }
 
-func (s serviceLocality) GetLocalityByID(id int) (domain.Locality, error) {
-	locality, _ := s.repository.GetLocalityByID(id)
+func (s serviceLocality) GetCarryLocalityByID(id int) (domain.Locality, error) {
+	locality, _ := s.repository.GetCarryLocalityByID(id)
 
 	return locality, nil
+}
+
+func (s serviceLocality) GetAllCarriesLocalityByID() ([]domain.Locality, error) {
+	localities, _ := s.repository.GetAllCarriesLocalityByID()
+
+	return localities, nil
 }

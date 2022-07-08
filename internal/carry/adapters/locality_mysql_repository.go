@@ -4,12 +4,21 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carries/usecases"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/domain"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/usecases"
 )
 
 const (
-	queryGetLocalityByID = "SELECT COUNT(*) AS carries_count FROM localities WHERE id=? "
+	queryGetCarryLocalityByID = `SELECT ca.locality_id, lo.locality_name, COUNT(*) AS carries_count 
+	FROM carriers AS ca
+	INNER JOIN localities AS lo
+	ON ca.locality_id = lo.id
+	WHERE ca.locality_id = ? GROUP BY ca.locality_id`
+
+	queryGetAllCarriesLocalityByID = `SELECT ca.locality_id, lo.locality_name, COUNT(*) AS carries_count 
+	FROM carriers AS ca
+	INNER JOIN localities AS lo
+	ON ca.locality_id = lo.id`
 )
 
 type mysqlLocalityRepository struct {
@@ -20,10 +29,10 @@ func NewMySqlLocalityRepository(db *sql.DB) usecases.RepositoryLocality {
 	return &mysqlLocalityRepository{db: db}
 }
 
-func (r mysqlLocalityRepository) GetLocalityByID(id int) (domain.Locality, error) {
+func (r mysqlLocalityRepository) GetCarryLocalityByID(id int) (domain.Locality, error) {
 	var locality domain.Locality
 
-	stmt := r.db.QueryRow(queryGetLocalityByID, id)
+	stmt := r.db.QueryRow(queryGetCarryLocalityByID, id)
 
 	err := stmt.Scan(&locality.ID, &locality.Name, &locality.Count)
 
@@ -32,4 +41,28 @@ func (r mysqlLocalityRepository) GetLocalityByID(id int) (domain.Locality, error
 	}
 
 	return locality, nil
+}
+
+func (r mysqlLocalityRepository) GetAllCarriesLocalityByID() ([]domain.Locality, error) {
+	rows, err := r.db.Query(queryGetAllCarriesLocalityByID)
+
+	if err != nil {
+		return []domain.Locality{}, err
+	}
+
+	defer rows.Close()
+
+	localities := []domain.Locality{}
+
+	for rows.Next() {
+		locality := domain.Locality{}
+		rows.Scan(&locality.ID, &locality.Name, &locality.Count)
+		localities = append(localities, locality)
+	}
+
+	if err = rows.Err(); err != nil {
+		return []domain.Locality{}, err
+	}
+
+	return localities, nil
 }

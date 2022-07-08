@@ -51,54 +51,112 @@ This API Handles Mercado Fresco Sellers, Warehouses, Sections, Products, Employe
 It was made for the Mercado Livre's Go Bootcamp
 
 ## Features ##
+<table>
+  <tr>
+    <td>
+      1.1. Sellers:<br>
+      - /sellers <code>[POST]</code>: Create a Seller (CREATE)<br>
+      - /sellers <code>[GET]</code>: List all Sellers (READ)<br>
+      - /sellers/:id <code>[GET]</code>: List a Seller (READ)<br>
+      - /sellers/:id <code>[PUT]</code>: Modify a Seller (UPDATE)<br>
+      - /sellers/:id <code>[DELETE]</code>: Delete a Seller (DELETE)<br>
+    </td>
+    <td>
+      1.2. Warehouses:<br>
+      - /warehouses <code>[POST]</code>: Create a Warehouse (CREATE)<br>
+      - /warehouses <code>[GET]</code>: List all Warehouses (READ)<br>
+      - /warehouses/:id <code>[GET]</code>: List a Warehouse (READ)<br>
+      - /warehouses/:id <code>[PATCH]</code>: Modify a Warehouse (UPDATE)<br>
+      - /warehouses/:id <code>[DELETE]</code>: Delete a Warehouse (DELETE)<br>
+    </td>
+  </tr>
 
-1. Sellers:<br>
-- endpoint: /sellers
-- /sellers `[POST]`: Create a Seller
-- /sellers `[GET]`: List all Seller (READ)
-- /sellers/:id `[GET]`: List a Seller (READ)
-- /sellers/:id `[PUT]`: Modify Seller (UPDATE)
-- /sellers/:id `[DELETE]`: Delete Seller (DELETE)
+  <tr>
+    <td>
+      1.3. Sections:<br>
+      - /sections <code>[POST]</code>: Create a Section (CREATE)<br>
+      - /sections <code>[GET]</code>: List all Sections (READ)<br>
+      - /sections/:id <code>[GET]</code>: List a Section (READ)<br>
+      - /sections/:id <code>[PATCH]</code>: Modify a Section (UPDATE)<br>
+      - /sections/:id <code>[DELETE]</code>: Delete a Section (DELETE)<br>
+    </td>
+    <td>
+      1.4. Products:<br>
+      - /products <code>[POST]</code>: Create a Product (CREATE)<br>
+      - /products <code>[GET]</code>: List all Products (READ)<br>
+      - /products/:id <code>[GET]</code>: List a Product (READ)<br>
+      - /products/:id <code>[PATCH]</code>: Modify a Product (UPDATE)<br>
+      - /products/:id <code>[DELETE]</code>: Delete a Product (DELETE)<br>
+    </td>
+  </tr>
 
-2. Warehouses:<br>
-- endpoint: /warehouses
-- /warehouses `[POST]`: Create a Warehouse
-- /warehouses `[GET]`: List all Warehouse (READ)
-- /warehouses/:id `[GET]`: List a Warehouse (READ)
-- /warehouses/:id `[PATCH]`: Modify Warehouse (UPDATE)
-- /warehouses/:id `[DELETE]`: Delete Warehouse (DELETE)
+  <tr>
+    <td>
+      1.5. Employees:<br>
+      - /employees <code>[POST]</code>: Create an Employee (CREATE)<br>
+      - /employees <code>[GET]</code>: List all Employeea (READ)<br>
+      - /employees/:id <code>[GET]</code>: List an Employee (READ)<br>
+      - /employees/:id <code>[PATCH]</code>: Modify an Employee (UPDATE)<br>
+      - /employees/:id <code>[DELETE]</code>: Delete an Employee (DELETE)<br>
+    </td>
+    <td>
+      1.6. Buyers:<br>
+      - /buyers <code>[POST]</code>: Create a Buyer (CREATE)<br>
+      - /buyers <code>[GET]</code>: List all Buyers (READ)<br>
+      - /buyers/:id <code>[GET]</code>: List a Buyer (READ)<br>
+      - /buyers/:id <code>[PUT]</code>: Modify a Buyer (UPDATE)<br>
+      - /buyers/:id <code>[DELETE]</code>: Delete a Buyer (DELETE)<br>
+    </td>
+  </tr>
 
-3. Sections:<br>
-- endpoint: /sections
-- /sections `[POST]`: Create a Section
-- /sections `[GET]`: List all Section (READ)
-- /sections/:id `[GET]`: List a Section (READ)
-- /sections/:id `[PATCH]`: Modify Section (UPDATE)
-- /sections/:id `[DELETE]`: Delete Section (DELETE)
+  <tr>
+    <td>
+      2.1. Localities:<br>
+      - /localities <code>[POST]</code>: Create a Locality (CREATE)<br>
+      - /localities/reportSellers <code>[GET]</code>: List all Localities (READ)<br>
+      - /localities/reportSellers?id=some_id <code>[GET]</code>: List a Locality (READ)<br>
+      - /sellers <code>[POST]</code>: List all Sellers (READ)<br>
+    </td>
+    <td>
+      2.2. Carries:<br>
+      - /carries <code>[POST]</code>: Create a Carry (CREATE)<br>
+      - /localities/reportCarries <code>[GET]</code>: List all Carries (READ)<br>
+      - /localities/reportCarries?id=some_id <code>[GET]</code>: List a Carrie (READ)<br>
+    </td>
+  </tr>
 
-4. Products:<br>
-- endpoint: /products
-- /products `[POST]`: Create a Product
-- /products `[GET]`: List all Product (READ)
-- /products/:id `[GET]`: List a Product (READ)
-- /products/:id `[PATCH]`: Modify Product (UPDATE)
-- /products/:id `[DELETE]`: Delete Product (DELETE)
+ <tr>
+    <td>
+      2.3. Product Batches:<br>
+      - /productBatches <code>[POST]</code>: Create a Product Batch (CREATE)<br>
+      - /sections/reportProducts <code>[GET]</code>: List all Product Batches (READ)<br>
+      - /sections/reportProducts?id=some_id <code>[GET]</code>: List a Product Batch (READ)<br>
+    </td>
+    <td>
+      2.4. Product Records:<br>
+      - /productRecords <code>[POST]</code>: Create a Product Record (CREATE)<br>
+      - /products/reportRecords <code>[GET]</code>: List all Product Records (READ)<br>
+      - /products/reportRecords?id=some_id <code>[GET]</code>: List a Product Record (READ)<br>
+    </td>
+  </tr>
 
-5. Employees:<br>
-- endpoint: /employees
-- /employees `[POST]`: Create an Employee
-- /employees `[GET]`: List all Employee (READ)
-- /employees/:id `[GET]`: List an Employee (READ)
-- /employees/:id `[PATCH]`: Modify Employee (UPDATE)
-- /employees/:id `[DELETE]`: Delete Employee (DELETE)
+  <tr>
+    <td>
+      2.5. Inbound Orders:<br>
+      - /inboundOrders <code>[POST]</code>: Create a Inbound Order (CREATE)<br>
+      - /employees/reportInboundOrders <code>[GET]</code>: List all Inbound Orders (READ)<br>
+      - /employees/reportInboundOrders?id=some_id <code>[GET]</code>: List a Inbound Order (READ)<br>
+    </td>
+    <td>
+      2.6. Purchase Orders:<br>
+      - /purchaseOrders <code>[POST]</code>: Create a Purchase Order (CREATE)<br>
+      - /buyers/reportPurchaseOrders <code>[GET]</code>: List all Purchase Orders (READ)<br>
+      - /buyers/reportPurchaseOrders?id=some_id <code>[GET]</code>: List a Purchase Order (READ)<br>
+    </td>
 
-6. Buyers:<br>
-- endpoint: /buyers
-- /buyers `[POST]`: Create a Buyer
-- /buyers `[GET]`: List all Buyers (READ)
-- /buyers/:id `[GET]`: List a Buyer (READ)
-- /buyers/:id `[PUT]`: Modify Buyers (UPDATE)
-- /buyers/:id `[DELETE]`: Delete Buyer (DELETE)
+  </tr>
+
+</table>
 
 ## Technologies ##
 
@@ -114,8 +172,8 @@ The following tools were used in this project:
 - [Mockery](https://github.com/vektra/mockery)
 
 ## Requirements ##
-
-Before starting, you need to have [Git](https://git-scm.com), [Go](https://go.dev/) and [Swagger](https://swagger.io/) installed.
+)
+Before starting, you need to have [Git](https://git-scm.com), [Go](https://go.dev/) and [Docker](https://www.docker.com/) installed.
 
 ## Starting ##
 
@@ -125,6 +183,11 @@ git clone https://github.com/Gopher-Rangers/mercadofresco-gopherrangers
 
 # Access
 cd mercadofresco-gopherrangers
+
+# Config the .env file following the .env_example
+
+# Create a mabiadb database
+docker-compose up
 
 # Install requirements
 go get -u

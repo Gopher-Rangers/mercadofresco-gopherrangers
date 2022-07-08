@@ -20,7 +20,7 @@ func createProductsArray() []products.Product {
 		Height:                         0.1,
 		Length:                         0.1,
 		NetWeight:                      0.1,
-		ExpirationRate:                 "01/01/2022",
+		ExpirationRate:                 0.1,
 		RecommendedFreezingTemperature: 1.1,
 		FreezingRate:                   1.1,
 		ProductTypeId:                  01,
@@ -34,7 +34,7 @@ func createProductsArray() []products.Product {
 		Height:                         0.2,
 		Length:                         0.2,
 		NetWeight:                      0.2,
-		ExpirationRate:                 "02/02/2022",
+		ExpirationRate:                 0.2,
 		RecommendedFreezingTemperature: 2.2,
 		FreezingRate:                   2.2,
 		ProductTypeId:                  02,
@@ -48,7 +48,6 @@ func TestStore(t *testing.T) {
 	t.Run("create_ok", func(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
-		ps := createProductsArray()
 		expected := products.Product{
 			ID:                             3,
 			ProductCode:                    "03",
@@ -57,15 +56,14 @@ func TestStore(t *testing.T) {
 			Height:                         0.3,
 			Length:                         0.3,
 			NetWeight:                      0.3,
-			ExpirationRate:                 "03/03/2022",
+			ExpirationRate:                 0.3,
 			RecommendedFreezingTemperature: 3.3,
 			FreezingRate:                   3.3,
 			ProductTypeId:                  03,
 			SellerId:                       03,
 		}
-		mockRepository.On("GetAll").Return(ps, nil)
-		mockRepository.On("LastID").Return(2, nil)
-		mockRepository.On("Store", expected, 3).Return(expected, nil)
+		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(true)
+		mockRepository.On("Store", expected).Return(expected, nil)
 		prod, err := service.Store(expected)
 		assert.Nil(t, err)
 		assert.Equal(t, expected, prod)
@@ -73,7 +71,6 @@ func TestStore(t *testing.T) {
 	t.Run("create_conflict", func(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
-		ps := createProductsArray()
 		expected := products.Product{
 			ID:                             3,
 			ProductCode:                    "02",
@@ -82,13 +79,13 @@ func TestStore(t *testing.T) {
 			Height:                         0.3,
 			Length:                         0.3,
 			NetWeight:                      0.3,
-			ExpirationRate:                 "03/03/2022",
+			ExpirationRate:                 0.3,
 			RecommendedFreezingTemperature: 3.3,
 			FreezingRate:                   3.3,
 			ProductTypeId:                  03,
 			SellerId:                       03,
 		}
-		mockRepository.On("GetAll").Return(ps, nil)
+		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(false)
 		prod, err := service.Store(expected)
 		fmt.Println(err)
 		assert.Equal(t, err, fmt.Errorf("the product code must be unique"))
@@ -133,7 +130,6 @@ func TestUpdate(t *testing.T) {
 	t.Run("update_existent", func(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
-		ps := createProductsArray()
 		expected := products.Product{
 			ID:                             1,
 			ProductCode:                    "01",
@@ -142,13 +138,13 @@ func TestUpdate(t *testing.T) {
 			Height:                         0.1,
 			Length:                         0.1,
 			NetWeight:                      0.1,
-			ExpirationRate:                 "01/01/2022",
+			ExpirationRate:                 0.1,
 			RecommendedFreezingTemperature: 1.1,
 			FreezingRate:                   1.1,
 			ProductTypeId:                  01,
 			SellerId:                       01,
 		}
-		mockRepository.On("GetAll").Return(ps, nil)
+		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(true)
 		mockRepository.On("Update", expected, 1).Return(expected, nil)
 		prod, err := service.Update(expected, 1)
 		assert.Nil(t, err)
@@ -157,7 +153,6 @@ func TestUpdate(t *testing.T) {
 	t.Run("update_non_existent", func(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
-		ps := createProductsArray()
 		expected := products.Product{
 			ID:                             3,
 			ProductCode:                    "03",
@@ -166,14 +161,14 @@ func TestUpdate(t *testing.T) {
 			Height:                         0.3,
 			Length:                         0.3,
 			NetWeight:                      0.3,
-			ExpirationRate:                 "03/03/2022",
+			ExpirationRate:                 0.3,
 			RecommendedFreezingTemperature: 3.3,
 			FreezingRate:                   3.3,
 			ProductTypeId:                  03,
 			SellerId:                       03,
 		}
 		e := fmt.Errorf("produto 3 não encontrado")
-		mockRepository.On("GetAll").Return(ps, nil)
+		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(true)
 		mockRepository.On("Update", expected, 3).Return(products.Product{}, e)
 		prod, err := service.Update(expected, 3)
 		assert.Equal(t, e, err)
@@ -182,7 +177,6 @@ func TestUpdate(t *testing.T) {
 	t.Run("update_conflict", func(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
-		ps := createProductsArray()
 		expected := products.Product{
 			ID:                             1,
 			ProductCode:                    "02",
@@ -191,13 +185,13 @@ func TestUpdate(t *testing.T) {
 			Height:                         0.1,
 			Length:                         0.1,
 			NetWeight:                      0.1,
-			ExpirationRate:                 "01/01/2022",
+			ExpirationRate:                 0.1,
 			RecommendedFreezingTemperature: 1.1,
 			FreezingRate:                   1.1,
 			ProductTypeId:                  01,
 			SellerId:                       01,
 		}
-		mockRepository.On("GetAll").Return(ps, nil)
+		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(false)
 		prod, err := service.Update(expected, 1)
 		assert.Equal(t, err, fmt.Errorf("the product code must be unique"))
 		assert.Equal(t, products.Product{}, prod)

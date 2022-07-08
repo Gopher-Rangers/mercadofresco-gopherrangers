@@ -73,9 +73,9 @@ func (r repository) GetAll() ([]Employee, error) {
 }
 
 // func (r *repository) Update(emp Employee, id int) (Employee, error) {
-// 	var employees []Employee
-// 	r.db.Read(&employees)
+// 	var employee Employee
 
+// 	r.db.Exec(SqlUpdateFirstName)
 // 	for i := range employees {
 // 		if emp.ID == 0 {
 // 			emp.ID = id
@@ -86,19 +86,16 @@ func (r repository) GetAll() ([]Employee, error) {
 // 			} else {
 // 				employees[i].FirstName = emp.FirstName
 // 			}
-
 // 			if emp.LastName == "" {
 // 				emp.LastName = employees[i].LastName
 // 			} else {
 // 				employees[i].LastName = emp.LastName
 // 			}
-
 // 			if emp.WareHouseID == 0 {
 // 				emp.WareHouseID = employees[i].WareHouseID
 // 			} else {
 // 				employees[i].WareHouseID = emp.WareHouseID
 // 			}
-
 // 			if err := r.db.Write(&employees); err != nil {
 // 				return Employee{}, err
 // 			}

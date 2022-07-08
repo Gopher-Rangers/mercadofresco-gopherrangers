@@ -172,7 +172,7 @@ The following tools were used in this project:
 - [Mockery](https://github.com/vektra/mockery)
 
 ## Requirements ##
-)
+
 Before starting, you need to have [Git](https://git-scm.com), [Go](https://go.dev/) and [Docker](https://www.docker.com/) installed.
 
 ## Starting ##

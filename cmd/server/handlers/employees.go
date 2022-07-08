@@ -90,12 +90,12 @@ func (e *Employee) Create() gin.HandlerFunc {
 	}
 }
 
-// func (e Employee) GetAll() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		employees := e.service.GetAll()
-// 		c.JSON(web.NewResponse(http.StatusOK, employees))
-// 	}
-// }
+func (e Employee) GetAll() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		employees, _ := e.service.GetAll()
+		c.JSON(web.NewResponse(http.StatusOK, employees))
+	}
+}
 
 // func (e Employee) Delete() gin.HandlerFunc {
 // 	return func(c *gin.Context) {

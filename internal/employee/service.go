@@ -5,7 +5,7 @@ import "fmt"
 type Services interface {
 	Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 	GetAll() ([]Employee, error)
-	// Delete(id int) error
+	Delete(id int) error
 	// GetById(id int) (Employee, error)
 	// Update(emp Employee, id int) (Employee, error)
 }
@@ -18,10 +18,6 @@ func NewService(r Repository) Services {
 	s := service{r}
 	return &s
 }
-
-// func (s service) LastID() int {
-// 	return s.repository.LastID()
-// }
 
 func (s *service) validateCardNumber(cardNum int) bool {
 	employees, _ := s.GetAll()
@@ -44,23 +40,25 @@ func (s *service) Create(cardNum int, firstName string, lastName string, warehou
 	return emps, nil
 }
 
-func (s service) GetAll() ([]Employee, error) {
-	employees, err := s.repository.GetAll()
+func (s *service) GetAll() ([]Employee, error) {
+	emps, err := s.repository.GetAll()
 
 	if err != nil {
-		return employees, fmt.Errorf("erro no repository getall")
+		return emps, err
 	}
 
-	return employees, nil
+	fmt.Println("chegou no service")
+	return emps, nil
 }
 
-// func (s service) Delete(id int) error {
-// 	err := s.repository.Delete(id)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+func (s service) Delete(id int) error {
+	err := s.repository.Delete(id)
+	if err != nil {
+		return err
+	}
+	fmt.Println("chegou no service delete")
+	return nil
+}
 
 // func (s service) GetById(id int) (Employee, error) {
 // 	employee, err := s.repository.GetById(id)

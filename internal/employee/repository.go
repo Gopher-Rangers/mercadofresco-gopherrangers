@@ -15,9 +15,8 @@ type Employee struct {
 
 type Repository interface {
 	Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
-	// LastID() int
 	GetAll() ([]Employee, error)
-	// Delete(id int) error
+	Delete(id int) error
 	// GetById(id int) (Employee, error)
 	// Update(emp Employee, id int) (Employee, error)
 }
@@ -72,16 +71,6 @@ func (r repository) Create(cardNum int, firstName string, lastName string, wareh
 	return emp, nil
 }
 
-// func (r repository) LastID() int {
-// 	var Employees []Employee
-// 	r.db.Read(&Employees)
-
-// 	if len(Employees) == 0 {
-// 		return 1
-// 	}
-// 	return Employees[len(Employees)-1].ID + 1
-// }
-
 func (r repository) GetAll() ([]Employee, error) {
 	var employees []Employee
 
@@ -90,6 +79,7 @@ func (r repository) GetAll() ([]Employee, error) {
 		return employees, err
 	}
 
+	fmt.Println("chegou no repo getall 1")
 	defer rows.Close()
 
 	for rows.Next() {
@@ -100,9 +90,12 @@ func (r repository) GetAll() ([]Employee, error) {
 			return employees, err
 		}
 
+		fmt.Println(emp.ID, emp.CardNumber, emp.FirstName)
 		employees = append(employees, emp)
 	}
 
+	fmt.Println("chegou no repo getall 2")
+	fmt.Println(employees)
 	return employees, nil
 }
 
@@ -167,3 +160,18 @@ func (r repository) GetAll() ([]Employee, error) {
 // 	}
 // 	return Employee{}, fmt.Errorf("funcionário não foi encontrado")
 // }
+
+func (r repository) Delete(id int) error {
+	res, err := r.db.Exec(SqlDelete, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected <= 0 {
+		return fmt.Errorf("row not affected")
+	}
+
+	fmt.Println("chegou no repo delete")
+	return nil
+}

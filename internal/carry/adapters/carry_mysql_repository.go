@@ -10,6 +10,7 @@ import (
 
 const (
 	queryCreateCarry = "INSERT INTO carriers (cid, name, address, telephone, locality_id) VALUES (?, ?, ?, ?, ?)"
+	queryGetByCid    = "SELECT * FROM carriers WHERE cid=? "
 )
 
 type mysqlCarryRepository struct {
@@ -45,6 +46,7 @@ func (r *mysqlCarryRepository) CreateCarry(carry domain.Carry) (domain.Carry, er
 		ID:         int(id),
 		Cid:        carry.Cid,
 		Name:       carry.Name,
+		Address:    carry.Address,
 		Telephone:  carry.Telephone,
 		LocalityID: carry.LocalityID,
 	}, nil
@@ -54,6 +56,17 @@ func (r *mysqlCarryRepository) CreateCarry(carry domain.Carry) (domain.Carry, er
 func (r mysqlCarryRepository) GetCaryPerLocality(id int) (domain.Carry, error) {
 	return domain.Carry{}, nil
 }
+
 func (r mysqlCarryRepository) GetCarryByCid(cid string) (domain.Carry, error) {
+	var carry domain.Carry
+
+	stmt := r.db.QueryRow(queryGetByCid, cid)
+
+	err := stmt.Scan(&carry.ID, &carry.Cid, &carry.Name, &carry.Address, &carry.Telephone, &carry.LocalityID)
+
+	if err != nil {
+		return domain.Carry{}, fmt.Errorf("o carry com esse `cid`: %s não foi encontrado", carry.Cid)
+	}
+
 	return domain.Carry{}, nil
 }

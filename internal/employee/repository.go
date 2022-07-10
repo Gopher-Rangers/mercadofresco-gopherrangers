@@ -18,7 +18,7 @@ type Repository interface {
 	GetAll() ([]Employee, error)
 	Delete(id int) error
 	GetById(id int) (Employee, error)
-	// Update(emp Employee, id int) (Employee, error)
+	Update(id int, firstName string, lastName string, warehouseId int) (Employee, error)
 }
 
 type repository struct {
@@ -104,6 +104,21 @@ func (r repository) GetAll() ([]Employee, error) {
 // 	}
 // 	return Employee{}, fmt.Errorf("funcionário não foi encontrado")
 // }
+
+func (r repository) Update(id int, firstName string, lastName string, warehouseId int) (Employee, error) {
+	res, err := r.db.Exec(SqlUpdate, firstName, lastName, warehouseId, id)
+	if err != nil {
+		return Employee{}, err
+	}
+
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected <= 0 {
+		return Employee{}, fmt.Errorf("rows not affected")
+	}
+
+	emp, _ := r.GetById(id)
+	return emp, nil
+}
 
 func (r repository) Delete(id int) error {
 	res, err := r.db.Exec(SqlDelete, id)

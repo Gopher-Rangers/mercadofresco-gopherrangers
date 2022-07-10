@@ -9,5 +9,7 @@ const (
 
 	SqlUpdateFirstName = "UPDATE employees SET first_name=? WHERE id=?"
 
+	SqlUpdate = "UPDATE employees SET first_name=?, last_name=?, warehouse_id=? WHERE id=?"
+
 	SqlDelete = "DELETE FROM employees WHERE id=?"
 )

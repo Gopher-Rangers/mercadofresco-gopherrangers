@@ -16,13 +16,21 @@ func NewServiceLocality(r RepositoryLocality) ServiceLocality {
 }
 
 func (s serviceLocality) GetCarryLocalityByID(id int) (domain.Locality, error) {
-	locality, _ := s.repository.GetCarryLocalityByID(id)
+	locality, err := s.repository.GetCarryLocalityByID(id)
+
+	if err != nil {
+		return domain.Locality{}, err
+	}
 
 	return locality, nil
 }
 
 func (s serviceLocality) GetAllCarriesLocalityByID() ([]domain.Locality, error) {
-	localities, _ := s.repository.GetAllCarriesLocalityByID()
+	localities, err := s.repository.GetAllCarriesLocalityByID()
+
+	if err != nil {
+		return []domain.Locality{}, err
+	}
 
 	return localities, nil
 }

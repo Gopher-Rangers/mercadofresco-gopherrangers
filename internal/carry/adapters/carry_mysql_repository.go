@@ -53,10 +53,6 @@ func (r *mysqlCarryRepository) CreateCarry(carry domain.Carry) (domain.Carry, er
 
 }
 
-func (r mysqlCarryRepository) GetCaryPerLocality(id int) (domain.Carry, error) {
-	return domain.Carry{}, nil
-}
-
 func (r mysqlCarryRepository) GetCarryByCid(cid string) (domain.Carry, error) {
 	var carry domain.Carry
 

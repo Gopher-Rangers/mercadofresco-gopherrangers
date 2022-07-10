@@ -14,11 +14,9 @@ func Carry(routerGroup *gin.RouterGroup) {
 	carryService := usecases.NewServiceCarry(carryRepository)
 	carryHandler := handlers.NewCarry(carryService)
 
-	buyerRouterGroup := routerGroup.Group("/carries")
+	carryRouterGroup := routerGroup.Group("/carries")
 	{
 
-		buyerRouterGroup.POST("/", carryHandler.CreateCarry)
-		// buyerRouterGroup.GET("/", carryHandler.GetAll)
-
+		carryRouterGroup.POST("/", carryHandler.CreateCarry)
 	}
 }

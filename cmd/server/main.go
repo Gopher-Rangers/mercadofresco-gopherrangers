@@ -48,7 +48,7 @@ func main() {
 		routes.ProductRecord(baseRoute, productsService)
 
 		routes.Buyers(baseRoute)
-		
+
 		routes.PurchaseOrders(baseRoute)
 
 		routes.Sections(baseRoute)
@@ -71,6 +71,7 @@ func main() {
 			employeeRouterGroup.DELETE("/:id", employee.Delete())
 		}
 
+		routes.Carry(baseRoute)
 		routes.Warehouses(baseRoute)
 	}
 	server.Run()

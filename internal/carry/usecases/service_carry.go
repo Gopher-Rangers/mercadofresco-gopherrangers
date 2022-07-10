@@ -15,8 +15,8 @@ type serviceCarry struct {
 	repository RepositoryCarry
 }
 
-func NewServiceCarry(r ServiceCarry) ServiceCarry {
-	return &service{r}
+func NewServiceCarry(r RepositoryCarry) ServiceCarry {
+	return &serviceCarry{r}
 }
 
 func (s *serviceCarry) CreateCarry(carry domain.Carry) (domain.Carry, error) {

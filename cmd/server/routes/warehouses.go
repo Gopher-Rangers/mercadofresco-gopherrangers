@@ -16,8 +16,8 @@ func Warehouses(routerGroup *gin.RouterGroup) {
 
 	{
 		// file := store.New(store.FileType, "../../internal/warehouse/warehouses.json")
-		warehouseRep := adapters.NewMySqlRepository(database.GetInstance())
-		warehouseService := usecases.NewService(warehouseRep)
+		warehouseRepository := adapters.NewMySqlRepository(database.GetInstance())
+		warehouseService := usecases.NewService(warehouseRepository)
 		warehouse := handlers.NewWarehouse(warehouseService)
 
 		warehouseRouterGroup.GET("/", warehouse.GetAll)

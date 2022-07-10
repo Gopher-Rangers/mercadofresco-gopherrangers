@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	queryCreateCarry = "INSERT INTO carriers (cid, name, address, telephone, locality_id) VALUES (?, ?, ?, ?, ?)"
+	queryCreateCarry = "INSERT INTO carriers (cid, company_name, address, telephone, locality_id) VALUES (?, ?, ?, ?, ?)"
 	queryGetByCid    = "SELECT * FROM carriers WHERE cid=? "
 )
 
@@ -22,7 +22,7 @@ func NewMySqlCarryRepository(db *sql.DB) usecases.RepositoryCarry {
 }
 
 func (r *mysqlCarryRepository) CreateCarry(carry domain.Carry) (domain.Carry, error) {
-	stmt, err := r.db.Prepare(queryGetAllCarriesLocalityByID)
+	stmt, err := r.db.Prepare(queryCreateCarry)
 
 	if err != nil {
 		return domain.Carry{}, fmt.Errorf("erro ao preparar a query")

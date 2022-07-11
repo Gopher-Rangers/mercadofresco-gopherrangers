@@ -17,35 +17,31 @@ func NewLocality(l usecases.ServiceLocality) Locality {
 	return Locality{l}
 }
 
-func (l Locality) GetCarryLocalityByID(ctx *gin.Context) {
+func (l Locality) GetCarryLocality(ctx *gin.Context) {
 
-	localityID, err := strconv.Atoi(ctx.Query("id"))
+	localityID, _ := strconv.Atoi(ctx.Query("id"))
 
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "O id passado não é um número!"))
-		return
+	if localityID == 0 {
+		localities, err := l.service.GetAllCarriesLocality()
+
+		if err != nil {
+			ctx.JSON(web.DecodeError(http.StatusBadRequest, "erro ao acessar o banco de dados"))
+			return
+		}
+
+		ctx.JSON(web.NewResponse(http.StatusOK, localities))
+
+	} else {
+
+		locality, err := l.service.GetCarryLocalityByID(localityID)
+
+		if err != nil {
+			ctx.JSON(web.DecodeError(http.StatusNotFound, "a localidade não foi encontrada!"))
+			return
+		}
+
+		ctx.JSON(web.NewResponse(http.StatusOK, locality))
+
 	}
-
-	locality, err := l.service.GetCarryLocalityByID(localityID)
-
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusNotFound, "A localidade não foi encontrada!"))
-		return
-	}
-
-	ctx.JSON(web.NewResponse(http.StatusOK, locality))
-
-}
-
-func (l Locality) GetAllCarriesLocalityByID(ctx *gin.Context) {
-
-	localities, err := l.service.GetAllCarriesLocalityByID()
-
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "erro ao acessar o banco de dados"))
-		return
-	}
-
-	ctx.JSON(web.NewResponse(http.StatusOK, localities))
 
 }

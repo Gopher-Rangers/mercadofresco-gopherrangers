@@ -17,6 +17,6 @@ func Locality(routerGroup *gin.RouterGroup) {
 	localityRouterGroup := routerGroup.Group("/localities/reportCarries")
 	{
 
-		localityRouterGroup.GET("/", localityHandler.GetCarryLocalityByID)
+		localityRouterGroup.GET("/", localityHandler.GetCarryLocality)
 	}
 }

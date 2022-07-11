@@ -4,7 +4,7 @@ import "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/dom
 
 type ServiceLocality interface {
 	GetCarryLocalityByID(id int) (domain.Locality, error)
-	GetAllCarriesLocalityByID() ([]domain.Locality, error)
+	GetAllCarriesLocality() ([]domain.Locality, error)
 }
 
 type serviceLocality struct {
@@ -25,8 +25,8 @@ func (s serviceLocality) GetCarryLocalityByID(id int) (domain.Locality, error) {
 	return locality, nil
 }
 
-func (s serviceLocality) GetAllCarriesLocalityByID() ([]domain.Locality, error) {
-	localities, err := s.repository.GetAllCarriesLocalityByID()
+func (s serviceLocality) GetAllCarriesLocality() ([]domain.Locality, error) {
+	localities, err := s.repository.GetAllCarriesLocality()
 
 	if err != nil {
 		return []domain.Locality{}, err

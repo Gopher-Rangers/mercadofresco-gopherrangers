@@ -15,10 +15,12 @@ const (
 	ON ca.locality_id = lo.id
 	WHERE ca.locality_id = ? GROUP BY ca.locality_id`
 
-	queryGetAllCarriesLocalityByID = `SELECT ca.locality_id, lo.locality_name, COUNT(*) AS carries_count 
+	queryGetAllCarriesLocality = `SELECT ca.locality_id, lo.locality_name, COUNT(*) AS carries_count 
 	FROM carriers AS ca
 	INNER JOIN localities AS lo
-	ON ca.locality_id = lo.id`
+	ON ca.locality_id = lo.id
+	GROUP BY ca.locality_id
+	`
 )
 
 type mysqlLocalityRepository struct {
@@ -43,11 +45,13 @@ func (r mysqlLocalityRepository) GetCarryLocalityByID(id int) (domain.Locality, 
 	return locality, nil
 }
 
-func (r mysqlLocalityRepository) GetAllCarriesLocalityByID() ([]domain.Locality, error) {
-	rows, err := r.db.Query(queryGetAllCarriesLocalityByID)
+func (r mysqlLocalityRepository) GetAllCarriesLocality() ([]domain.Locality, error) {
+	rows, err := r.db.Query(queryGetAllCarriesLocality)
 
 	if err != nil {
+		fmt.Println(err)
 		return []domain.Locality{}, err
+
 	}
 
 	defer rows.Close()
@@ -63,6 +67,7 @@ func (r mysqlLocalityRepository) GetAllCarriesLocalityByID() ([]domain.Locality,
 	}
 
 	if err = rows.Err(); err != nil {
+		fmt.Println(err)
 		return []domain.Locality{}, err
 	}
 

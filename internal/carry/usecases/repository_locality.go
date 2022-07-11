@@ -4,5 +4,5 @@ import "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/dom
 
 type RepositoryLocality interface {
 	GetCarryLocalityByID(id int) (domain.Locality, error)
-	GetAllCarriesLocalityByID() ([]domain.Locality, error)
+	GetAllCarriesLocality() ([]domain.Locality, error)
 }

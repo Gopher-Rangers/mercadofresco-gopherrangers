@@ -8,7 +8,6 @@ import (
 
 type ServiceCarry interface {
 	CreateCarry(carry domain.Carry) (domain.Carry, error)
-	GetCarryPerLocality(id int) (domain.Carry, error)
 }
 
 type serviceCarry struct {
@@ -35,7 +34,4 @@ func (s *serviceCarry) CreateCarry(carry domain.Carry) (domain.Carry, error) {
 
 	return carry, nil
 
-}
-func (s serviceCarry) GetCarryPerLocality(id int) (domain.Carry, error) {
-	return domain.Carry{}, nil
 }

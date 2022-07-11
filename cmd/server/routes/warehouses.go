@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/database"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/warehouses"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/adapters"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/usecases"
 
@@ -18,7 +18,7 @@ func Warehouses(routerGroup *gin.RouterGroup) {
 		// file := store.New(store.FileType, "../../internal/warehouse/warehouses.json")
 		warehouseRepository := adapters.NewMySqlRepository(database.GetInstance())
 		warehouseService := usecases.NewService(warehouseRepository)
-		warehouse := handlers.NewWarehouse(warehouseService)
+		warehouse := warehouses.NewWarehouse(warehouseService)
 
 		warehouseRouterGroup.GET("/", warehouse.GetAll)
 		warehouseRouterGroup.GET("/:id", warehouse.GetByID)

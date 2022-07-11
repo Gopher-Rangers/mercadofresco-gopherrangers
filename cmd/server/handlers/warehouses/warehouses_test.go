@@ -1,4 +1,4 @@
-package handlers_test
+package warehouses_test
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/warehouses"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/domain"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/usecases/mock/mock_service"
 
@@ -48,7 +48,7 @@ type warehouseResponseBodyArray struct {
 func Test_CreateWarehouse(t *testing.T) {
 
 	service := mock_service.NewService(t)
-	controller := handlers.NewWarehouse(service)
+	controller := warehouses.NewWarehouse(service)
 	server := gin.Default()
 
 	gin.SetMode(gin.TestMode) // Pra deixar o framework do gin em modo de test
@@ -124,7 +124,7 @@ func Test_CreateWarehouse(t *testing.T) {
 func Test_GetAll(t *testing.T) {
 
 	service := mock_service.NewService(t)
-	controller := handlers.NewWarehouse(service)
+	controller := warehouses.NewWarehouse(service)
 	server := gin.Default()
 
 	gin.SetMode(gin.TestMode)
@@ -155,7 +155,7 @@ func Test_GetAll(t *testing.T) {
 func Test_GetByID(t *testing.T) {
 
 	service := mock_service.NewService(t)
-	controller := handlers.NewWarehouse(service)
+	controller := warehouses.NewWarehouse(service)
 	server := gin.Default()
 
 	server.GET(URLwarehouses+"/:id", controller.GetByID)
@@ -218,7 +218,7 @@ func Test_GetByID(t *testing.T) {
 func Test_UpdatedWarehouseID(t *testing.T) {
 
 	service := mock_service.NewService(t)
-	controller := handlers.NewWarehouse(service)
+	controller := warehouses.NewWarehouse(service)
 	server := gin.Default()
 
 	gin.SetMode(gin.TestMode)
@@ -315,7 +315,7 @@ func Test_UpdatedWarehouseID(t *testing.T) {
 func Test_DeleteWarehouse(t *testing.T) {
 
 	service := mock_service.NewService(t)
-	controller := handlers.NewWarehouse(service)
+	controller := warehouses.NewWarehouse(service)
 	server := gin.Default()
 
 	gin.SetMode(gin.TestMode)

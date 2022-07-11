@@ -72,7 +72,9 @@ func main() {
 		}
 
 		routes.Carry(baseRoute)
-		routes.Locality(baseRoute)
+
+		routes.LocalityCarry(baseRoute)
+
 		routes.Warehouses(baseRoute)
 	}
 	server.Run()

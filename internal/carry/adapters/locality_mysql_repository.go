@@ -49,7 +49,6 @@ func (r mysqlLocalityRepository) GetAllCarriesLocality() ([]domain.Locality, err
 	rows, err := r.db.Query(queryGetAllCarriesLocality)
 
 	if err != nil {
-		fmt.Println(err)
 		return []domain.Locality{}, err
 
 	}
@@ -67,7 +66,6 @@ func (r mysqlLocalityRepository) GetAllCarriesLocality() ([]domain.Locality, err
 	}
 
 	if err = rows.Err(); err != nil {
-		fmt.Println(err)
 		return []domain.Locality{}, err
 	}
 

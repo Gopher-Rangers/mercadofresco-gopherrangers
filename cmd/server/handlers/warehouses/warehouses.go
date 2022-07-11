@@ -1,4 +1,4 @@
-package handlers
+package warehouses
 
 import (
 	"net/http"

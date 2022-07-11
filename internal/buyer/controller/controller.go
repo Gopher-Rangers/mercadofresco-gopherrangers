@@ -108,8 +108,8 @@ func (b *Buyer) GetBuyerById(c *gin.Context) {
 // @Success 200 {object} web.Response
 // @Router /api/v1/buyers/{id} [GET]
 func (b *Buyer) ReportPurchaseOrdersByBuyer(c *gin.Context) {
-	id, bool := c.GetQuery("id")
-	if bool == true {
+	id, paramExists := c.GetQuery("id")
+	if paramExists == true {
 		idFormated, _ := strconv.Atoi(id)
 		if idFormated < 1 {
 			c.JSON(web.DecodeError(http.StatusBadRequest, "Invalid id"+c.Param("id")))

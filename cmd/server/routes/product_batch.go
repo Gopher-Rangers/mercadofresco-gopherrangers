@@ -13,5 +13,5 @@ func ProductBatches(routerGroup *gin.RouterGroup) {
 	productBatch := product_batches.NewProductBatch(pb_service)
 
 	routerGroup.POST("productBatches/", productBatch.Create())
-	routerGroup.GET("sections/reportProducts", productBatch.GetByID())
+	routerGroup.GET("sections/reportProducts", productBatch.Report())
 }

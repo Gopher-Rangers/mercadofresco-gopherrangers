@@ -170,12 +170,12 @@ func TestBatchReport(t *testing.T) {
 	})
 
 	t.Run("report_all_fail_db", func(t *testing.T) {
-		mockRepository.On("Report", mock.Anything).Return([]productbatch.Report{}, errors.New("Erro ao acessar banco"))
+		mockRepository.On("Report", mock.Anything).Return([]productbatch.Report{}, errors.New("sql: connection failed"))
 		req, w := InitServer(http.MethodGet, URL_SECTION_REPORT, nil)
 
 		engine.ServeHTTP(w, req)
 
-		exp := ExpectedErrorJSON{400, "Erro ao acessar banco"}
+		exp := ExpectedErrorJSON{400, "sql: connection failed"}
 		ExpectedJSON, _ := json.Marshal(exp)
 
 		assert.Equal(t, exp.Code, w.Code)

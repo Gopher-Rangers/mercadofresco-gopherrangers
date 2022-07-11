@@ -8,6 +8,10 @@ import (
 	"strconv"
 )
 
+const (
+	ERROR_PURCHASE_ID_NOT_FOUNDED = "purchase order with id (%d) not founded"
+)
+
 type PurchaseOrdersCreate struct {
 	ID              int    `json:"id"`
 	OrderNumber     string `json:"order_number" binding:"required"`
@@ -29,16 +33,17 @@ func NewPurchaseOrder(r domain.Service) PurchaseOrders {
 // Create CreatePurchaseOrder godoc
 // @Summary Create PurchaseOrder
 // @Tags Buyers
-// @Description store a new buyer
+// @Description store a new purchase order
 // @Accept json
 // @Produce json
 // @Param token header string true "token"
-// @Param buyer body buyerRequest true "Product to store"
+// @Param buyer body buyerRequest true "Purchase Order to store"
 // @Failure 401 {object} web.Response "We need token"
 // @Failure 404 {object} web.Response
+// @Failure 409 {object} web.Response "Conflict"
 // @Failure 422 {object} web.Response "Missing some mandatory field"
 // @Success 201 {object} web.Response
-// @Router /api/v1/buyers [POST]
+// @Router /api/v1/purchase-orders [POST]
 func (b *PurchaseOrders) Create(c *gin.Context) {
 
 	var req PurchaseOrdersCreate
@@ -52,6 +57,10 @@ func (b *PurchaseOrders) Create(c *gin.Context) {
 	newPurchaseOrder, err := b.service.Create(c.Request.Context(), purchaseOrder)
 
 	if err != nil {
+		if err.Error() == domain.ERROR_UNIQUE_ORDER_NUMBER {
+			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+			return
+		}
 		c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
 		return
 	}
@@ -62,14 +71,14 @@ func (b *PurchaseOrders) Create(c *gin.Context) {
 // GetPurchaseOrderById GetPurchaseOrder godoc
 // @Summary List buyer
 // @Tags Buyers
-// @Description get a especific purchase order by id
+// @Description get a specific purchase order by id
 // @Accept json
 // @Produce json
 // @Param token header string true "token"
 // @Failure 401 {object} web.Response "We need token"
 // @Failure 404 {object} web.Response
 // @Success 200 {object} web.Response
-// @Router /api/v1/buyers/{id} [GET]
+// @Router /api/v1/purchase-orders/{id} [GET]
 func (b *PurchaseOrders) GetPurchaseOrderById(c *gin.Context) {
 
 	id, _ := strconv.Atoi(c.Param("id"))

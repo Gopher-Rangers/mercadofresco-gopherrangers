@@ -4,6 +4,10 @@ import (
 	"context"
 )
 
+const (
+	ERROR_UNIQUE_ORDER_NUMBER = "the order number must be unique"
+)
+
 type PurchaseOrders struct {
 	ID              int    `json:"id"`
 	OrderNumber     string `json:"order_number"`

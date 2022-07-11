@@ -145,7 +145,7 @@ func (b *Buyer) ReportPurchaseOrdersByBuyer(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param token header string true "token"
-// @Param buyer body buyerRequest true "Product to store"
+// @Param buyer body buyerRequest true "Buyer to store"
 // @Failure 401 {object} web.Response "We need token"
 // @Failure 404 {object} web.Response
 // @Failure 422 {object} web.Response "Missing some mandatory field"

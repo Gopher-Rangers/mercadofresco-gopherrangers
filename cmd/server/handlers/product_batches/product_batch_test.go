@@ -16,7 +16,10 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-const URL_PRODUCTS_BATCH = "/api/v1/"
+const (
+	URL_PRODUCTS_BATCH = "/api/v1/productBatches"
+	URL_SECTION_REPORT = "/api/v1/sections/reportProducts"
+)
 
 const (
 	ERROR_BIND          = "Key: 'ProductBatch.ProductTypeID' Error:Field validation for 'ProductTypeID' failed on the 'required' tag\nKey: 'ProductBatch.SectionID' Error:Field validation for 'SectionID' failed on the 'required' tag"
@@ -80,13 +83,13 @@ func TestBatchCreate(t *testing.T) {
 		SectionID:       1,
 	}
 
-	engine.POST(URL_PRODUCTS_BATCH+"productBatches", pb.Create())
+	engine.POST(URL_PRODUCTS_BATCH, pb.Create())
 
 	t.Run("create_ok", func(t *testing.T) {
 		mockRepository.On("Create", mock.Anything, exp).Return(exp, nil)
 
 		expected, _ := json.Marshal(exp)
-		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
+		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH, expected)
 
 		engine.ServeHTTP(w, req)
 
@@ -102,7 +105,7 @@ func TestBatchCreate(t *testing.T) {
 		exp.ProductTypeID = 0
 
 		expected, _ := json.Marshal(exp)
-		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
+		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH, expected)
 		engine.ServeHTTP(w, req)
 
 		exp := ExpectedErrorJSON{422, ERROR_BIND}
@@ -117,7 +120,7 @@ func TestBatchCreate(t *testing.T) {
 		exp.ProductTypeID = 1
 
 		expected, _ := json.Marshal(exp)
-		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
+		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH, expected)
 
 		mockRepository.On("Create", mock.Anything, exp).Return(productbatch.ProductBatch{}, errors.New(ERROR_CONFLICT_SEC))
 		engine.ServeHTTP(w, req)
@@ -136,7 +139,7 @@ func TestBatchCreate(t *testing.T) {
 		mockRepository.On("Create", mock.Anything, exp).Return(productbatch.ProductBatch{}, errors.New(ERROR_CONFLICT_PROD))
 
 		expected, _ := json.Marshal(exp)
-		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
+		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH, expected)
 		engine.ServeHTTP(w, req)
 
 		exp := ExpectedErrorJSON{409, ERROR_CONFLICT_PROD}
@@ -153,8 +156,8 @@ func TestBatchReport(t *testing.T) {
 
 	t.Run("report_all_ok", func(t *testing.T) {
 		mockRepository.On("Report", mock.Anything).Return(exp, nil)
-		req, w := InitServer(http.MethodGet, URL_PRODUCTS_BATCH+"sections/reportProducts", nil)
-		engine.GET(URL_PRODUCTS_BATCH+"sections/reportProducts", pb.Report())
+		req, w := InitServer(http.MethodGet, URL_SECTION_REPORT, nil)
+		engine.GET(URL_SECTION_REPORT, pb.Report())
 		engine.ServeHTTP(w, req)
 
 		exp := ExpectedJSON{200, exp}
@@ -173,7 +176,7 @@ func TestBatchReportID(t *testing.T) {
 
 	t.Run("report_id_ok", func(t *testing.T) {
 		mockRepository.On("ReportByID", mock.Anything, 1).Return(exp, nil)
-		req, w := InitServer(http.MethodGet, URL_PRODUCTS_BATCH+"sections/reportProducts?id=1", nil)
+		req, w := InitServer(http.MethodGet, URL_SECTION_REPORT+"?id=1", nil)
 		engine.ServeHTTP(w, req)
 
 		exp := ExpectedJSON{200, exp}
@@ -185,7 +188,7 @@ func TestBatchReportID(t *testing.T) {
 
 	t.Run("report_fail_not_found", func(t *testing.T) {
 		mockRepository.On("ReportByID", mock.Anything, 99).Return(productbatch.Report{}, errors.New("sql: no rows in result set"))
-		req, w := InitServer(http.MethodGet, URL_PRODUCTS_BATCH+"sections/reportProducts?id=99", nil)
+		req, w := InitServer(http.MethodGet, URL_SECTION_REPORT+"?id=99", nil)
 		engine.ServeHTTP(w, req)
 
 		exp := ExpectedErrorJSON{404, "sql: no rows in result set"}

@@ -187,7 +187,7 @@ func TestBatchReportID(t *testing.T) {
 	engine, mockRepository, pb := InitTest(t)
 	exp := CreateReportArray()[0]
 
-	engine.GET(URL_PRODUCTS_BATCH+"sections/reportProducts", pb.Report())
+	engine.GET(URL_SECTION_REPORT, pb.Report())
 
 	t.Run("report_id_ok", func(t *testing.T) {
 		mockRepository.On("ReportByID", mock.Anything, 1).Return(exp, nil)

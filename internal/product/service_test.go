@@ -1,9 +1,9 @@
 package products_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
-	"context"
 
 	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product/mocks"
@@ -63,8 +63,10 @@ func TestStore(t *testing.T) {
 			ProductTypeId:                  03,
 			SellerId:                       03,
 		}
-		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(true)
-		mockRepository.On("Store", context.Background(), expected).Return(expected, nil)
+		mockRepository.On("CheckProductCode", context.Background(),
+			expected.ID, expected.ProductCode).Return(true)
+		mockRepository.On("Store", context.Background(), expected).Return(
+			expected, nil)
 		prod, err := service.Store(context.Background(), expected)
 		assert.Nil(t, err)
 		assert.Equal(t, expected, prod)
@@ -86,11 +88,37 @@ func TestStore(t *testing.T) {
 			ProductTypeId:                  03,
 			SellerId:                       03,
 		}
-		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(false)
+		mockRepository.On("CheckProductCode", context.Background(),
+			expected.ID, expected.ProductCode).Return(false)
 		prod, err := service.Store(context.Background(), expected)
 		fmt.Println(err)
 		assert.Equal(t, err, fmt.Errorf("the product code must be unique"))
 		assert.Equal(t, products.Product{}, prod)
+	})
+	t.Run("create_error", func(t *testing.T) {
+		mockRepository := mocks.NewRepository(t)
+		service := products.NewService(mockRepository)
+		expected := products.Product{
+			ID:                             3,
+			ProductCode:                    "03",
+			Description:                    "queijo",
+			Width:                          0.3,
+			Height:                         0.3,
+			Length:                         0.3,
+			NetWeight:                      0.3,
+			ExpirationRate:                 0.3,
+			RecommendedFreezingTemperature: 3.3,
+			FreezingRate:                   3.3,
+			ProductTypeId:                  03,
+			SellerId:                       03,
+		}
+		mockRepository.On("CheckProductCode", context.Background(),
+			expected.ID, expected.ProductCode).Return(true)
+		mockRepository.On("Store", context.Background(), expected).Return(
+			products.Product{}, fmt.Errorf("fail to save"))
+		prod, err := service.Store(context.Background(), expected)
+		assert.Equal(t, err, fmt.Errorf("fail to save"))
+		assert.Equal(t, prod, products.Product{})
 	})
 }
 
@@ -120,7 +148,8 @@ func TestGetById(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository)
 		e := fmt.Errorf("produto 3 não encontrado")
-		mockRepository.On("GetById", context.Background(), 3).Return(products.Product{}, e)
+		mockRepository.On("GetById", context.Background(), 3).Return(
+			products.Product{}, e)
 		prod, err := service.GetById(context.Background(), 3)
 		assert.Equal(t, e, err)
 		assert.Equal(t, prod, products.Product{})
@@ -145,8 +174,10 @@ func TestUpdate(t *testing.T) {
 			ProductTypeId:                  01,
 			SellerId:                       01,
 		}
-		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(true)
-		mockRepository.On("Update", context.Background(), expected, 1).Return(expected, nil)
+		mockRepository.On("CheckProductCode", context.Background(),
+			expected.ID, expected.ProductCode).Return(true)
+		mockRepository.On("Update", context.Background(), expected, 1).Return(
+			expected, nil)
 		prod, err := service.Update(context.Background(), expected, 1)
 		assert.Nil(t, err)
 		assert.Equal(t, prod, expected)
@@ -169,8 +200,10 @@ func TestUpdate(t *testing.T) {
 			SellerId:                       03,
 		}
 		e := fmt.Errorf("produto 3 não encontrado")
-		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(true)
-		mockRepository.On("Update", context.Background(), expected, 3).Return(products.Product{}, e)
+		mockRepository.On("CheckProductCode", context.Background(),
+			expected.ID, expected.ProductCode).Return(true)
+		mockRepository.On("Update", context.Background(), expected, 3).Return(
+			products.Product{}, e)
 		prod, err := service.Update(context.Background(), expected, 3)
 		assert.Equal(t, e, err)
 		assert.Equal(t, prod, products.Product{})
@@ -192,7 +225,8 @@ func TestUpdate(t *testing.T) {
 			ProductTypeId:                  01,
 			SellerId:                       01,
 		}
-		mockRepository.On("CheckProductCode", expected.ID, expected.ProductCode).Return(false)
+		mockRepository.On("CheckProductCode", context.Background(),
+			expected.ID, expected.ProductCode).Return(false)
 		prod, err := service.Update(context.Background(), expected, 1)
 		assert.Equal(t, err, fmt.Errorf("the product code must be unique"))
 		assert.Equal(t, products.Product{}, prod)

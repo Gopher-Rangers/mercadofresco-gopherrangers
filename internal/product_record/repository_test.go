@@ -1,9 +1,9 @@
 package productrecord_test
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
-	"context"
 	"regexp"
 	"testing"
 
@@ -26,7 +26,7 @@ func mockRowsArray() *sqlmock.Rows {
 	rows := sqlmock.NewRows([]string{
 		"product_id", "description", "records_count"}).AddRow(
 		prod[0].ProductId, prod[0].Description, prod[0].RecordsCount).AddRow(
-			prod[1].ProductId, prod[1].Description, prod[1].RecordsCount)
+		prod[1].ProductId, prod[1].Description, prod[1].RecordsCount)
 	return rows
 }
 
@@ -38,11 +38,39 @@ func TestRepositoryStore(t *testing.T) {
 		stmt := mock.ExpectPrepare(regexp.QuoteMeta(productrecord.STORE))
 		prod := createProductRecordArray()[0]
 		stmt.ExpectExec().WithArgs(&prod.LastUpdateDate, &prod.PurchasePrice,
-			&prod.SalePrice, &prod.ProductId).WillReturnResult(sqlmock.NewResult(1, 1))
+			&prod.SalePrice, &prod.ProductId).WillReturnResult(
+			sqlmock.NewResult(1, 1))
 		productsRepo := productrecord.NewRepository(db)
 		result, err := productsRepo.Store(context.Background(), prod)
 		assert.NoError(t, err)
 		assert.Equal(t, result, prod)
+	})
+	t.Run("create_ok", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(productrecord.STORE))
+		prod := createProductRecordArray()[0]
+		stmt.ExpectExec().WithArgs(&prod.LastUpdateDate, &prod.PurchasePrice,
+			&prod.SalePrice, &prod.ProductId).WillReturnResult(
+			sqlmock.NewResult(1, 1))
+		productsRepo := productrecord.NewRepository(db)
+		result, err := productsRepo.Store(context.Background(), prod)
+		assert.NoError(t, err)
+		assert.Equal(t, result, prod)
+	})
+	t.Run("create_prepare_fail", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		errPrepare := fmt.Errorf("fail to preprare")
+		mock.ExpectPrepare(regexp.QuoteMeta(
+			productrecord.STORE)).WillReturnError(errPrepare)
+		prod := createProductRecordArray()[0]
+		productsRepo := productrecord.NewRepository(db)
+		result, err := productsRepo.Store(context.Background(), prod)
+		assert.Equal(t, err, errPrepare)
+		assert.Equal(t, result, productrecord.ProductRecord{})
 	})
 	t.Run("create_fail_exec", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
@@ -64,7 +92,8 @@ func TestRepositoryStore(t *testing.T) {
 		stmt := mock.ExpectPrepare(regexp.QuoteMeta(productrecord.STORE))
 		prod := createProductRecordArray()[0]
 		stmt.ExpectExec().WithArgs(&prod.LastUpdateDate, &prod.PurchasePrice,
-			&prod.SalePrice, &prod.ProductId).WillReturnResult(sqlmock.NewResult(1, 0))
+			&prod.SalePrice, &prod.ProductId).WillReturnResult(
+			sqlmock.NewResult(1, 0))
 		productsRepo := productrecord.NewRepository(db)
 		result, err := productsRepo.Store(context.Background(), prod)
 		assert.Equal(t, err, fmt.Errorf("fail to save"))
@@ -79,7 +108,8 @@ func TestRepositoryGetAll(t *testing.T) {
 		defer db.Close()
 		prod := createProductRecordGetArray()
 		rows := mockRowsArray()
-		mock.ExpectQuery(regexp.QuoteMeta(productrecord.GETALL)).WillReturnRows(rows)
+		mock.ExpectQuery(regexp.QuoteMeta(
+			productrecord.GETALL)).WillReturnRows(rows)
 		productsRepo := productrecord.NewRepository(db)
 		result, err := productsRepo.GetAll(context.Background())
 		assert.NoError(t, err)
@@ -93,7 +123,8 @@ func TestRepositoryGetAll(t *testing.T) {
 		rows := sqlmock.NewRows([]string{
 			"product_id", "description", "records_count"}).AddRow(
 			"", "", "")
-		mock.ExpectQuery(regexp.QuoteMeta(productrecord.GETALL)).WillReturnRows(rows)
+		mock.ExpectQuery(regexp.QuoteMeta(
+			productrecord.GETALL)).WillReturnRows(rows)
 		productsRepo := productrecord.NewRepository(db)
 		prod, err := productsRepo.GetAll(context.Background())
 		assert.Equal(t, prod, []productrecord.ProductRecordGet(nil))
@@ -127,6 +158,19 @@ func TestRepositoryGetById(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, result, prodGet[0])
 	})
+	t.Run("find_by_id_prepare_fail", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		prod := createProductArray()
+		errPrepare := fmt.Errorf("fail to preprare")
+		mock.ExpectPrepare(regexp.QuoteMeta(
+			productrecord.GETBYID)).WillReturnError(errPrepare)
+		productsRepo := productrecord.NewRepository(db)
+		result, err := productsRepo.GetById(context.Background(), prod[0].ID)
+		assert.Equal(t, err, errPrepare)
+		assert.Equal(t, result, productrecord.ProductRecordGet{})
+	})
 	t.Run("find_by_id_non_existent", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -152,8 +196,3 @@ func TestRepositoryGetById(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
-
-
-
-
-

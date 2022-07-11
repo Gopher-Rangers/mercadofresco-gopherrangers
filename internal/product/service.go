@@ -1,8 +1,8 @@
 package products
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 )
 
 const (
@@ -26,7 +26,7 @@ func NewService(r Repository) Service {
 }
 
 func (s *service) Store(ctx context.Context, prod Product) (Product, error) {
-	if !s.repository.CheckProductCode(prod.ID, prod.ProductCode) {
+	if !s.repository.CheckProductCode(ctx, prod.ID, prod.ProductCode) {
 		return Product{}, fmt.Errorf(ERROR_UNIQUE_PRODUCT_CODE)
 	}
 	product, err := s.repository.Store(ctx, prod)
@@ -49,8 +49,9 @@ func (s *service) GetById(ctx context.Context, id int) (Product, error) {
 	return ps, nil
 }
 
-func (s *service) Update(ctx context.Context, prod Product, id int) (Product, error) {
-	if !s.repository.CheckProductCode(prod.ID, prod.ProductCode) {
+func (s *service) Update(ctx context.Context, prod Product, id int) (
+	Product, error) {
+	if !s.repository.CheckProductCode(ctx, prod.ID, prod.ProductCode) {
 		return Product{}, fmt.Errorf(ERROR_UNIQUE_PRODUCT_CODE)
 	}
 	product, err := s.repository.Update(ctx, prod, id)

@@ -14,13 +14,13 @@ type Repository struct {
 	mock.Mock
 }
 
-// CheckProductCode provides a mock function with given fields: id, productCode
-func (_m *Repository) CheckProductCode(id int, productCode string) bool {
-	ret := _m.Called(id, productCode)
+// CheckProductCode provides a mock function with given fields: ctx, id, productCode
+func (_m *Repository) CheckProductCode(ctx context.Context, id int, productCode string) bool {
+	ret := _m.Called(ctx, id, productCode)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(int, string) bool); ok {
-		r0 = rf(id, productCode)
+	if rf, ok := ret.Get(0).(func(context.Context, int, string) bool); ok {
+		r0 = rf(ctx, id, productCode)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}

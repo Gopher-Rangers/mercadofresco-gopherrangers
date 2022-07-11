@@ -1,9 +1,9 @@
 package products
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
-	"context"
 )
 
 const (
@@ -20,8 +20,7 @@ const (
 				recommended_freezing_temperature=?, freezing_rate=?,
 				product_type_id=?, seller_id=?
 				WHERE id=?`
-	DELETE  = "DELETE FROM products WHERE id=?"
-	LAST_ID = "SELECT MAX(id) as last_id FROM products"
+	DELETE       = "DELETE FROM products WHERE id=?"
 	PRODUCT_CODE = `SELECT product_code FROM products
 					WHERE id != ? and product_code = ?`
 )
@@ -47,7 +46,7 @@ type Repository interface {
 	GetById(ctx context.Context, id int) (Product, error)
 	Update(ctx context.Context, prod Product, id int) (Product, error)
 	Delete(ctx context.Context, id int) error
-	CheckProductCode(id int, productCode string) bool
+	CheckProductCode(ctx context.Context, id int, productCode string) bool
 }
 
 type repository struct {
@@ -59,12 +58,12 @@ func NewRepository(db *sql.DB) Repository {
 }
 
 func (r *repository) Store(ctx context.Context, prod Product) (Product, error) {
-	stmt, err := r.db.Prepare(STORE)
+	stmt, err := r.db.PrepareContext(ctx, STORE)
 	if err != nil {
 		return Product{}, err
 	}
 	defer stmt.Close()
-	result, err := stmt.Exec(&prod.ProductCode, &prod.Description,
+	result, err := stmt.ExecContext(ctx, &prod.ProductCode, &prod.Description,
 		&prod.Width, &prod.Height, &prod.Length, &prod.NetWeight,
 		&prod.ExpirationRate, &prod.RecommendedFreezingTemperature,
 		&prod.FreezingRate, &prod.ProductTypeId, &prod.SellerId)
@@ -75,17 +74,14 @@ func (r *repository) Store(ctx context.Context, prod Product) (Product, error) {
 	if rowsAffected == 0 {
 		return Product{}, fmt.Errorf("fail to save")
 	}
-	lastId, err := result.LastInsertId()
-	if err != nil {
-		return Product{}, err
-	}
+	lastId, _ := result.LastInsertId()
 	prod.ID = int(lastId)
 	return prod, nil
 }
 
 func (r *repository) GetAll(ctx context.Context) ([]Product, error) {
 	var ps []Product
-	rows, err := r.db.Query(GETALL)
+	rows, err := r.db.QueryContext(ctx, GETALL)
 	if err != nil {
 		return ps, err
 	}
@@ -106,15 +102,16 @@ func (r *repository) GetAll(ctx context.Context) ([]Product, error) {
 
 func (r *repository) GetById(ctx context.Context, id int) (Product, error) {
 	var prod Product
-	stmt, err := r.db.Prepare(GETBYID)
+	stmt, err := r.db.PrepareContext(ctx, GETBYID)
 	if err != nil {
 		return Product{}, err
 	}
 	defer stmt.Close()
-	err = stmt.QueryRow(id).Scan(&prod.ID, &prod.ProductCode, &prod.Description,
-		&prod.Width, &prod.Height, &prod.Length, &prod.NetWeight,
-		&prod.ExpirationRate, &prod.RecommendedFreezingTemperature,
-		&prod.FreezingRate, &prod.ProductTypeId, &prod.SellerId)
+	err = stmt.QueryRowContext(ctx, id).Scan(&prod.ID, &prod.ProductCode,
+		&prod.Description, &prod.Width, &prod.Height, &prod.Length,
+		&prod.NetWeight, &prod.ExpirationRate,
+		&prod.RecommendedFreezingTemperature, &prod.FreezingRate,
+		&prod.ProductTypeId, &prod.SellerId)
 	if err != nil {
 		return Product{}, fmt.Errorf("product %d not found", id)
 	}
@@ -122,13 +119,13 @@ func (r *repository) GetById(ctx context.Context, id int) (Product, error) {
 }
 
 func (r *repository) Update(ctx context.Context, prod Product, id int) (Product, error) {
-	stmt, err := r.db.Prepare(UPDATE)
+	stmt, err := r.db.PrepareContext(ctx, UPDATE)
 	if err != nil {
 		return Product{}, err
 	}
 	defer stmt.Close()
 	olderProduct, _ := r.GetById(ctx, id)
-	result, err := stmt.Exec(&prod.ProductCode, &prod.Description,
+	result, err := stmt.ExecContext(ctx, &prod.ProductCode, &prod.Description,
 		&prod.Width, &prod.Height, &prod.Length, &prod.NetWeight,
 		&prod.ExpirationRate, &prod.RecommendedFreezingTemperature,
 		&prod.FreezingRate, &prod.ProductTypeId, &prod.SellerId, id)
@@ -143,12 +140,12 @@ func (r *repository) Update(ctx context.Context, prod Product, id int) (Product,
 }
 
 func (r *repository) Delete(ctx context.Context, id int) error {
-	stmt, err := r.db.Prepare(DELETE)
+	stmt, err := r.db.PrepareContext(ctx, DELETE)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	result, err := stmt.Exec(id)
+	result, err := stmt.ExecContext(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -159,12 +156,13 @@ func (r *repository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *repository) CheckProductCode(id int, productCode string) bool {
-	stmt, err := r.db.Prepare(PRODUCT_CODE)
+func (r *repository) CheckProductCode(ctx context.Context,
+	id int, productCode string) bool {
+	stmt, err := r.db.PrepareContext(ctx, PRODUCT_CODE)
 	if err != nil {
 		return false
 	}
 	defer stmt.Close()
-	err = stmt.QueryRow(id, productCode).Scan(&productCode)
+	err = stmt.QueryRowContext(ctx, id, productCode).Scan(&productCode)
 	return err != nil
 }

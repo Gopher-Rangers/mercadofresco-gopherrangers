@@ -24,7 +24,7 @@ func NewMariaDBRepository(db *sql.DB) Repository {
 func (m mariaDBRepository) ReportSellers(ctx context.Context, id int) (ReportSeller, error) {
 	var reportSeller ReportSeller
 
-	rows, err := m.db.QueryContext(ctx, "SELECT l.id, l.locality_name, COUNT(seller.id) FROM localities l LEFT JOIN seller ON l.id  = seller.locality_id WHERE l.id = ?", id)
+	rows, err := m.db.QueryContext(ctx, "SELECT l.id, l.locality_name, COUNT(seller.id) FROM localities l LEFT JOIN seller ON l.id=seller.locality_id WHERE l.id = ?", id)
 
 	if err != nil {
 		return ReportSeller{}, err

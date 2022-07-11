@@ -25,7 +25,7 @@ func NewMariaDBRepository(db *sql.DB) Repository {
 func (m mariaDBRepository) GetOne(ctx context.Context, id int) (Seller, error) {
 	var seller Seller
 
-	rows, err := m.db.QueryContext(ctx, "SELECT * FROM seller WHERE seller.id=?", id)
+	rows, err := m.db.QueryContext(ctx, "SELECT * FROM seller WHERE id=?", id)
 
 	if err != nil {
 		return seller, err

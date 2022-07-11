@@ -7,6 +7,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/stretchr/testify/assert"
+	"regexp"
 	"testing"
 )
 
@@ -211,14 +212,12 @@ func TestRepository_GetOne(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
 
-		query := "SELECT \\*  FROM seller WHERE id=?"
-		mock.ExpectQuery(query).WithArgs(2).WillReturnError(fmt.Errorf("the id %d does not exists", 2))
+		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM seller WHERE id=?")).WithArgs(2).WillReturnError(fmt.Errorf("the id %d does not exists", 2))
 
 		sellerRepo := seller.NewMariaDBRepository(db)
 		result, err := sellerRepo.GetOne(context.Background(), 2)
 
 		assert.Error(t, err, "the id 2 does not exists")
-		assert.Equal(t, seller.Seller{}, result)
 		assert.Equal(t, seller.Seller{}, result)
 	})
 

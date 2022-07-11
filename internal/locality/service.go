@@ -23,7 +23,6 @@ func NewService(r Repository) Service {
 func (s service) ReportSellers(ctx context.Context, id int) (ReportSeller, error) {
 	var reportSeller ReportSeller
 
-	//TODO ADICIONAR GETBYZIPCODE
 	locality, err := s.repository.GetById(ctx, id)
 
 	if err != nil {
@@ -40,13 +39,9 @@ func (s service) ReportSellers(ctx context.Context, id int) (ReportSeller, error
 
 func (s service) Create(ctx context.Context, zipCode, localityName, provinceName, countryName string) (Locality, error) {
 
-	exists, err := s.zipCodeExists(ctx, zipCode)
+	err := s.zipCodeExists(ctx, zipCode)
 
 	if err != nil {
-		return Locality{}, err
-	}
-
-	if exists {
 		return Locality{}, err
 	}
 
@@ -80,18 +75,18 @@ func (s service) GetById(ctx context.Context, id int) (Locality, error) {
 	return locality, nil
 }
 
-func (s service) zipCodeExists(ctx context.Context, zipCode string) (bool, error) {
+func (s service) zipCodeExists(ctx context.Context, zipCode string) error {
 
 	localities, err := s.GetAll(ctx)
 
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	for i := range localities {
 		if localities[i].ZipCode == zipCode {
-			return true, fmt.Errorf("id already exists")
+			return fmt.Errorf("zip_code already exists")
 		}
 	}
-	return false, nil
+	return nil
 }

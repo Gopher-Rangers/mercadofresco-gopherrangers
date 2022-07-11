@@ -72,39 +72,6 @@ func (r repository) GetAll() ([]Employee, error) {
 	return employees, err
 }
 
-// func (r *repository) Update(emp Employee, id int) (Employee, error) {
-// 	var employee Employee
-
-// 	r.db.Exec(SqlUpdateFirstName)
-// 	for i := range employees {
-// 		if emp.ID == 0 {
-// 			emp.ID = id
-// 		}
-// 		if employees[i].ID == id {
-// 			if emp.FirstName == "" {
-// 				emp.FirstName = employees[i].FirstName
-// 			} else {
-// 				employees[i].FirstName = emp.FirstName
-// 			}
-// 			if emp.LastName == "" {
-// 				emp.LastName = employees[i].LastName
-// 			} else {
-// 				employees[i].LastName = emp.LastName
-// 			}
-// 			if emp.WareHouseID == 0 {
-// 				emp.WareHouseID = employees[i].WareHouseID
-// 			} else {
-// 				employees[i].WareHouseID = emp.WareHouseID
-// 			}
-// 			if err := r.db.Write(&employees); err != nil {
-// 				return Employee{}, err
-// 			}
-// 			return employees[i], nil
-// 		}
-// 	}
-// 	return Employee{}, fmt.Errorf("funcionário não foi encontrado")
-// }
-
 func (r repository) Update(id int, firstName string, lastName string, warehouseId int) (Employee, error) {
 	res, err := r.db.Exec(SqlUpdate, firstName, lastName, warehouseId, id)
 	if err != nil {

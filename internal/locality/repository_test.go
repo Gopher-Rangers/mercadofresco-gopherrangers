@@ -26,9 +26,7 @@ func TestRepository_GetAll(t *testing.T) {
 		}).AddRow(mockLocality[0].Id, mockLocality[0].ZipCode, mockLocality[0].LocalityName, mockLocality[0].ProvinceName, mockLocality[0].CountryName).
 			AddRow(mockLocality[1].Id, mockLocality[1].ZipCode, mockLocality[1].LocalityName, mockLocality[1].ProvinceName, mockLocality[1].CountryName)
 
-		query := "SELECT \\* FROM localities"
-
-		mock.ExpectQuery(query).WillReturnRows(rows)
+		mock.ExpectQuery(regexp.QuoteMeta(locality.GETALL)).WillReturnRows(rows)
 
 		localityRepo := locality.NewMariaDBRepository(db)
 
@@ -42,9 +40,7 @@ func TestRepository_GetAll(t *testing.T) {
 			"id", "zip_code", "locality_name", "province_name", "country_name",
 		}).AddRow("", "", "", "", "")
 
-		query := "SELECT \\* FROM localities"
-
-		mock.ExpectQuery(query).WillReturnRows(rows)
+		mock.ExpectQuery(regexp.QuoteMeta(locality.GETALL)).WillReturnRows(rows)
 
 		localityRepo := locality.NewMariaDBRepository(db)
 
@@ -57,8 +53,7 @@ func TestRepository_GetAll(t *testing.T) {
 
 	t.Run("Deve retorar erro ao realizar o select", func(t *testing.T) {
 
-		query := "SELECT \\* FROM localities"
-		mock.ExpectQuery(query).WillReturnError(sql.ErrNoRows)
+		mock.ExpectQuery(regexp.QuoteMeta(locality.GETALL)).WillReturnError(sql.ErrNoRows)
 
 		localityRepo := locality.NewMariaDBRepository(db)
 
@@ -99,7 +94,7 @@ func TestRepository_GetById(t *testing.T) {
 
 		defer db.Close()
 
-		mock.ExpectQuery("SELECT \\* FROM localities WHERE id=?").WithArgs(2).
+		mock.ExpectQuery(regexp.QuoteMeta(locality.GETBYID)).WithArgs(2).
 			WillReturnError(fmt.Errorf("id does not exists"))
 
 		localityRepo := locality.NewMariaDBRepository(db)
@@ -132,8 +127,7 @@ func TestRepository_GetById(t *testing.T) {
 
 		defer db.Close()
 
-		query := "SELECT \\*  FROM localities WHERE id=?"
-		mock.ExpectQuery(query).WillReturnError(sql.ErrNoRows)
+		mock.ExpectQuery(regexp.QuoteMeta(locality.GETBYID)).WillReturnError(sql.ErrNoRows)
 
 		localityRepo := locality.NewMariaDBRepository(db)
 		_, err = localityRepo.GetAll(context.Background())
@@ -172,7 +166,7 @@ func TestMariaDBRepository_Create(t *testing.T) {
 
 		input := locality.Locality{ZipCode: "6700", LocalityName: "Gru", ProvinceName: "SP", CountryName: "BRA"}
 
-		mock.ExpectExec("INSERT INTO locality").WithArgs(input.ZipCode, input.LocalityName, input.ProvinceName, input.CountryName).
+		mock.ExpectExec("INSERT INTO localities").WithArgs(input.ZipCode, input.LocalityName, input.ProvinceName, input.CountryName).
 			WillReturnError(fmt.Errorf("error"))
 
 		localityRepo := locality.NewMariaDBRepository(db)
@@ -194,7 +188,7 @@ func TestRepository_ReportSellers(t *testing.T) {
 			"locality_id", "locality_name", "sellers_count",
 		}).AddRow(mockReportSellers.LocalityID, mockReportSellers.LocalityName, mockReportSellers.SellersCount)
 
-		mock.ExpectQuery(regexp.QuoteMeta("SELECT l.id, l.locality_name, COUNT(seller.id) FROM localities l LEFT JOIN seller ON l.id=seller.locality_id WHERE l.id = ?")).
+		mock.ExpectQuery(regexp.QuoteMeta(locality.GET_REPORT_SELLER)).
 			WithArgs(1).WillReturnRows(rows)
 
 		localityRepo := locality.NewMariaDBRepository(db)
@@ -210,7 +204,7 @@ func TestRepository_ReportSellers(t *testing.T) {
 
 		defer db.Close()
 
-		mock.ExpectQuery(regexp.QuoteMeta("SELECT l.id, l.locality_name, COUNT(seller.id) FROM localities l LEFT JOIN seller ON l.id=seller.locality_id WHERE l.id = ?")).
+		mock.ExpectQuery(regexp.QuoteMeta(locality.GET_REPORT_SELLER)).
 			WithArgs(1).WillReturnError(fmt.Errorf("error"))
 
 		localityRepo := locality.NewMariaDBRepository(db)

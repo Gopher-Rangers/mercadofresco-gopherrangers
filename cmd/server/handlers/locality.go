@@ -9,6 +9,10 @@ import (
 	"strconv"
 )
 
+const (
+	ERR_UNIQUE_ZIPCODE_VALUE = "zip_code already exists"
+)
+
 type requestLocality struct {
 	ZipCode      string `json:"zip_code" binding:"required"`
 	LocalityName string `json:"locality_name" binding:"required"`
@@ -27,15 +31,15 @@ func NewLocality(s locality.Service) *Locality {
 func (l *Locality) ReportSellers(ctx *gin.Context) {
 	id, ok := ctx.GetQuery("id")
 
-	idConvertido, err := strconv.Atoi(id)
-
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusInternalServerError, "missing parameter url"))
+	if !ok {
+		ctx.JSON(web.DecodeError(http.StatusBadRequest, "missing parameter url"))
 		return
 	}
 
-	if !ok {
-		ctx.JSON(web.DecodeError(http.StatusBadRequest, "missing parameter url"))
+	idConvertido, err := strconv.Atoi(id)
+
+	if err != nil {
+		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
 		return
 	}
 
@@ -60,8 +64,14 @@ func (l *Locality) Create(ctx *gin.Context) {
 	newLocality, err := l.service.Create(ctx, req.ZipCode, req.LocalityName, req.ProvinceName, req.CountryName)
 
 	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
-		return
+		switch err.Error() {
+		case ERR_UNIQUE_ZIPCODE_VALUE:
+			ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+			return
+		default:
+			ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+			return
+		}
 	}
 
 	ctx.JSON(web.NewResponse(http.StatusCreated, newLocality))
@@ -79,31 +89,10 @@ func (l *Locality) GetAll(ctx *gin.Context) {
 	ctx.JSON(web.NewResponse(http.StatusOK, localityList))
 }
 
-func (l *Locality) GetById(ctx *gin.Context) {
-
-	id := ctx.Param("id")
-
-	idConvertido, err := strconv.Atoi(id)
-
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusInternalServerError, err.Error()))
-		return
-	}
-
-	localityOne, err := l.service.GetById(ctx, idConvertido)
-
-	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-		return
-	}
-
-	ctx.JSON(web.NewResponse(http.StatusOK, localityOne))
-}
-
 func validateLocalityFields(req requestLocality) error {
 
 	if req.ZipCode == "" {
-		return errors.New("invalid input in field id")
+		return errors.New("invalid input in field zip_code")
 	}
 	if req.LocalityName == "" {
 		return errors.New("invalid input in field locality_name")

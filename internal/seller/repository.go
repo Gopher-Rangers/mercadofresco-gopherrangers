@@ -3,7 +3,6 @@ package seller
 import (
 	"context"
 	"database/sql"
-	"fmt"
 )
 
 type Repository interface {
@@ -13,6 +12,14 @@ type Repository interface {
 	Update(ctx context.Context, cid int, companyName, address, telephone string, localityID int, seller Seller) (Seller, error)
 	Delete(ctx context.Context, id int) error
 }
+
+const (
+	GETALL  = "SELECT * FROM SELLER"
+	GETBYID = "SELECT * FROM seller WHERE id=?"
+	INSERT  = "INSERT INTO sellers (cid, company_name, address, telephone, locality_id) VALUES (?,?,?,?,?)"
+	UPDATE  = "UPDATE sellers SET cid=?, company_name=?, address=?, telephone=?, locality_id=? WHERE id=?"
+	DELETE  = "DELETE FROM sellers WHERE id=?"
+)
 
 type mariaDBRepository struct {
 	db *sql.DB
@@ -25,7 +32,7 @@ func NewMariaDBRepository(db *sql.DB) Repository {
 func (m mariaDBRepository) GetOne(ctx context.Context, id int) (Seller, error) {
 	var seller Seller
 
-	rows, err := m.db.QueryContext(ctx, "SELECT * FROM seller WHERE id=?", id)
+	rows, err := m.db.QueryContext(ctx, GETBYID, id)
 
 	if err != nil {
 		return seller, err
@@ -39,22 +46,21 @@ func (m mariaDBRepository) GetOne(ctx context.Context, id int) (Seller, error) {
 		if err != nil {
 			return seller, err
 		}
-
-		return seller, nil
 	}
 
 	err = rows.Err()
+
 	if err != nil {
 		return Seller{}, err
 	}
 
-	return seller, fmt.Errorf("id does not exists")
+	return seller, nil
 }
 
 func (m *mariaDBRepository) GetAll(ctx context.Context) ([]Seller, error) {
 	var sellerList []Seller
 
-	rows, err := m.db.QueryContext(ctx, "SELECT * FROM seller")
+	rows, err := m.db.QueryContext(ctx, GETALL)
 
 	if err != nil {
 		return sellerList, err
@@ -82,7 +88,7 @@ func (m *mariaDBRepository) Create(ctx context.Context, cid int, companyName, ad
 
 	seller = Seller{CompanyId: cid, CompanyName: companyName, Address: address, Telephone: telephone, LocalityID: localityID}
 
-	stmt, err := m.db.PrepareContext(ctx, "INSERT INTO seller (cid, company_name, address, telephone, locality_id) VALUES (?,?,?,?,?)")
+	stmt, err := m.db.PrepareContext(ctx, INSERT)
 
 	if err != nil {
 		return seller, err
@@ -115,7 +121,7 @@ func (m *mariaDBRepository) Update(ctx context.Context, cid int, companyName, ad
 	seller.Telephone = telephone
 	seller.LocalityID = localityID
 
-	stmt, err := m.db.PrepareContext(ctx, "UPDATE seller SET cid=?, company_name=?, address=?, telephone=?, locality_id=? WHERE id=?")
+	stmt, err := m.db.PrepareContext(ctx, UPDATE)
 
 	if err != nil {
 		return seller, err
@@ -133,7 +139,8 @@ func (m *mariaDBRepository) Update(ctx context.Context, cid int, companyName, ad
 }
 
 func (m *mariaDBRepository) Delete(ctx context.Context, id int) error {
-	stmt, err := m.db.PrepareContext(ctx, "DELETE FROM seller WHERE id=?")
+
+	stmt, err := m.db.PrepareContext(ctx, DELETE)
 
 	if err != nil {
 		return err

@@ -154,10 +154,12 @@ func TestBatchReport(t *testing.T) {
 	engine, mockRepository, pb := InitTest(t)
 	exp := CreateReportArray()
 
+	engine.GET(URL_SECTION_REPORT, pb.Report())
+
 	t.Run("report_all_ok", func(t *testing.T) {
-		mockRepository.On("Report", mock.Anything).Return(exp, nil)
+		mockRepository.On("Report", mock.Anything).Return(exp, nil).Once()
 		req, w := InitServer(http.MethodGet, URL_SECTION_REPORT, nil)
-		engine.GET(URL_SECTION_REPORT, pb.Report())
+
 		engine.ServeHTTP(w, req)
 
 		exp := ExpectedJSON{200, exp}
@@ -165,6 +167,19 @@ func TestBatchReport(t *testing.T) {
 
 		assert.Equal(t, exp.Code, w.Code)
 		assert.Equal(t, string(expJSON), w.Body.String())
+	})
+
+	t.Run("report_all_fail_db", func(t *testing.T) {
+		mockRepository.On("Report", mock.Anything).Return([]productbatch.Report{}, errors.New("Erro ao acessar banco"))
+		req, w := InitServer(http.MethodGet, URL_SECTION_REPORT, nil)
+
+		engine.ServeHTTP(w, req)
+
+		exp := ExpectedErrorJSON{400, "Erro ao acessar banco"}
+		ExpectedJSON, _ := json.Marshal(exp)
+
+		assert.Equal(t, exp.Code, w.Code)
+		assert.Equal(t, string(ExpectedJSON), w.Body.String())
 	})
 }
 

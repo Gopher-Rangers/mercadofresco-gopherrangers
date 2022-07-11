@@ -43,13 +43,19 @@ func (p *ProductBatch) Report() gin.HandlerFunc {
 		id, _ := strconv.Atoi(ctx.Query("id"))
 		if id == 0 {
 			repID, err = p.service.Report(ctx)
+
+			if err != nil {
+				ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+				return
+			}
+
 		} else {
 			repID, err = p.service.ReportByID(ctx, id)
-		}
 
-		if err != nil {
-			ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-			return
+			if err != nil {
+				ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+				return
+			}
 		}
 
 		ctx.JSON(web.NewResponse(http.StatusOK, repID))

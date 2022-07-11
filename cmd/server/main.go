@@ -45,7 +45,7 @@ func main() {
 		routes.ProductRecord(baseRoute, productsService)
 
 		routes.Buyers(baseRoute)
-		
+
 		routes.PurchaseOrders(baseRoute)
 
 		routes.Sections(baseRoute)
@@ -55,6 +55,8 @@ func main() {
 		routes.Sellers(baseRoute)
 
 		routes.Employees(baseRoute)
+
+		routes.InboundOrders(baseRoute)
 
 		routes.Warehouses(baseRoute)
 	}

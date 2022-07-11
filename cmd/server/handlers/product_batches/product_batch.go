@@ -18,40 +18,40 @@ func NewProductBatch(p productbatch.Services) ProductBatch {
 }
 
 func (p *ProductBatch) Create() gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		var req productbatch.ProductBatch
-		if err := c.ShouldBind(&req); err != nil {
-			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
+		if err := ctx.ShouldBind(&req); err != nil {
+			ctx.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
 			return
 		}
 
-		pb, err := p.service.Create(req)
+		pb, err := p.service.Create(ctx, req)
 		if err != nil {
-			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+			ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 			return
 		}
 
-		c.JSON(web.NewResponse(http.StatusCreated, pb))
+		ctx.JSON(web.NewResponse(http.StatusCreated, pb))
 	}
 }
 
 func (p *ProductBatch) Report() gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		var repID interface{}
 		var err error
 
-		id, _ := strconv.Atoi(c.Query("id"))
+		id, _ := strconv.Atoi(ctx.Query("id"))
 		if id == 0 {
-			repID, err = p.service.Report()
+			repID, err = p.service.Report(ctx)
 		} else {
-			repID, err = p.service.ReportByID(id)
+			repID, err = p.service.ReportByID(ctx, id)
 		}
 
 		if err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
 
-		c.JSON(web.NewResponse(http.StatusOK, repID))
+		ctx.JSON(web.NewResponse(http.StatusOK, repID))
 	}
 }

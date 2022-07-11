@@ -13,6 +13,7 @@ import (
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product_batch/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
+	"github.com/stretchr/testify/mock"
 )
 
 const URL_PRODUCTS_BATCH = "/api/v1/"
@@ -34,14 +35,14 @@ func CreateReportArray() []productbatch.Report {
 }
 
 func InitTest(t *testing.T) (*gin.Engine, *mocks.Repository, product_batches.ProductBatch) {
-	gin.SetMode("release")
-	router := gin.Default()
-
 	mockRepository := mocks.NewRepository(t)
 	prod_b := productbatch.NewService(mockRepository)
 	pb := product_batches.NewProductBatch(prod_b)
 
-	return router, mockRepository, pb
+	rec := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(rec)
+
+	return engine, mockRepository, pb
 }
 
 func InitServer(method string, url string, body []byte) (*http.Request, *httptest.ResponseRecorder) {
@@ -64,7 +65,7 @@ type ExpectedErrorJSON struct {
 }
 
 func TestBatchCreate(t *testing.T) {
-	router, mockRepository, pb := InitTest(t)
+	engine, mockRepository, pb := InitTest(t)
 	exp := productbatch.ProductBatch{
 		ID:              1,
 		BatchNumber:     111,
@@ -79,14 +80,15 @@ func TestBatchCreate(t *testing.T) {
 		SectionID:       1,
 	}
 
-	router.POST(URL_PRODUCTS_BATCH+"productBatches", pb.Create())
+	engine.POST(URL_PRODUCTS_BATCH+"productBatches", pb.Create())
 
 	t.Run("create_ok", func(t *testing.T) {
-		mockRepository.On("Create", exp).Return(exp, nil)
+		mockRepository.On("Create", mock.Anything, exp).Return(exp, nil)
 
 		expected, _ := json.Marshal(exp)
 		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
-		router.ServeHTTP(w, req)
+
+		engine.ServeHTTP(w, req)
 
 		exp := ExpectedJSON{201, exp}
 		expJSON, _ := json.Marshal(exp)
@@ -101,7 +103,7 @@ func TestBatchCreate(t *testing.T) {
 
 		expected, _ := json.Marshal(exp)
 		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
-		router.ServeHTTP(w, req)
+		engine.ServeHTTP(w, req)
 
 		exp := ExpectedErrorJSON{422, ERROR_BIND}
 		expectedJSON, _ := json.Marshal(exp)
@@ -114,10 +116,11 @@ func TestBatchCreate(t *testing.T) {
 		exp.SectionID = 99
 		exp.ProductTypeID = 1
 
-		mockRepository.On("Create", exp).Return(productbatch.ProductBatch{}, errors.New(ERROR_CONFLICT_SEC))
 		expected, _ := json.Marshal(exp)
 		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
-		router.ServeHTTP(w, req)
+
+		mockRepository.On("Create", mock.Anything, exp).Return(productbatch.ProductBatch{}, errors.New(ERROR_CONFLICT_SEC))
+		engine.ServeHTTP(w, req)
 
 		exp := ExpectedErrorJSON{409, ERROR_CONFLICT_SEC}
 		expectedJSON, _ := json.Marshal(exp)
@@ -130,10 +133,11 @@ func TestBatchCreate(t *testing.T) {
 		exp.SectionID = 1
 		exp.ProductTypeID = 99
 
-		mockRepository.On("Create", exp).Return(productbatch.ProductBatch{}, errors.New(ERROR_CONFLICT_PROD))
+		mockRepository.On("Create", mock.Anything, exp).Return(productbatch.ProductBatch{}, errors.New(ERROR_CONFLICT_PROD))
+
 		expected, _ := json.Marshal(exp)
 		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH+"productBatches", expected)
-		router.ServeHTTP(w, req)
+		engine.ServeHTTP(w, req)
 
 		exp := ExpectedErrorJSON{409, ERROR_CONFLICT_PROD}
 		expectedJSON, _ := json.Marshal(exp)
@@ -144,15 +148,14 @@ func TestBatchCreate(t *testing.T) {
 }
 
 func TestBatchReport(t *testing.T) {
-	router, mockRepository, pb := InitTest(t)
+	engine, mockRepository, pb := InitTest(t)
 	exp := CreateReportArray()
 
-	router.GET(URL_PRODUCTS_BATCH+"sections/reportProducts", pb.Report())
-
 	t.Run("report_all_ok", func(t *testing.T) {
-		mockRepository.On("Report").Return(exp, nil)
+		mockRepository.On("Report", mock.Anything).Return(exp, nil)
 		req, w := InitServer(http.MethodGet, URL_PRODUCTS_BATCH+"sections/reportProducts", nil)
-		router.ServeHTTP(w, req)
+		engine.GET(URL_PRODUCTS_BATCH+"sections/reportProducts", pb.Report())
+		engine.ServeHTTP(w, req)
 
 		exp := ExpectedJSON{200, exp}
 		expJSON, _ := json.Marshal(exp)
@@ -163,15 +166,15 @@ func TestBatchReport(t *testing.T) {
 }
 
 func TestBatchReportID(t *testing.T) {
-	router, mockRepository, pb := InitTest(t)
+	engine, mockRepository, pb := InitTest(t)
 	exp := CreateReportArray()[0]
 
-	router.GET(URL_PRODUCTS_BATCH+"sections/reportProducts", pb.Report())
+	engine.GET(URL_PRODUCTS_BATCH+"sections/reportProducts", pb.Report())
 
 	t.Run("report_id_ok", func(t *testing.T) {
-		mockRepository.On("ReportByID", 1).Return(exp, nil)
+		mockRepository.On("ReportByID", mock.Anything, 1).Return(exp, nil)
 		req, w := InitServer(http.MethodGet, URL_PRODUCTS_BATCH+"sections/reportProducts?id=1", nil)
-		router.ServeHTTP(w, req)
+		engine.ServeHTTP(w, req)
 
 		exp := ExpectedJSON{200, exp}
 		expJSON, _ := json.Marshal(exp)
@@ -181,9 +184,9 @@ func TestBatchReportID(t *testing.T) {
 	})
 
 	t.Run("report_fail_not_found", func(t *testing.T) {
-		mockRepository.On("ReportByID", 99).Return(productbatch.Report{}, errors.New("sql: no rows in result set"))
+		mockRepository.On("ReportByID", mock.Anything, 99).Return(productbatch.Report{}, errors.New("sql: no rows in result set"))
 		req, w := InitServer(http.MethodGet, URL_PRODUCTS_BATCH+"sections/reportProducts?id=99", nil)
-		router.ServeHTTP(w, req)
+		engine.ServeHTTP(w, req)
 
 		exp := ExpectedErrorJSON{404, "sql: no rows in result set"}
 		ExpectedJSON, _ := json.Marshal(exp)

@@ -206,7 +206,7 @@ go test ./...
 go test -coverprofile=coverage.out ./...
 
 # To see the tests coverage in each function
-go tool cover -func=coverage.out 
+go tool cover -func=coverage.out
 
 # The server will initialize in the <http://localhost:8080/api/v1/>
 # To see the documentation go to <http://localhost:8080/docs/index.html#/>

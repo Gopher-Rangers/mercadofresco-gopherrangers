@@ -78,7 +78,7 @@ func (prod *Product) Store() gin.HandlerFunc {
 		var validate *validator.Validate = validator.New()
 		var req products.Product
 		if err := c.Bind(&req); err != nil {
-			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
 			return
 		}
 		errValidate := validate.Struct(req)

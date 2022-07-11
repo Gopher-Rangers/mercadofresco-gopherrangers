@@ -14,6 +14,7 @@ import (
 const (
 	ERR_UNIQUE_CID_VALUE          = "the cid already exists"
 	ERR_LOCALITY_NON_EXISTS_VALUE = "locality_id does not exists"
+	ERR_ID_NON_EXISTS_VALUE       = "locality_id does not exists"
 )
 
 type requestSeller struct {

@@ -13,7 +13,7 @@ type Repository interface {
 }
 
 const (
-	GET_REPORT_SELLER = "SELECT l.id, l.locality_name, COUNT(seller.id) FROM localities l LEFT JOIN seller ON l.id=seller.locality_id WHERE l.id = ?"
+	GET_REPORT_SELLER = "SELECT l.id, l.locality_name, COUNT(sellers.id) FROM localities l LEFT JOIN sellers ON l.id=sellers.locality_id WHERE l.id = ?"
 	INSERT            = "INSERT INTO localities (zip_code, locality_name, province_name, country_name) VALUES (?,?,?,?)"
 	GETALL            = "SELECT * FROM localities"
 	GETBYID           = "SELECT * FROM localities WHERE id = ?"

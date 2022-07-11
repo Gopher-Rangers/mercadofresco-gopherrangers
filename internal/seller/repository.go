@@ -3,6 +3,7 @@ package seller
 import (
 	"context"
 	"database/sql"
+	"fmt"
 )
 
 type Repository interface {
@@ -14,8 +15,8 @@ type Repository interface {
 }
 
 const (
-	GETALL  = "SELECT * FROM SELLER"
-	GETBYID = "SELECT * FROM seller WHERE id=?"
+	GETALL  = "SELECT * FROM SELLERS"
+	GETBYID = "SELECT * FROM sellers WHERE id=?"
 	INSERT  = "INSERT INTO sellers (cid, company_name, address, telephone, locality_id) VALUES (?,?,?,?,?)"
 	UPDATE  = "UPDATE sellers SET cid=?, company_name=?, address=?, telephone=?, locality_id=? WHERE id=?"
 	DELETE  = "DELETE FROM sellers WHERE id=?"
@@ -46,6 +47,8 @@ func (m mariaDBRepository) GetOne(ctx context.Context, id int) (Seller, error) {
 		if err != nil {
 			return seller, err
 		}
+
+		return seller, nil
 	}
 
 	err = rows.Err()
@@ -54,7 +57,7 @@ func (m mariaDBRepository) GetOne(ctx context.Context, id int) (Seller, error) {
 		return Seller{}, err
 	}
 
-	return seller, nil
+	return seller, fmt.Errorf("id does not exists")
 }
 
 func (m *mariaDBRepository) GetAll(ctx context.Context) ([]Seller, error) {

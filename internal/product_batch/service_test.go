@@ -23,6 +23,7 @@ func TestServiceCreate(t *testing.T) {
 		service, mockRepository := InitTestService(t)
 		exp := productbatch.ProductBatch{1, 111, 200, 20, "2022-04-04", 10, "2020-04-04", 10, 5, 1, 1}
 
+		mockRepository.On("GetByBatchNum", mock.Anything, mock.Anything).Return(productbatch.ProductBatch{}, errors.New(""))
 		mockRepository.On("Create", mock.Anything, exp).Return(exp, nil)
 		pb, err := service.Create(context.TODO(), exp)
 
@@ -34,11 +35,24 @@ func TestServiceCreate(t *testing.T) {
 		service, mockRepository := InitTestService(t)
 		exp := productbatch.ProductBatch{1, 111, 200, 20, "2022-04-04", 10, "2020-04-04", 10, 5, 1, 1}
 
+		mockRepository.On("GetByBatchNum", mock.Anything, mock.Anything).Return(productbatch.ProductBatch{}, errors.New(""))
 		mockRepository.On("Create", mock.Anything, exp).Return(productbatch.ProductBatch{}, errors.New("sql: rows not affected"))
 		pb, err := service.Create(context.TODO(), exp)
 
 		assert.Error(t, err)
 		assert.Equal(t, errors.New("sql: rows not affected"), err)
+		assert.Equal(t, productbatch.ProductBatch{}, pb)
+	})
+
+	t.Run("create_already_exists", func(t *testing.T) {
+		service, mockRepository := InitTestService(t)
+		exp := productbatch.ProductBatch{1, 111, 200, 20, "2022-04-04", 10, "2020-04-04", 10, 5, 1, 1}
+
+		mockRepository.On("GetByBatchNum", mock.Anything, mock.Anything).Return(productbatch.ProductBatch{}, nil)
+		pb, err := service.Create(context.TODO(), exp)
+
+		assert.Error(t, err)
+		assert.Equal(t, errors.New("error: batch number '111' already exists in BD"), err)
 		assert.Equal(t, productbatch.ProductBatch{}, pb)
 	})
 }

@@ -86,6 +86,7 @@ func TestBatchCreate(t *testing.T) {
 	engine.POST(URL_PRODUCTS_BATCH, pb.Create())
 
 	t.Run("create_ok", func(t *testing.T) {
+		mockRepository.On("GetByBatchNum", mock.Anything, mock.Anything).Return(productbatch.ProductBatch{}, errors.New(""))
 		mockRepository.On("Create", mock.Anything, exp).Return(exp, nil)
 
 		expected, _ := json.Marshal(exp)
@@ -122,6 +123,7 @@ func TestBatchCreate(t *testing.T) {
 		expected, _ := json.Marshal(exp)
 		req, w := InitServer(http.MethodPost, URL_PRODUCTS_BATCH, expected)
 
+		mockRepository.On("GetByBatchNum", mock.Anything, mock.Anything).Return(productbatch.ProductBatch{}, errors.New(""))
 		mockRepository.On("Create", mock.Anything, exp).Return(productbatch.ProductBatch{}, errors.New(ERROR_CONFLICT_SEC))
 		engine.ServeHTTP(w, req)
 
@@ -136,6 +138,7 @@ func TestBatchCreate(t *testing.T) {
 		exp.SectionID = 1
 		exp.ProductTypeID = 99
 
+		mockRepository.On("GetByBatchNum", mock.Anything, mock.Anything).Return(productbatch.ProductBatch{}, errors.New(""))
 		mockRepository.On("Create", mock.Anything, exp).Return(productbatch.ProductBatch{}, errors.New(ERROR_CONFLICT_PROD))
 
 		expected, _ := json.Marshal(exp)

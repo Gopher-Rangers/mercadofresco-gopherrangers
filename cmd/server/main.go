@@ -26,7 +26,9 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
+
 	err := godotenv.Load("../../.env")
+
 	if err != nil {
 		log.Fatal("failed to load .env")
 	}
@@ -40,7 +42,9 @@ func main() {
 
 	baseRoute := server.Group("/api/v1/")
 	{
-		productsService := routes.Products(baseRoute)
+		localityService := routes.Localities(baseRoute)
+		sellerService := routes.Sellers(baseRoute, localityService)
+		productsService := routes.Products(baseRoute, sellerService)
 
 		routes.ProductRecord(baseRoute, productsService)
 
@@ -52,11 +56,31 @@ func main() {
 
 		routes.ProductBatches(baseRoute)
 
+<<<<<<< HEAD
 		routes.Sellers(baseRoute)
 
 		routes.Employees(baseRoute)
 
 		routes.InboundOrders(baseRoute)
+=======
+		employeeRouterGroup := baseRoute.Group("/employees")
+		{
+			file := store.New(store.FileType, "../../internal/employee/employees.json")
+			employee_rep := employee.NewRepository(file)
+			employee_service := employee.NewService(employee_rep)
+			employee := handler.NewEmployee(employee_service)
+
+			employeeRouterGroup.GET("/", employee.GetAll())
+			employeeRouterGroup.POST("/", employee.Create())
+			employeeRouterGroup.GET("/:id", employee.GetById())
+			employeeRouterGroup.PATCH("/:id", employee.Update())
+			employeeRouterGroup.DELETE("/:id", employee.Delete())
+		}
+>>>>>>> main
+
+		routes.Carry(baseRoute)
+
+		routes.LocalityCarry(baseRoute)
 
 		routes.Warehouses(baseRoute)
 	}

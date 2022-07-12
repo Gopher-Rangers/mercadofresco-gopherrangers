@@ -1,10 +1,10 @@
-package handlers
+package warehouses
 
 import (
 	"net/http"
 	"strconv"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/usecases"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
 )
@@ -14,8 +14,8 @@ type requestWarehouse struct {
 	WarehouseCode  string `json:"warehouse_code" binding:"required"`
 	Address        string `json:"address" binding:"required"`
 	Telephone      string `json:"telephone" binding:"required"`
-	MinCapacity    int    `json:"minimun_capacity" binding:"required"`
-	MinTemperature int    `json:"minimun_temperature" binding:"required"`
+	MinCapacity    int    `json:"minimum_capacity" binding:"required"`
+	MinTemperature int    `json:"minimum_temperature" binding:"required"`
 }
 
 type requestPatchWarehouse struct {
@@ -23,15 +23,15 @@ type requestPatchWarehouse struct {
 	WarehouseCode  string `json:"warehouse_code" binding:"required"`
 	Address        string `json:"address"`
 	Telephone      string `json:"telephone"`
-	MinCapacity    int    `json:"minimun_capacity"`
-	MinTemperature int    `json:"minimun_temperature"`
+	MinCapacity    int    `json:"minimum_capacity"`
+	MinTemperature int    `json:"minimum_temperature"`
 }
 
 type Warehouse struct {
-	service warehouse.Service
+	service usecases.Service
 }
 
-func NewWarehouse(w warehouse.Service) Warehouse {
+func NewWarehouse(w usecases.Service) Warehouse {
 	return Warehouse{w}
 }
 

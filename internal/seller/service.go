@@ -3,22 +3,28 @@ package seller
 import (
 	"context"
 	"errors"
+	"fmt"
+	l "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/locality"
 )
 
 type Service interface {
 	GetOne(ctx context.Context, id int) (Seller, error)
 	GetAll(ctx context.Context) ([]Seller, error)
-	Create(ctx context.Context, cid int, companyName, address, telephone string) (Seller, error)
-	Update(ctx context.Context, id, cid int, companyName, address, telephone string) (Seller, error)
+	Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error)
+	Update(ctx context.Context, id, cid int, companyName, address, telephone string, localityID int) (Seller, error)
 	Delete(ctx context.Context, id int) error
 }
 
 type service struct {
-	repository Repository
+	repository   Repository
+	localityRepo l.Repository
 }
 
-func NewService(r Repository) Service {
-	return &service{repository: r}
+func NewService(r Repository, lr l.Repository) Service {
+	return &service{
+		repository:   r,
+		localityRepo: lr,
+	}
 }
 
 func (s *service) GetAll(ctx context.Context) ([]Seller, error) {
@@ -30,27 +36,11 @@ func (s *service) GetAll(ctx context.Context) ([]Seller, error) {
 	return sellerList, nil
 }
 
-func (s *service) Create(ctx context.Context, cid int, companyName, address, telephone string) (Seller, error) {
-
-	err := s.findByCid(ctx, cid)
-
-	if err != nil {
-		return Seller{}, err
-	}
-
-	newSeller, err := s.repository.Create(ctx, cid, companyName, address, telephone)
+func (s *service) Create(ctx context.Context, cid int, companyName, address, telephone string, localityID int) (Seller, error) {
+	locality, err := s.localityRepo.GetById(ctx, localityID)
 
 	if err != nil {
-		return Seller{}, err
-	}
-	return newSeller, nil
-}
-
-func (s *service) Update(ctx context.Context, id, cid int, companyName, address, telephone string) (Seller, error) {
-	oneSeller, err := s.GetOne(ctx, id)
-
-	if err != nil {
-		return Seller{}, err
+		return Seller{}, fmt.Errorf("locality_id does not exists")
 	}
 
 	err = s.findByCid(ctx, cid)
@@ -59,7 +49,34 @@ func (s *service) Update(ctx context.Context, id, cid int, companyName, address,
 		return Seller{}, err
 	}
 
-	updateSeller, err := s.repository.Update(ctx, cid, companyName, address, telephone, oneSeller)
+	newSeller, err := s.repository.Create(ctx, cid, companyName, address, telephone, locality.Id)
+
+	if err != nil {
+		return Seller{}, err
+	}
+	return newSeller, nil
+}
+
+func (s *service) Update(ctx context.Context, id, cid int, companyName, address, telephone string, localityID int) (Seller, error) {
+	oneSeller, err := s.GetOne(ctx, id)
+
+	if err != nil {
+		return Seller{}, err
+	}
+
+	locality, err := s.localityRepo.GetById(ctx, localityID)
+
+	if err != nil {
+		return Seller{}, fmt.Errorf("locality_id does not exists")
+	}
+
+	err = s.findByCid(ctx, cid)
+
+	if err != nil {
+		return Seller{}, err
+	}
+
+	updateSeller, err := s.repository.Update(ctx, cid, companyName, address, telephone, locality.Id, oneSeller)
 
 	if err != nil {
 		return Seller{}, err

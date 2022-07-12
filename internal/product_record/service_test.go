@@ -3,12 +3,17 @@ package productrecord_test
 import (
 	"context"
 	"fmt"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/locality"
 	"testing"
 
+	mocksLocality "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/locality/mocks"
 	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
 	mockProducts "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product/mocks"
 	productrecord "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product_record"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product_record/mocks"
+	mocks "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product_record/mocks"
+	seller "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
+	mockSeller "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller/mocks"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -103,44 +108,54 @@ func createProductRecordGetArray() []productrecord.ProductRecordGet {
 
 func TestStore(t *testing.T) {
 	t.Run("create_ok", func(t *testing.T) {
+		mockSellerRepository := mockSeller.NewRepository(t)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockProductRepository := mockProducts.NewRepository(t)
-		ProductService := products.NewService(mockProductRepository)
+		ProductService := products.NewService(
+			mockProductRepository, sellerService)
 		ps := createProductArray()
-
 		mockRepository := mocks.NewRepository(t)
 		service := productrecord.NewService(mockRepository, ProductService)
 		expected := createProductRecordArray()[1]
-
-		mockProductRepository.On("GetById", 2).Return(ps[1], nil)
+		mockProductRepository.On("GetById", context.Background(), 2).Return(
+			ps[1], nil)
 		mockRepository.On("Store",
-						context.Background(),
-						expected).Return(expected, nil)
-
+			context.Background(),
+			expected).Return(expected, nil)
 		prod, err := service.Store(context.Background(), expected)
 		assert.Nil(t, err)
 		assert.Equal(t, expected, prod)
 	})
-	t.Run("create_inexistent_product", func(t *testing.T) {
-		mockProductRepository := mockProducts.NewRepository(t)
-		ProductService := products.NewService(mockProductRepository)
 
+	t.Run("create_inexistent_product", func(t *testing.T) {
+		mockSellerRepository := mockSeller.NewRepository(t)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
+		mockProductRepository := mockProducts.NewRepository(t)
+		ProductService := products.NewService(
+			mockProductRepository, sellerService)
 		mockRepository := mocks.NewRepository(t)
 		service := productrecord.NewService(mockRepository, ProductService)
 		expected := createProductRecordArray()[1]
-
-		mockProductRepository.On("GetById", 2).Return(
-										products.Product{},
-										fmt.Errorf("produt record 2 not found"))
-
+		mockProductRepository.On("GetById", context.Background(), 2).Return(
+			products.Product{},
+			fmt.Errorf("produt record 2 not found"))
 		prod, err := service.Store(context.Background(), expected)
 		assert.Equal(t, err, fmt.Errorf(productrecord.ERROR_INEXISTENT_PRODUCT))
 		assert.Equal(t, prod, productrecord.ProductRecord{})
 	})
 	t.Run("create_lower_last_update_time", func(t *testing.T) {
+		mockSellerRepository := mockSeller.NewRepository(t)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockProductRepository := mockProducts.NewRepository(t)
-		ProductService := products.NewService(mockProductRepository)
+		ProductService := products.NewService(
+			mockProductRepository, sellerService)
 		ps := createProductArray()
-
 		mockRepository := mocks.NewRepository(t)
 		service := productrecord.NewService(mockRepository, ProductService)
 		expected := productrecord.ProductRecord{
@@ -150,49 +165,55 @@ func TestStore(t *testing.T) {
 			SalePrice:      300.30,
 			ProductId:      3,
 		}
-
-		mockProductRepository.On("GetById", 3).Return(ps[2], nil)
-
+		mockProductRepository.On("GetById", context.Background(), 3).Return(
+			ps[2], nil)
 		prod, err := service.Store(context.Background(), expected)
-		assert.Equal(t, err, fmt.Errorf(productrecord.ERROR_WRONG_LAST_UPDATE_DATE))
+		assert.Equal(t, err, fmt.Errorf(
+			productrecord.ERROR_WRONG_LAST_UPDATE_DATE))
 		assert.Equal(t, prod, productrecord.ProductRecord{})
 	})
 	t.Run("create_error_parsing_time", func(t *testing.T) {
+		mockSellerRepository := mockSeller.NewRepository(t)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockProductRepository := mockProducts.NewRepository(t)
-		ProductService := products.NewService(mockProductRepository)
+		ProductService := products.NewService(
+			mockProductRepository, sellerService)
 		ps := createProductArray()
-
 		mockRepository := mocks.NewRepository(t)
 		service := productrecord.NewService(mockRepository, ProductService)
-		expected := productrecord.ProductRecord {
+		expected := productrecord.ProductRecord{
 			ID:             3,
 			LastUpdateDate: "errror_parsing_datetime",
 			PurchasePrice:  30.30,
 			SalePrice:      300.30,
 			ProductId:      3,
 		}
-
-		mockProductRepository.On("GetById", 3).Return(ps[2], nil)
-
+		mockProductRepository.On("GetById", context.Background(), 3).Return(
+			ps[2], nil)
 		prod, err := service.Store(context.Background(), expected)
 		assert.NotNil(t, err)
 		assert.Equal(t, prod, productrecord.ProductRecord{})
 	})
 	t.Run("create_fail_to_save", func(t *testing.T) {
+		mockSellerRepository := mockSeller.NewRepository(t)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockProductRepository := mockProducts.NewRepository(t)
-		ProductService := products.NewService(mockProductRepository)
+		ProductService := products.NewService(
+			mockProductRepository, sellerService)
 		ps := createProductArray()
-
 		mockRepository := mocks.NewRepository(t)
 		service := productrecord.NewService(mockRepository, ProductService)
 		expected := createProductRecordArray()[1]
-
 		errFail := fmt.Errorf("fail to save")
-		mockProductRepository.On("GetById", 2).Return(ps[1], nil)
+		mockProductRepository.On("GetById", context.Background(), 2).Return(
+			ps[1], nil)
 		mockRepository.On("Store",
-						context.Background(),
-						expected).Return(productrecord.ProductRecord{}, errFail)
-
+			context.Background(),
+			expected).Return(productrecord.ProductRecord{}, errFail)
 		prod, err := service.Store(context.Background(), expected)
 		assert.Equal(t, err, errFail)
 		assert.Equal(t, prod, productrecord.ProductRecord{})
@@ -201,32 +222,34 @@ func TestStore(t *testing.T) {
 
 func TestGetById(t *testing.T) {
 	t.Run("find_by_id_existent", func(t *testing.T) {
+		mockSellerRepository := mockSeller.NewRepository(t)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockProductRepository := mockProducts.NewRepository(t)
-		ProductService := products.NewService(mockProductRepository)
-
+		ProductService := products.NewService(mockProductRepository, sellerService)
 		mockRepository := mocks.NewRepository(t)
 		service := productrecord.NewService(mockRepository, ProductService)
 		expectedGet := createProductRecordGetArray()[0]
-
 		mockRepository.On("GetById",
-						context.Background(), 1).Return(expectedGet, nil)
-
+			context.Background(), 1).Return(expectedGet, nil)
 		prod, err := service.GetById(context.Background(), 1)
 		assert.Nil(t, err)
 		assert.Equal(t, prod, expectedGet)
 	})
 	t.Run("find_by_id_non_existent", func(t *testing.T) {
+		mockSellerRepository := mockSeller.NewRepository(t)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockProductRepository := mockProducts.NewRepository(t)
-		ProductService := products.NewService(mockProductRepository)
-
+		ProductService := products.NewService(mockProductRepository, sellerService)
 		mockRepository := mocks.NewRepository(t)
 		service := productrecord.NewService(mockRepository, ProductService)
-
 		errNotFound := fmt.Errorf("produt record 1 not found")
 		mockRepository.On("GetById",
-						context.Background(),
-						1).Return(productrecord.ProductRecordGet{}, errNotFound)
-
+			context.Background(),
+			1).Return(productrecord.ProductRecordGet{}, errNotFound)
 		prod, err := service.GetById(context.Background(), 1)
 		assert.Equal(t, err, errNotFound)
 		assert.Equal(t, prod, productrecord.ProductRecordGet{})
@@ -235,16 +258,17 @@ func TestGetById(t *testing.T) {
 
 func TestGetAll(t *testing.T) {
 	t.Run("find_all", func(t *testing.T) {
+		mockSellerRepository := mockSeller.NewRepository(t)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockProductRepository := mockProducts.NewRepository(t)
-		ProductService := products.NewService(mockProductRepository)
-
+		ProductService := products.NewService(mockProductRepository, sellerService)
 		mockRepository := mocks.NewRepository(t)
 		service := productrecord.NewService(mockRepository, ProductService)
 		expectedGet := createProductRecordGetArray()
-
 		mockRepository.On("GetAll",
-						context.Background()).Return(expectedGet, nil)
-
+			context.Background()).Return(expectedGet, nil)
 		prod, err := service.GetAll(context.Background())
 		assert.Nil(t, err)
 		assert.Equal(t, prod, expectedGet)

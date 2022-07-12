@@ -29,14 +29,12 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
-	//TODO DESFAZER
-	//err := godotenv.Load("../../.env")
-	err := godotenv.Load("./.env")
+
+	err := godotenv.Load("../../.env")
+
 	if err != nil {
 		log.Fatal("failed to load .env")
 	}
-
-	//gin.SetMode("release")
 
 	server := gin.Default()
 

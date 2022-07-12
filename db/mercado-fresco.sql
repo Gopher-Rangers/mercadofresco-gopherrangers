@@ -287,14 +287,11 @@ ALTER TABLE `mercado-fresco`.`user_rol`
 ALTER TABLE `mercado-fresco`.`user_rol`
     ADD CONSTRAINT `FK_USER_ROL_ROL` FOREIGN KEY (`rol_id`) REFERENCES `mercado-fresco`.`rol` (`id`);
 
-ALTER TABLE `mercado-fresco`.`provinces`
-    ADD CONSTRAINT `FK_PROVINCE_COUNTRY` FOREIGN KEY (`id_country`) REFERENCES `mercado-fresco`.`countries` (`id`);
-
-ALTER TABLE `mercado-fresco`.`localities`
-    ADD CONSTRAINT `FK_LOCALITIES_PROVINCE` FOREIGN KEY (`province_id`) REFERENCES `mercado-fresco`.`provinces` (`id`);
-
 ALTER TABLE `mercado-fresco`.`carriers`
     ADD CONSTRAINT `FK_CARRIERS_LOCALITY` FOREIGN KEY (`locality_id`) REFERENCES `mercado-fresco`.`localities` (`id`);
+
+ALTER TABLE `mercado-fresco`.`sellers`
+    ADD CONSTRAINT `FK_SELLER_LOCALITIES` FOREIGN KEY(locality_id) REFERENCES localities (id);
 
 ALTER TABLE `mercado-fresco`.`product_records`
     ADD CONSTRAINT `FK_PRODUCT_RECORDS_PRODUCT` FOREIGN KEY (`product_id`) REFERENCES `mercado-fresco`.`products` (`id`);

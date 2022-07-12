@@ -3,6 +3,7 @@ package locality
 import (
 	"context"
 	"database/sql"
+	"fmt"
 )
 
 type Repository interface {
@@ -114,11 +115,12 @@ func (m mariaDBRepository) GetById(ctx context.Context, id int) (Locality, error
 			return locality, err
 		}
 
+		return locality, nil
 	}
 
 	if err := rows.Err(); err != nil {
 		return locality, err
 	}
 
-	return locality, nil
+	return locality, fmt.Errorf("id does not exists")
 }

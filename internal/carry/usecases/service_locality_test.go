@@ -18,6 +18,19 @@ func makeValidDBLocality() domain.Locality {
 	}
 }
 
+var validLocalityCarry = []domain.Locality{
+	{
+		ID:    1,
+		Name:  "Florianopolis",
+		Count: 5,
+	},
+	{
+		ID:    2,
+		Name:  "Criciuma",
+		Count: 10,
+	},
+}
+
 func Test_GetCarryLocalityByID(t *testing.T) {
 	t.Run("Deve retornar um Locality Cary vazio e um erro, se um elemento com o id especifíco não existir.", func(t *testing.T) {
 		mockRepository := mock_repository_locality.NewRepositoryLocality(t)
@@ -45,6 +58,21 @@ func Test_GetCarryLocalityByID(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.Equal(t, result, expected)
+		assert.NotEmpty(t, result)
+	})
+}
+
+func Test_GetAllCarriesLocality(t *testing.T) {
+	t.Run("Deve retornar todos os Locality Cary se não tiver um id com um int, na query", func(t *testing.T) {
+		mockRepository := mock_repository_locality.NewRepositoryLocality(t)
+		service := usecases.NewServiceLocality(mockRepository)
+
+		mockRepository.On("GetAllCarriesLocality").Return(validLocalityCarry, nil)
+
+		result, err := service.GetAllCarriesLocality()
+
+		assert.Nil(t, err)
+		assert.Equal(t, result, validLocalityCarry)
 		assert.NotEmpty(t, result)
 	})
 }

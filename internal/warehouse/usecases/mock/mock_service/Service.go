@@ -12,20 +12,20 @@ type Service struct {
 	mock.Mock
 }
 
-// CreateWarehouse provides a mock function with given fields: code, address, tel, minCap, minTemp
-func (_m *Service) CreateWarehouse(code string, address string, tel string, minCap int, minTemp int) (domain.Warehouse, error) {
-	ret := _m.Called(code, address, tel, minCap, minTemp)
+// CreateWarehouse provides a mock function with given fields: code, address, tel, localityID
+func (_m *Service) CreateWarehouse(code string, address string, tel string, localityID int) (domain.Warehouse, error) {
+	ret := _m.Called(code, address, tel, localityID)
 
 	var r0 domain.Warehouse
-	if rf, ok := ret.Get(0).(func(string, string, string, int, int) domain.Warehouse); ok {
-		r0 = rf(code, address, tel, minCap, minTemp)
+	if rf, ok := ret.Get(0).(func(string, string, string, int) domain.Warehouse); ok {
+		r0 = rf(code, address, tel, localityID)
 	} else {
 		r0 = ret.Get(0).(domain.Warehouse)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string, string, int, int) error); ok {
-		r1 = rf(code, address, tel, minCap, minTemp)
+	if rf, ok := ret.Get(1).(func(string, string, string, int) error); ok {
+		r1 = rf(code, address, tel, localityID)
 	} else {
 		r1 = ret.Error(1)
 	}

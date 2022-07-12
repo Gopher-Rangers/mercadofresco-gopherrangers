@@ -9,8 +9,7 @@ type Repository interface {
 		code,
 		address,
 		tel string,
-		minCap,
-		minTemp int) (domain.Warehouse, error)
+		localityID int) (domain.Warehouse, error)
 	UpdatedWarehouseID(id int, code string) (domain.Warehouse, error)
 	DeleteWarehouse(id int) error
 	FindByWarehouseCode(code string) (domain.Warehouse, error)

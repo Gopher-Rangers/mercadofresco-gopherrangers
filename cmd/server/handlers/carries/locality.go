@@ -59,8 +59,9 @@ func (l Locality) GetCarryLocality(ctx *gin.Context) {
 
 			results = append(results, locality)
 
-			ctx.JSON(web.NewResponse(http.StatusOK, results))
 		}
+
+		ctx.JSON(web.NewResponse(http.StatusOK, results))
 
 	}
 

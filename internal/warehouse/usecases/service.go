@@ -13,8 +13,7 @@ type Service interface {
 		code,
 		address,
 		tel string,
-		minCap,
-		minTemp int) (domain.Warehouse, error)
+		localityID int) (domain.Warehouse, error)
 	UpdatedWarehouseID(id int, code string) (domain.Warehouse, error)
 	DeleteWarehouse(id int) error
 }
@@ -43,7 +42,7 @@ func (s service) GetByID(id int) (domain.Warehouse, error) {
 
 }
 
-func (s service) CreateWarehouse(code, address, tel string, minCap, minTemp int) (domain.Warehouse, error) {
+func (s service) CreateWarehouse(code, address, tel string, localityID int) (domain.Warehouse, error) {
 
 	_, err := s.repository.FindByWarehouseCode(code)
 
@@ -51,7 +50,7 @@ func (s service) CreateWarehouse(code, address, tel string, minCap, minTemp int)
 		return domain.Warehouse{}, fmt.Errorf("o `warehouse_code` já está em uso")
 	}
 
-	warehouse, err := s.repository.CreateWarehouse(code, address, tel, minCap, minTemp)
+	warehouse, err := s.repository.CreateWarehouse(code, address, tel, localityID)
 
 	if err != nil {
 		return domain.Warehouse{}, err

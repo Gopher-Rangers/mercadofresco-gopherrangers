@@ -21,6 +21,12 @@ type localityResponseBody struct {
 	Error string          `json:"error"`
 }
 
+type localityResponseBodyArray struct {
+	Code  int               `json:"code"`
+	Data  []domain.Locality `json:"data"`
+	Error string            `json:"error"`
+}
+
 const (
 	URLlocalityCarry = "/api/v1/localities/reportCarries"
 )
@@ -69,15 +75,17 @@ func Test_GetCarryLocality(t *testing.T) {
 
 		server.ServeHTTP(rr, req)
 
-		respBody := localityResponseBody{}
+		respBody := localityResponseBodyArray{}
 
 		json.Unmarshal(rr.Body.Bytes(), &respBody)
 
 		assert.Equal(t, http.StatusOK, rr.Code)
-		assert.Equal(t, domain.Locality{
-			ID:    1,
-			Name:  "Florianopolis",
-			Count: 3,
+		assert.Equal(t, []domain.Locality{
+			{
+				ID:    1,
+				Name:  "Florianopolis",
+				Count: 3,
+			},
 		}, respBody.Data)
 	})
 

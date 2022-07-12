@@ -3,6 +3,7 @@ package carries
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/domain"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/usecases"
@@ -20,41 +21,47 @@ func NewLocality(l usecases.ServiceLocality) Locality {
 
 func (l Locality) GetCarryLocality(ctx *gin.Context) {
 
-	localityIDs := ctx.QueryArray("id")
+	localityIDs := ctx.Query("id")
+
+	splitLocalityIDs := strings.Split(localityIDs, ",")
 
 	results := []domain.Locality{}
 
-	for _, stringId := range localityIDs {
+	if localityIDs == "" {
 
-		id, err := strconv.Atoi(stringId)
+		localities, err := l.service.GetAllCarriesLocality()
 
-		if id == 0 {
-			localities, err := l.service.GetAllCarriesLocality()
+		if err != nil {
+			ctx.JSON(web.DecodeError(http.StatusInternalServerError, "erro ao acessar o banco de dados"))
+			return
+		}
+
+		ctx.JSON(web.NewResponse(http.StatusOK, localities))
+		return
+
+	} else {
+
+		for _, stringId := range splitLocalityIDs {
+
+			id, err := strconv.Atoi(stringId)
 
 			if err != nil {
-				ctx.JSON(web.DecodeError(http.StatusInternalServerError, "erro ao acessar o banco de dados"))
+				ctx.JSON(web.DecodeError(http.StatusBadRequest, "id fornecido é inválido!"))
 				return
 			}
 
-			ctx.JSON(web.NewResponse(http.StatusOK, localities))
-			return
+			locality, err := l.service.GetCarryLocalityByID(id)
+
+			if err != nil {
+				ctx.JSON(web.DecodeError(http.StatusNotFound, "a localidade não foi encontrada!"))
+				return
+			}
+
+			results = append(results, locality)
+
+			ctx.JSON(web.NewResponse(http.StatusOK, results))
 		}
-
-		if err != nil {
-			ctx.JSON(web.DecodeError(http.StatusBadRequest, "id fornecido é inválido!"))
-			return
-		}
-
-		locality, err := l.service.GetCarryLocalityByID(id)
-
-		if err != nil {
-			ctx.JSON(web.DecodeError(http.StatusNotFound, "a localidade não foi encontrada!"))
-			return
-		}
-
-		results = append(results, locality)
 
 	}
 
-	ctx.JSON(web.NewResponse(http.StatusOK, results))
 }

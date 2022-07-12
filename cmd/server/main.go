@@ -4,11 +4,8 @@ import (
 	"log"
 	"os"
 
-	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -59,19 +56,11 @@ func main() {
 
 		routes.ProductBatches(baseRoute)
 
-		employeeRouterGroup := baseRoute.Group("/employees")
-		{
-			file := store.New(store.FileType, "../../internal/employee/employees.json")
-			employee_rep := employee.NewRepository(file)
-			employee_service := employee.NewService(employee_rep)
-			employee := handler.NewEmployee(employee_service)
+		routes.Sellers(baseRoute, localityService)
 
-			employeeRouterGroup.GET("/", employee.GetAll())
-			employeeRouterGroup.POST("/", employee.Create())
-			employeeRouterGroup.GET("/:id", employee.GetById())
-			employeeRouterGroup.PATCH("/:id", employee.Update())
-			employeeRouterGroup.DELETE("/:id", employee.Delete())
-		}
+		routes.Employees(baseRoute)
+
+		routes.InboundOrders(baseRoute)
 
 		routes.Carry(baseRoute)
 

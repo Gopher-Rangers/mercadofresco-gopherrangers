@@ -1,9 +1,8 @@
 package employee
 
 import (
+	"database/sql"
 	"fmt"
-
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/store"
 )
 
 type Employee struct {
@@ -14,148 +13,119 @@ type Employee struct {
 	WareHouseID int    `json:"warehouse_id"`
 }
 
+type EmployeeInboundOrders struct {
+	ID                 int    `json:"id"`
+	CardNumber         int    `json:"card_number_id"`
+	FirstName          string `json:"first_name"`
+	LastName           string `json:"last_name"`
+	WareHouseID        int    `json:"warehouse_id"`
+	InboundOrdersCount int    `json:"inbound_orders_count"`
+}
+
 type Repository interface {
-	Create(id int, cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
-	LastID() int
-	AvailableID() int
-	GetAll() []Employee
+	Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
+	GetAll() ([]Employee, error)
 	Delete(id int) error
 	GetById(id int) (Employee, error)
-	Update(emp Employee, id int) (Employee, error)
+	Update(id int, firstName string, lastName string, warehouseId int) (Employee, error)
 }
 
 type repository struct {
-	db store.Store
+	db *sql.DB
 }
 
-func NewRepository(db store.Store) Repository {
+func NewRepository(db *sql.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r repository) Create(id int, cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
-	var Employees []Employee
-	r.db.Read(&Employees)
-
-	p := Employee{id, cardNum, firstName, lastName, warehouseId}
-
-	for i := range Employees {
-		if Employees[i].CardNumber == cardNum {
-			return Employee{}, fmt.Errorf("seção com cartão nº: %d já existe no banco de dados", cardNum)
-		}
+func (r repository) Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
+	res, err := r.db.Exec(SqlCreate, cardNum, firstName, lastName, warehouseId)
+	if err != nil {
+		return Employee{}, err
 	}
 
-	for i := range Employees {
-		if Employees[i].ID+1 == id {
-			post := make([]Employee, len(Employees[i+1:]))
-			copy(post, Employees[i+1:])
-
-			Employees = append(Employees[:i+1], p)
-			Employees = append(Employees, post...)
-			break
-		}
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected <= 0 {
+		return Employee{}, fmt.Errorf("rows not affected")
 	}
 
-	if id == 1 {
-		emp := []Employee{p}
-		Employees = append(emp, Employees...)
-	}
-	r.db.Write(Employees)
-	return p, nil
+	lastID, _ := res.LastInsertId()
+
+	emp := Employee{int(lastID), cardNum, firstName, lastName, warehouseId}
+	return emp, nil
 }
 
-func (r repository) AvailableID() int {
-	var Employees []Employee
-	r.db.Read(&Employees)
+func (r repository) GetAll() ([]Employee, error) {
+	var employees []Employee
 
-	if len(Employees) == 0 {
-		return 1
+	rows, err := r.db.Query(SqlGetAll)
+
+	if err != nil {
+		return employees, err
 	}
 
-	for prevI := range Employees[:len(Employees)-1] {
-		i := prevI + 1
-		if Employees[i].ID != (Employees[prevI].ID + 1) {
-			id := Employees[prevI].ID + 1
-			return id
+	defer rows.Close()
+
+	for rows.Next() {
+		var emp Employee
+
+		err := rows.Scan(&emp.ID, &emp.CardNumber, &emp.FirstName, &emp.LastName, &emp.WareHouseID)
+
+		if err != nil {
+			return employees, err
 		}
+
+		employees = append(employees, emp)
 	}
-	return r.LastID()
+
+	return employees, err
 }
 
-func (r repository) LastID() int {
-	var Employees []Employee
-	r.db.Read(&Employees)
-
-	if len(Employees) == 0 || Employees[0].ID != 1 {
-		return 1
+func (r repository) Update(id int, firstName string, lastName string, warehouseId int) (Employee, error) {
+	res, err := r.db.Exec(SqlUpdate, firstName, lastName, warehouseId, id)
+	if err != nil {
+		return Employee{}, err
 	}
-	return Employees[len(Employees)-1].ID + 1
+
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected <= 0 {
+		return Employee{}, fmt.Errorf("rows not affected")
+	}
+
+	emp, _ := r.GetById(id)
+	return emp, nil
 }
 
-func (r repository) GetAll() []Employee {
-	var Employees []Employee
-	r.db.Read(&Employees)
-
-	return Employees
-}
-
-func (r *repository) Delete(id int) error {
-	var Employees []Employee
-	r.db.Read(&Employees)
-
-	for i := range Employees {
-		if Employees[i].ID == id {
-			Employees = append(Employees[:i], Employees[i+1:]...)
-			r.db.Write(Employees)
-			return nil
-		}
+func (r repository) Delete(id int) error {
+	res, err := r.db.Exec(SqlDelete, id)
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("usuário de ID: %d não existe", id)
+
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected <= 0 {
+		return fmt.Errorf("row not affected")
+	}
+
+	return nil
 }
 
 func (r repository) GetById(id int) (Employee, error) {
-	var Employees []Employee
-	r.db.Read(&Employees)
+	var emp Employee
 
-	for i := range Employees {
-		if Employees[i].ID == id {
-			return Employees[i], nil
+	rows, err := r.db.Query(SqlGetById, id)
+	if err != nil {
+		return Employee{}, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&emp.ID, &emp.CardNumber, &emp.FirstName, &emp.LastName, &emp.WareHouseID)
+		if err != nil {
+			return Employee{}, err
 		}
 	}
-	return Employee{}, fmt.Errorf("o funcionário não foi encontrado")
-}
 
-func (r *repository) Update(emp Employee, id int) (Employee, error) {
-	var employees []Employee
-	r.db.Read(&employees)
-
-	for i := range employees {
-		if emp.ID == 0 {
-			emp.ID = id
-		}
-		if employees[i].ID == id {
-			if emp.FirstName == "" {
-				emp.FirstName = employees[i].FirstName
-			} else {
-				employees[i].FirstName = emp.FirstName
-			}
-
-			if emp.LastName == "" {
-				emp.LastName = employees[i].LastName
-			} else {
-				employees[i].LastName = emp.LastName
-			}
-
-			if emp.WareHouseID == 0 {
-				emp.WareHouseID = employees[i].WareHouseID
-			} else {
-				employees[i].WareHouseID = emp.WareHouseID
-			}
-
-			if err := r.db.Write(&employees); err != nil {
-				return Employee{}, err
-			}
-			return employees[i], nil
-		}
-	}
-	return Employee{}, fmt.Errorf("funcionário não foi encontrado")
+	return emp, nil
 }

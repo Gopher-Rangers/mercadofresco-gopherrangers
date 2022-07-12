@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
+	inboundorders "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/inbound_orders"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
 )
@@ -24,17 +25,17 @@ type employeeRequest struct {
 }
 
 type Employee struct {
-	service employee.Services
+	employeeService     employee.Services
+	inboundOrderService inboundorders.Services
 }
 
-func NewEmployee(e employee.Services) Employee {
-	return Employee{e}
+func NewEmployee(e employee.Services, io inboundorders.Services) Employee {
+	return Employee{employeeService: e, inboundOrderService: io}
 }
 
 func (emp *Employee) checkBody(req employeeRequest, c *gin.Context) bool {
-	employees := emp.service.GetAll()
+	employees, _ := emp.employeeService.GetAll()
 	for i := range employees {
-		// if employees[i].ID == req.ID {
 		if employees[i].ID == req.ID || req.ID != 0 {
 			c.JSON(web.DecodeError(
 				http.StatusUnprocessableEntity,
@@ -81,7 +82,7 @@ func (e *Employee) Create() gin.HandlerFunc {
 			return
 		}
 
-		emp, err := e.service.Create(req.CardNumber, req.FirstName, req.LastName,
+		emp, err := e.employeeService.Create(req.CardNumber, req.FirstName, req.LastName,
 			req.WareHouseID)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
@@ -94,7 +95,7 @@ func (e *Employee) Create() gin.HandlerFunc {
 
 func (e Employee) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		employees := e.service.GetAll()
+		employees, _ := e.employeeService.GetAll()
 		c.JSON(web.NewResponse(http.StatusOK, employees))
 	}
 }
@@ -106,12 +107,11 @@ func (e Employee) Delete() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
 			return
 		}
-		err = e.service.Delete(id)
+		err = e.employeeService.Delete(id)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
-
 		c.JSON(web.NewResponse(http.StatusNoContent, "funcionario deletado"))
 	}
 }
@@ -123,12 +123,12 @@ func (e Employee) GetById() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
 			return
 		}
-		employee, err := e.service.GetById(id)
+		employee, err := e.employeeService.GetById(id)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return
 		}
-		c.JSON(web.NewResponse(http.StatusAccepted, employee))
+		c.JSON(web.NewResponse(http.StatusOK, employee))
 	}
 }
 
@@ -139,9 +139,27 @@ func (e *Employee) Update() gin.HandlerFunc {
 			c.JSON(web.DecodeError(http.StatusUnprocessableEntity, err.Error()))
 			return
 		}
-
 		id, _ := strconv.Atoi(c.Param("id"))
-		employee, err := e.service.Update(req, id)
+		employee, err := e.employeeService.Update(req, id)
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
+			return
+		}
+		c.JSON(web.NewResponse(http.StatusOK, employee))
+	}
+}
+
+func (e Employee) GetOrderCount() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(web.DecodeError(http.StatusBadRequest, "Id inválido"))
+			return
+		}
+
+		count := e.inboundOrderService.GetCounterByEmployee(id)
+
+		employee, err := e.employeeService.GetCount(id, count)
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 			return

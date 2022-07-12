@@ -3,9 +3,12 @@ package products
 import (
 	"context"
 	"fmt"
+
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 )
 
 const (
+	ERROR_INEXISTENT_SELLER = "the seller id doesn`t exist"
 	ERROR_UNIQUE_PRODUCT_CODE = "the product code must be unique"
 )
 
@@ -19,13 +22,24 @@ type Service interface {
 
 type service struct {
 	repository Repository
+	sellerService seller.Service
 }
 
-func NewService(r Repository) Service {
-	return &service{repository: r}
+func NewService(r Repository, sellerService seller.Service) Service {
+	return &service{
+		repository: r,
+		sellerService: sellerService}
+}
+
+func (s *service) checkIfSellerExists(ctx context.Context, prod Product) bool {
+	_, err := s.sellerService.GetOne(ctx, prod.ID)
+	return err == nil
 }
 
 func (s *service) Store(ctx context.Context, prod Product) (Product, error) {
+	if !s.checkIfSellerExists(ctx, prod) {
+		return Product{}, fmt.Errorf(ERROR_INEXISTENT_SELLER)
+	}
 	if !s.repository.CheckProductCode(ctx, prod.ID, prod.ProductCode) {
 		return Product{}, fmt.Errorf(ERROR_UNIQUE_PRODUCT_CODE)
 	}
@@ -51,6 +65,9 @@ func (s *service) GetById(ctx context.Context, id int) (Product, error) {
 
 func (s *service) Update(ctx context.Context, prod Product, id int) (
 	Product, error) {
+	if !s.checkIfSellerExists(ctx, prod) {
+		return Product{}, fmt.Errorf(ERROR_INEXISTENT_SELLER)
+	}
 	if !s.repository.CheckProductCode(ctx, prod.ID, prod.ProductCode) {
 		return Product{}, fmt.Errorf(ERROR_UNIQUE_PRODUCT_CODE)
 	}

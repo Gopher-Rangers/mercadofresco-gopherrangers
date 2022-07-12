@@ -49,7 +49,7 @@ func main() {
 		routes.ProductRecord(baseRoute, productsService)
 
 		routes.Buyers(baseRoute)
-		
+
 		routes.PurchaseOrders(baseRoute)
 
 		routes.Sections(baseRoute)
@@ -69,6 +69,10 @@ func main() {
 			employeeRouterGroup.PATCH("/:id", employee.Update())
 			employeeRouterGroup.DELETE("/:id", employee.Delete())
 		}
+
+		routes.Carry(baseRoute)
+
+		routes.LocalityCarry(baseRoute)
 
 		routes.Warehouses(baseRoute)
 	}

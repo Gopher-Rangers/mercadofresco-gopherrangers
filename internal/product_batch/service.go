@@ -21,7 +21,7 @@ func NewService(r Repository) Services {
 }
 
 func (s service) Create(ctx context.Context, pb ProductBatch) (ProductBatch, error) {
-	_, err := s.repository.ReportByID(ctx, pb.BatchNumber)
+	_, err := s.repository.GetByBatchNum(ctx, pb.BatchNumber)
 	if err == nil {
 		return ProductBatch{}, fmt.Errorf("error: batch number '%d' already exists in BD", pb.BatchNumber)
 	}

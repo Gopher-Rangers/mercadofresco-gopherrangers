@@ -23,7 +23,7 @@ func TestServiceCreate(t *testing.T) {
 		service, mockRepository := InitTestService(t)
 		exp := productbatch.ProductBatch{1, 111, 200, 20, "2022-04-04", 10, "2020-04-04", 10, 5, 1, 1}
 
-		mockRepository.On("ReportByID", mock.Anything, mock.Anything).Return(productbatch.Report{}, errors.New(""))
+		mockRepository.On("GetByBatchNum", mock.Anything, mock.Anything).Return(productbatch.Report{}, errors.New(""))
 		mockRepository.On("Create", mock.Anything, exp).Return(exp, nil)
 		pb, err := service.Create(context.TODO(), exp)
 
@@ -35,7 +35,7 @@ func TestServiceCreate(t *testing.T) {
 		service, mockRepository := InitTestService(t)
 		exp := productbatch.ProductBatch{1, 111, 200, 20, "2022-04-04", 10, "2020-04-04", 10, 5, 1, 1}
 
-		mockRepository.On("ReportByID", mock.Anything, mock.Anything).Return(productbatch.Report{}, errors.New(""))
+		mockRepository.On("GetByBatchNum", mock.Anything, mock.Anything).Return(productbatch.Report{}, errors.New(""))
 		mockRepository.On("Create", mock.Anything, exp).Return(productbatch.ProductBatch{}, errors.New("sql: rows not affected"))
 		pb, err := service.Create(context.TODO(), exp)
 
@@ -48,7 +48,7 @@ func TestServiceCreate(t *testing.T) {
 		service, mockRepository := InitTestService(t)
 		exp := productbatch.ProductBatch{1, 111, 200, 20, "2022-04-04", 10, "2020-04-04", 10, 5, 1, 1}
 
-		mockRepository.On("ReportByID", mock.Anything, mock.Anything).Return(productbatch.Report{}, nil)
+		mockRepository.On("GetByBatchNum", mock.Anything, mock.Anything).Return(productbatch.Report{}, nil)
 		pb, err := service.Create(context.TODO(), exp)
 
 		assert.Error(t, err)

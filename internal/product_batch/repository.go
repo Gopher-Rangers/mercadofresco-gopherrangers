@@ -30,6 +30,7 @@ type Repository interface {
 	Create(ctx context.Context, pb ProductBatch) (ProductBatch, error)
 	Report(ctx context.Context) ([]Report, error)
 	ReportByID(ctx context.Context, id int) (Report, error)
+	GetByBatchNum(ctx context.Context, bn int) (ProductBatch, error)
 }
 
 type repository struct {
@@ -91,4 +92,16 @@ func (r repository) ReportByID(ctx context.Context, id int) (Report, error) {
 	}
 
 	return rep, nil
+}
+
+func (r repository) GetByBatchNum(ctx context.Context, bn int) (ProductBatch, error) {
+	rows := r.db.QueryRowContext(ctx, SqlGetByBatchNum, bn)
+
+	var pb ProductBatch
+	err := rows.Scan(&pb.BatchNumber)
+	if err != nil {
+		return ProductBatch{}, err
+	}
+
+	return pb, nil
 }

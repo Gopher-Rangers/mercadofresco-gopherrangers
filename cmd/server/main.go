@@ -56,8 +56,6 @@ func main() {
 
 		routes.ProductBatches(baseRoute)
 
-		routes.Sellers(baseRoute, localityService)
-
 		routes.Employees(baseRoute)
 
 		routes.InboundOrders(baseRoute)

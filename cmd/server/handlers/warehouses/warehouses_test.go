@@ -21,11 +21,10 @@ import (
 
 func makeValidDBWarehouse() domain.Warehouse {
 	return domain.Warehouse{
-		WarehouseCode:  "j753",
-		Address:        "Rua das Margaridas",
-		Telephone:      "4833334444",
-		MinCapacity:    100,
-		MinTemperature: 10,
+		WarehouseCode: "j753",
+		Address:       "Rua das Margaridas",
+		Telephone:     "4833334444",
+		LocalityID:    1,
 	}
 }
 
@@ -59,7 +58,7 @@ func Test_CreateWarehouse(t *testing.T) {
 
 		data := makeValidDBWarehouse()
 
-		service.On("CreateWarehouse", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(data, nil).Once()
+		service.On("CreateWarehouse", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("int")).Return(data, nil).Once()
 
 		dataJSON, _ := json.Marshal(data) // Retorna Array de Bytes.
 
@@ -102,7 +101,7 @@ func Test_CreateWarehouse(t *testing.T) {
 
 	t.Run("Deve retornar um status code 409, se `warehouse_code` já estiver em uso.", func(t *testing.T) {
 
-		service.On("CreateWarehouse", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(domain.Warehouse{}, errors.New("o `warehouse_code` já está em uso")).Once()
+		service.On("CreateWarehouse", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("int")).Return(domain.Warehouse{}, errors.New("o `warehouse_code` já está em uso")).Once()
 
 		data := makeValidDBWarehouse()
 

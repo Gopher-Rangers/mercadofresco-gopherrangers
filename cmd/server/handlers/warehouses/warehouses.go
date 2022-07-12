@@ -10,21 +10,19 @@ import (
 )
 
 type requestWarehouse struct {
-	ID             int    `json:"id"`
-	WarehouseCode  string `json:"warehouse_code" binding:"required"`
-	Address        string `json:"address" binding:"required"`
-	Telephone      string `json:"telephone" binding:"required"`
-	MinCapacity    int    `json:"minimum_capacity" binding:"required"`
-	MinTemperature int    `json:"minimum_temperature" binding:"required"`
+	ID            int    `json:"id"`
+	WarehouseCode string `json:"warehouse_code" binding:"required"`
+	Address       string `json:"address" binding:"required"`
+	Telephone     string `json:"telephone" binding:"required"`
+	LocalityID    int    `json:"locality_id" binding:"required"`
 }
 
 type requestPatchWarehouse struct {
-	ID             int    `json:"id"`
-	WarehouseCode  string `json:"warehouse_code" binding:"required"`
-	Address        string `json:"address"`
-	Telephone      string `json:"telephone"`
-	MinCapacity    int    `json:"minimum_capacity"`
-	MinTemperature int    `json:"minimum_temperature"`
+	ID            int    `json:"id"`
+	WarehouseCode string `json:"warehouse_code" binding:"required"`
+	Address       string `json:"address"`
+	Telephone     string `json:"telephone"`
+	LocalityID    int    `json:"locality_id"`
 }
 
 type Warehouse struct {
@@ -68,7 +66,7 @@ func (w Warehouse) CreateWarehouse(c *gin.Context) {
 	}
 
 	warehouse, err := w.service.CreateWarehouse(req.WarehouseCode, req.Address,
-		req.Telephone, req.MinCapacity, req.MinTemperature)
+		req.Telephone, req.LocalityID)
 
 	if err != nil {
 		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))

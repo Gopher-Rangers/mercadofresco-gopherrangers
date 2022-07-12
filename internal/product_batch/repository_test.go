@@ -1,6 +1,7 @@
 package productbatch_test
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"regexp"
@@ -22,7 +23,6 @@ func CreateReportArray() []productbatch.Report {
 		{3, 483, 28},
 		{5, 7843, 90},
 	}
-
 	return exp
 }
 
@@ -76,7 +76,7 @@ func TestRepositoryCreate(t *testing.T) {
 			&exp.CurTemperature, &exp.DueDate, &exp.InitialQuantity, &exp.ManufactDate, &exp.ManufactHour,
 			&exp.MinTemperature, &exp.ProductTypeID, &exp.SectionID).WillReturnResult(sqlmock.NewResult(15, 1))
 
-		pb, err := mockRepository.Create(exp)
+		pb, err := mockRepository.Create(context.TODO(), exp)
 
 		exp.ID = 15
 		assert.Equal(t, exp, pb)
@@ -88,7 +88,7 @@ func TestRepositoryCreate(t *testing.T) {
 			&exp.CurTemperature, &exp.DueDate, &exp.InitialQuantity, &exp.ManufactDate, &exp.ManufactHour,
 			&exp.MinTemperature, &exp.ProductTypeID, &exp.SectionID).WillReturnError(sql.ErrNoRows)
 
-		pb, err := mockRepository.Create(exp)
+		pb, err := mockRepository.Create(context.TODO(), exp)
 
 		assert.Equal(t, productbatch.ProductBatch{}, pb)
 		assert.Error(t, err)
@@ -100,7 +100,7 @@ func TestRepositoryCreate(t *testing.T) {
 			&exp.CurTemperature, &exp.DueDate, &exp.InitialQuantity, &exp.ManufactDate, &exp.ManufactHour,
 			&exp.MinTemperature, &exp.ProductTypeID, &exp.SectionID).WillReturnResult(sqlmock.NewResult(1, 0))
 
-		pb, err := mockRepository.Create(exp)
+		pb, err := mockRepository.Create(context.TODO(), exp)
 
 		assert.Equal(t, productbatch.ProductBatch{}, pb)
 		assert.Error(t, err)
@@ -116,7 +116,7 @@ func TestReport(t *testing.T) {
 	t.Run("report_ok", func(t *testing.T) {
 		mock.ExpectQuery(regexp.QuoteMeta(productbatch.SqlReportBatchAll)).WillReturnRows(rows)
 
-		pb, err := mockRepository.Report()
+		pb, err := mockRepository.Report(context.TODO())
 
 		assert.NoError(t, err)
 		assert.Equal(t, exp, pb)
@@ -125,7 +125,7 @@ func TestReport(t *testing.T) {
 	t.Run("report_fail_query", func(t *testing.T) {
 		mock.ExpectQuery(regexp.QuoteMeta(productbatch.SqlReportBatchAll)).WillReturnError(sql.ErrNoRows)
 
-		pb, err := mockRepository.Report()
+		pb, err := mockRepository.Report(context.TODO())
 
 		assert.Equal(t, []productbatch.Report{}, pb)
 		assert.Error(t, err)
@@ -136,7 +136,7 @@ func TestReport(t *testing.T) {
 		rows := MockRowsArray(FailScan)
 		mock.ExpectQuery(regexp.QuoteMeta(productbatch.SqlReportBatchAll)).WillReturnRows(rows)
 
-		pb, err := mockRepository.Report()
+		pb, err := mockRepository.Report(context.TODO())
 
 		assert.Equal(t, []productbatch.Report{}, pb)
 		assert.Error(t, err)
@@ -151,7 +151,7 @@ func TestReportByID(t *testing.T) {
 	t.Run("report_ok", func(t *testing.T) {
 		mock.ExpectQuery(regexp.QuoteMeta(productbatch.SqlReportBatchByID)).WillReturnRows(row)
 
-		pb, err := mockRepository.ReportByID(1)
+		pb, err := mockRepository.ReportByID(context.TODO(), 1)
 
 		assert.NoError(t, err)
 		assert.Equal(t, exp, pb)
@@ -161,7 +161,7 @@ func TestReportByID(t *testing.T) {
 		row := MockRow(FailScan)
 		mock.ExpectQuery(regexp.QuoteMeta(productbatch.SqlReportBatchAll)).WillReturnRows(row)
 
-		pb, err := mockRepository.ReportByID(1)
+		pb, err := mockRepository.ReportByID(context.TODO(), 1)
 
 		assert.Equal(t, productbatch.Report{}, pb)
 		assert.Error(t, err)

@@ -20,7 +20,7 @@ import (
 
 const (
 	URL_PRODUCT_RECORD_POST = "/api/v1/productRecords/"
-	URL_PRODUCT_RECORD_GET = "/api/v1/reportRecords/"
+	URL_PRODUCT_RECORD_GET  = "/api/v1/reportRecords/"
 )
 
 type responseProductRecordGetArray struct {
@@ -83,7 +83,7 @@ func createProductRecordGetArray() []productrecord.ProductRecordGet {
 }
 
 func createProductRecordRequestTest(method string, url string, body string) (
-*http.Request, *httptest.ResponseRecorder) {
+	*http.Request, *httptest.ResponseRecorder) {
 	req := httptest.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("TOKEN", os.Getenv("TOKEN"))
@@ -91,7 +91,7 @@ func createProductRecordRequestTest(method string, url string, body string) (
 }
 
 func createProductRecordRequestTestIvalidToken(method string, url string,
-body string) (*http.Request, *httptest.ResponseRecorder) {
+	body string) (*http.Request, *httptest.ResponseRecorder) {
 	req := httptest.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("TOKEN", "invalid_token")
@@ -196,7 +196,6 @@ func TestProductRecordStore(t *testing.T) {
 		server := gin.Default()
 		productRouterGroup := server.Group(URL_PRODUCT_RECORD_POST)
 
-		//ps := createProductRecordArray()
 		expected := `{"id": 1,
 			"last_update_date": "2025-07-06 13:30:00",
 			"purchase_price": "string",
@@ -327,7 +326,7 @@ func TestProductRecordGet(t *testing.T) {
 
 		ps := productrecord.ProductRecordGet{}
 		req, rr := createProductRequestTest(http.MethodGet,
-			URL_PRODUCT_RECORD_GET + "?id=A", "")
+			URL_PRODUCT_RECORD_GET+"?id=A", "")
 
 		productRouterGroup.GET("", handlerProduct.Get())
 		server.ServeHTTP(rr, req)
@@ -348,7 +347,7 @@ func TestProductRecordGet(t *testing.T) {
 
 		ps := createProductRecordGetArray()
 		req, rr := createProductRequestTest(http.MethodGet,
-			URL_PRODUCT_RECORD_GET + "?id=1", "")
+			URL_PRODUCT_RECORD_GET+"?id=1", "")
 
 		mockService.On("GetById",
 			mock.AnythingOfType("*context.emptyCtx"),
@@ -372,7 +371,7 @@ func TestProductRecordGet(t *testing.T) {
 
 		ps := productrecord.ProductRecordGet{}
 		req, rr := createProductRequestTest(http.MethodGet,
-			URL_PRODUCT_RECORD_GET + "?id=3", "")
+			URL_PRODUCT_RECORD_GET+"?id=3", "")
 
 		mockService.On("GetById",
 			mock.AnythingOfType("*context.emptyCtx"),

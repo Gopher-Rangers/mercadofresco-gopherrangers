@@ -3,7 +3,7 @@
 package mock_repository
 
 import (
-	warehouse "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse"
+	domain "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/domain"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -12,20 +12,20 @@ type Repository struct {
 	mock.Mock
 }
 
-// CreateWarehouse provides a mock function with given fields: id, code, address, tel, minCap, minTemp
-func (_m *Repository) CreateWarehouse(id int, code string, address string, tel string, minCap int, minTemp int) (warehouse.Warehouse, error) {
-	ret := _m.Called(id, code, address, tel, minCap, minTemp)
+// CreateWarehouse provides a mock function with given fields: code, address, tel, minCap, minTemp
+func (_m *Repository) CreateWarehouse(code string, address string, tel string, minCap int, minTemp int) (domain.Warehouse, error) {
+	ret := _m.Called(code, address, tel, minCap, minTemp)
 
-	var r0 warehouse.Warehouse
-	if rf, ok := ret.Get(0).(func(int, string, string, string, int, int) warehouse.Warehouse); ok {
-		r0 = rf(id, code, address, tel, minCap, minTemp)
+	var r0 domain.Warehouse
+	if rf, ok := ret.Get(0).(func(string, string, string, int, int) domain.Warehouse); ok {
+		r0 = rf(code, address, tel, minCap, minTemp)
 	} else {
-		r0 = ret.Get(0).(warehouse.Warehouse)
+		r0 = ret.Get(0).(domain.Warehouse)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, string, string, string, int, int) error); ok {
-		r1 = rf(id, code, address, tel, minCap, minTemp)
+	if rf, ok := ret.Get(1).(func(string, string, string, int, int) error); ok {
+		r1 = rf(code, address, tel, minCap, minTemp)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -48,14 +48,14 @@ func (_m *Repository) DeleteWarehouse(id int) error {
 }
 
 // FindByWarehouseCode provides a mock function with given fields: code
-func (_m *Repository) FindByWarehouseCode(code string) (warehouse.Warehouse, error) {
+func (_m *Repository) FindByWarehouseCode(code string) (domain.Warehouse, error) {
 	ret := _m.Called(code)
 
-	var r0 warehouse.Warehouse
-	if rf, ok := ret.Get(0).(func(string) warehouse.Warehouse); ok {
+	var r0 domain.Warehouse
+	if rf, ok := ret.Get(0).(func(string) domain.Warehouse); ok {
 		r0 = rf(code)
 	} else {
-		r0 = ret.Get(0).(warehouse.Warehouse)
+		r0 = ret.Get(0).(domain.Warehouse)
 	}
 
 	var r1 error
@@ -69,15 +69,15 @@ func (_m *Repository) FindByWarehouseCode(code string) (warehouse.Warehouse, err
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *Repository) GetAll() []warehouse.Warehouse {
+func (_m *Repository) GetAll() []domain.Warehouse {
 	ret := _m.Called()
 
-	var r0 []warehouse.Warehouse
-	if rf, ok := ret.Get(0).(func() []warehouse.Warehouse); ok {
+	var r0 []domain.Warehouse
+	if rf, ok := ret.Get(0).(func() []domain.Warehouse); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]warehouse.Warehouse)
+			r0 = ret.Get(0).([]domain.Warehouse)
 		}
 	}
 
@@ -85,14 +85,14 @@ func (_m *Repository) GetAll() []warehouse.Warehouse {
 }
 
 // GetByID provides a mock function with given fields: id
-func (_m *Repository) GetByID(id int) (warehouse.Warehouse, error) {
+func (_m *Repository) GetByID(id int) (domain.Warehouse, error) {
 	ret := _m.Called(id)
 
-	var r0 warehouse.Warehouse
-	if rf, ok := ret.Get(0).(func(int) warehouse.Warehouse); ok {
+	var r0 domain.Warehouse
+	if rf, ok := ret.Get(0).(func(int) domain.Warehouse); ok {
 		r0 = rf(id)
 	} else {
-		r0 = ret.Get(0).(warehouse.Warehouse)
+		r0 = ret.Get(0).(domain.Warehouse)
 	}
 
 	var r1 error
@@ -105,29 +105,15 @@ func (_m *Repository) GetByID(id int) (warehouse.Warehouse, error) {
 	return r0, r1
 }
 
-// IncrementID provides a mock function with given fields:
-func (_m *Repository) IncrementID() int {
-	ret := _m.Called()
-
-	var r0 int
-	if rf, ok := ret.Get(0).(func() int); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(int)
-	}
-
-	return r0
-}
-
 // UpdatedWarehouseID provides a mock function with given fields: id, code
-func (_m *Repository) UpdatedWarehouseID(id int, code string) (warehouse.Warehouse, error) {
+func (_m *Repository) UpdatedWarehouseID(id int, code string) (domain.Warehouse, error) {
 	ret := _m.Called(id, code)
 
-	var r0 warehouse.Warehouse
-	if rf, ok := ret.Get(0).(func(int, string) warehouse.Warehouse); ok {
+	var r0 domain.Warehouse
+	if rf, ok := ret.Get(0).(func(int, string) domain.Warehouse); ok {
 		r0 = rf(id, code)
 	} else {
-		r0 = ret.Get(0).(warehouse.Warehouse)
+		r0 = ret.Get(0).(domain.Warehouse)
 	}
 
 	var r1 error

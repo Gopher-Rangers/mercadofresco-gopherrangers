@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	URL = "/api/v1/sellers/"
+	URL_SELLER = "/api/v1/sellers/"
 )
 
 type responseArray struct {
@@ -46,11 +46,11 @@ func TestSeller_Update(t *testing.T) {
 		mockService.On("GetOne", mock.Anything, 2).Return(seller.Seller{}, expectedError)
 
 		server := gin.Default()
-		serverSellerGroup := server.Group(URL)
+		serverSellerGroup := server.Group(URL_SELLER)
 
 		serverSellerGroup.PUT("/:id", handlerSeller.Update)
 
-		req, rr := createRequestTest(http.MethodPut, URL+"2", string(dataJson))
+		req, rr := createRequestTest(http.MethodPut, URL_SELLER+"2", string(dataJson))
 		server.ServeHTTP(rr, req)
 
 		assert.Equal(t, 404, rr.Code)
@@ -60,21 +60,21 @@ func TestSeller_Update(t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerSeller := NewSeller(mockService)
 
-		data := seller.Seller{Id: 1, CompanyId: 2, CompanyName: "Data", Address: "ARG", Telephone: "9999999"}
-		expected := seller.Seller{CompanyId: 2, CompanyName: "Expected", Address: "BR", Telephone: "5501154545454"}
+		data := seller.Seller{Id: 1, CompanyId: 2, CompanyName: "Data", Address: "ARG", Telephone: "9999999", LocalityID: 1}
+		expected := seller.Seller{CompanyId: 2, CompanyName: "Expected", Address: "BR", Telephone: "5501154545454", LocalityID: 2}
 
 		dataJson, _ := json.Marshal(expected)
 
 		mockService.On("GetOne", mock.Anything, 1).Return(data, nil)
-		mockService.On("Update", mock.Anything, 1, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).
+		mockService.On("Update", mock.Anything, 1, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone, expected.LocalityID).
 			Return(expected, nil)
 
 		server := gin.Default()
-		serverSellerGroup := server.Group(URL)
+		serverSellerGroup := server.Group(URL_SELLER)
 
 		serverSellerGroup.PUT("/:id", handlerSeller.Update)
 
-		req, rr := createRequestTest(http.MethodPut, URL+"1", string(dataJson))
+		req, rr := createRequestTest(http.MethodPut, URL_SELLER+"1", string(dataJson))
 		server.ServeHTTP(rr, req)
 
 		assert.Equal(t, 200, rr.Code)
@@ -92,11 +92,11 @@ func TestSeller_Update(t *testing.T) {
 		mockService.On("GetOne", mock.Anything, 1).Return(seller.Seller{}, nil)
 
 		server := gin.Default()
-		serverSellerGroup := server.Group(URL)
+		serverSellerGroup := server.Group(URL_SELLER)
 
 		serverSellerGroup.PUT("/:id", handlerSeller.Update)
 
-		req, rr := createRequestTest(http.MethodPut, URL+"1", string(dataJson))
+		req, rr := createRequestTest(http.MethodPut, URL_SELLER+"1", string(dataJson))
 		server.ServeHTTP(rr, req)
 
 		assert.Equal(t, 422, rr.Code)
@@ -112,11 +112,11 @@ func TestSeller_Update(t *testing.T) {
 		dataJson, _ := json.Marshal(expected)
 
 		server := gin.Default()
-		serverSellerGroup := server.Group(URL)
+		serverSellerGroup := server.Group(URL_SELLER)
 
 		serverSellerGroup.PUT("/:id", handlerSeller.Update)
 
-		req, rr := createRequestTest(http.MethodPut, URL+"err", string(dataJson))
+		req, rr := createRequestTest(http.MethodPut, URL_SELLER+"err", string(dataJson))
 		server.ServeHTTP(rr, req)
 
 		assert.Equal(t, 500, rr.Code)
@@ -128,20 +128,21 @@ func TestSeller_Create(t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerSeller := NewSeller(mockService)
 
-		input := seller.Seller{CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454"}
+		input := seller.Seller{CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
 		expectedError := errors.New("the cid already exists")
 
 		dataJson, _ := json.Marshal(input)
 
-		mockService.On("Create", mock.Anything, input.CompanyId, input.CompanyName, input.Address, input.Telephone).Return(seller.Seller{}, expectedError)
+		mockService.On("Create", mock.Anything, input.CompanyId, input.CompanyName, input.Address, input.Telephone, input.LocalityID).
+			Return(seller.Seller{}, expectedError)
 
 		server := gin.Default()
 
-		serverSellerGroup := server.Group(URL)
+		serverSellerGroup := server.Group(URL_SELLER)
 
 		serverSellerGroup.POST("/", handlerSeller.Create)
 
-		req, rr := createRequestTest(http.MethodPost, URL, string(dataJson))
+		req, rr := createRequestTest(http.MethodPost, URL_SELLER, string(dataJson))
 		server.ServeHTTP(rr, req)
 
 		assert.Equal(t, 409, rr.Code)
@@ -151,16 +152,16 @@ func TestSeller_Create(t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerSeller := NewSeller(mockService)
 
-		input := seller.Seller{CompanyName: "Meli", Address: "BR", Telephone: "5501154545454"}
+		input := seller.Seller{CompanyName: "Meli", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
 
 		dataJson, _ := json.Marshal(input)
 
 		server := gin.Default()
 
-		serverSellerGroup := server.Group(URL)
+		serverSellerGroup := server.Group(URL_SELLER)
 		serverSellerGroup.POST("/", handlerSeller.Create)
 
-		req, rr := createRequestTest(http.MethodPost, URL, string(dataJson))
+		req, rr := createRequestTest(http.MethodPost, URL_SELLER, string(dataJson))
 		server.ServeHTTP(rr, req)
 
 		assert.Equal(t, 422, rr.Code)
@@ -170,22 +171,19 @@ func TestSeller_Create(t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerSeller := NewSeller(mockService)
 
-		expected := seller.Seller{Id: 1, CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454"}
-		input := seller.Seller{CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454"}
+		expected := seller.Seller{Id: 1, CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
+		input := seller.Seller{CompanyId: 5, CompanyName: "Meli", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
 
 		dataJson, _ := json.Marshal(input)
 
-		mockService.On("Create", mock.Anything, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone).Return(expected, nil)
+		mockService.On("Create", mock.Anything, expected.CompanyId, expected.CompanyName, expected.Address, expected.Telephone, expected.LocalityID).Return(expected, nil)
 
 		server := gin.Default()
 
-		serverSellerGroup := server.Group(URL)
+		serverSellerGroup := server.Group(URL_SELLER)
 		serverSellerGroup.POST("/", handlerSeller.Create)
 
-		req, rr := createRequestTest(http.MethodGet, URL, "")
-		server.ServeHTTP(rr, req)
-
-		req, rr = createRequestTest(http.MethodPost, URL, string(dataJson))
+		req, rr := createRequestTest(http.MethodPost, URL_SELLER, string(dataJson))
 		server.ServeHTTP(rr, req)
 
 		assert.Equal(t, 201, rr.Code)
@@ -202,10 +200,10 @@ func TestSeller_GetOne(t *testing.T) {
 		mockService.On("GetOne", mock.Anything, id).Return(seller.Seller{}, expectedError)
 
 		server := gin.Default()
-		serverSellerGroup := server.Group(URL)
+		serverSellerGroup := server.Group(URL_SELLER)
 		serverSellerGroup.GET("/:id", handlerSeller.GetOne)
 
-		req, rr := createRequestTest(http.MethodGet, URL+"2", "")
+		req, rr := createRequestTest(http.MethodGet, URL_SELLER+"2", "")
 		server.ServeHTTP(rr, req)
 
 		assert.Equal(t, 404, rr.Code)
@@ -220,11 +218,11 @@ func TestSeller_GetOne(t *testing.T) {
 
 		expectedJson, _ := json.Marshal(sellerOne)
 
-		req, rr := createRequestTest(http.MethodGet, URL+"1", string(expectedJson))
+		req, rr := createRequestTest(http.MethodGet, URL_SELLER+"1", string(expectedJson))
 		mockService.On("GetOne", mock.Anything, 1).Return(sellerOne, nil)
 
 		server := gin.Default()
-		sellerServerGroup := server.Group(URL)
+		sellerServerGroup := server.Group(URL_SELLER)
 		sellerServerGroup.GET("/:id", handlerSeller.GetOne)
 
 		server.ServeHTTP(rr, req)
@@ -246,10 +244,10 @@ func TestSeller_GetOne(t *testing.T) {
 
 		expectedJson, _ := json.Marshal(sellerOne)
 
-		req, rr := createRequestTest(http.MethodGet, URL+"err", string(expectedJson))
+		req, rr := createRequestTest(http.MethodGet, URL_SELLER+"err", string(expectedJson))
 
 		server := gin.Default()
-		sellerServerGroup := server.Group(URL)
+		sellerServerGroup := server.Group(URL_SELLER)
 		sellerServerGroup.GET("/:id", handlerSeller.GetOne)
 
 		server.ServeHTTP(rr, req)
@@ -274,11 +272,11 @@ func TestSeller_GetAll(t *testing.T) {
 
 		expectedError := errors.New("erro ao inicializar a lista")
 
-		req, rr := createRequestTest(http.MethodGet, URL, string(dataJson))
+		req, rr := createRequestTest(http.MethodGet, URL_SELLER, string(dataJson))
 		mockService.On("GetAll", mock.Anything).Return([]seller.Seller{}, expectedError)
 
 		server := gin.Default()
-		sellerServerGroup := server.Group(URL)
+		sellerServerGroup := server.Group(URL_SELLER)
 		sellerServerGroup.GET("/", handlerSeller.GetAll)
 
 		server.ServeHTTP(rr, req)
@@ -294,11 +292,11 @@ func TestSeller_GetAll(t *testing.T) {
 
 		dataJson, _ := json.Marshal(sellerList)
 
-		req, rr := createRequestTest(http.MethodGet, URL, string(dataJson))
+		req, rr := createRequestTest(http.MethodGet, URL_SELLER, string(dataJson))
 		mockService.On("GetAll", mock.Anything).Return(sellerList, nil)
 
 		server := gin.Default()
-		sellerServerGroup := server.Group(URL)
+		sellerServerGroup := server.Group(URL_SELLER)
 		sellerServerGroup.GET("/", handlerSeller.GetAll)
 
 		var response responseArray
@@ -319,10 +317,10 @@ func TestSeller_Delete(t *testing.T) {
 		handlerSeller := NewSeller(mockService)
 
 		server := gin.Default()
-		sellerRouterGroup := server.Group(URL)
+		sellerRouterGroup := server.Group(URL_SELLER)
 		expectedError := fmt.Errorf("the id %d does not exists", id)
 
-		req, rr := createRequestTest(http.MethodDelete, URL+"3", "")
+		req, rr := createRequestTest(http.MethodDelete, URL_SELLER+"3", "")
 		mockService.On("Delete", mock.Anything, id).Return(expectedError)
 
 		sellerRouterGroup.DELETE("/:id", handlerSeller.Delete)
@@ -336,9 +334,9 @@ func TestSeller_Delete(t *testing.T) {
 		handlerSeller := NewSeller(mockService)
 
 		server := gin.Default()
-		sellerRouterGroup := server.Group(URL)
+		sellerRouterGroup := server.Group(URL_SELLER)
 
-		req, rr := createRequestTest(http.MethodDelete, URL+"1", "")
+		req, rr := createRequestTest(http.MethodDelete, URL_SELLER+"1", "")
 
 		mockService.On("Delete", mock.Anything, 1).Return(nil)
 
@@ -353,9 +351,9 @@ func TestSeller_Delete(t *testing.T) {
 		handlerSeller := NewSeller(mockService)
 
 		server := gin.Default()
-		sellerRouterGroup := server.Group(URL)
+		sellerRouterGroup := server.Group(URL_SELLER)
 
-		req, rr := createRequestTest(http.MethodDelete, URL+"err", "")
+		req, rr := createRequestTest(http.MethodDelete, URL_SELLER+"err", "")
 
 		sellerRouterGroup.DELETE("/:id", handlerSeller.Delete)
 		server.ServeHTTP(rr, req)
@@ -391,7 +389,7 @@ func TestSeller_ValidateFields(t *testing.T) {
 	})
 
 	t.Run("Deve retornar nil quando não houver erro", func(t *testing.T) {
-		sellerOk := requestSeller{CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454"}
+		sellerOk := requestSeller{CompanyId: 5, CompanyName: "TestUpdate", Address: "BR", Telephone: "5501154545454", LocalityID: 1}
 		errSellerOk := validateFields(sellerOk)
 
 		assert.Nil(t, errSellerOk)

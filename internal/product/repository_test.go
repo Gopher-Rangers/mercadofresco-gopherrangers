@@ -1,6 +1,7 @@
 package products_test
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"regexp"
@@ -44,7 +45,7 @@ func mockRow() *sqlmock.Rows {
 	return rows
 }
 
-func TestDBRepositoryStore(t *testing.T) {
+func TestRepositoryStore(t *testing.T) {
 	t.Run("create_ok", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -57,9 +58,22 @@ func TestDBRepositoryStore(t *testing.T) {
 			&prod.FreezingRate, &prod.ProductTypeId,
 			&prod.SellerId).WillReturnResult(sqlmock.NewResult(1, 1))
 		productsRepo := products.NewRepository(db)
-		result, err := productsRepo.Store(prod)
+		result, err := productsRepo.Store(context.Background(), prod)
 		assert.NoError(t, err)
 		assert.Equal(t, result, prod)
+	})
+	t.Run("create_prepare_fail", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		errPrepare := fmt.Errorf("fail to preprare")
+		mock.ExpectPrepare(regexp.QuoteMeta(
+			products.STORE)).WillReturnError(errPrepare)
+		prod := createProductsArray()[0]
+		productsRepo := products.NewRepository(db)
+		result, err := productsRepo.Store(context.Background(), prod)
+		assert.Equal(t, err, errPrepare)
+		assert.Equal(t, result, products.Product{})
 	})
 	t.Run("create_fail_exec", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
@@ -73,7 +87,7 @@ func TestDBRepositoryStore(t *testing.T) {
 			&prod.FreezingRate, &prod.ProductTypeId,
 			&prod.SellerId).WillReturnError(sql.ErrNoRows)
 		productsRepo := products.NewRepository(db)
-		result, err := productsRepo.Store(prod)
+		result, err := productsRepo.Store(context.Background(), prod)
 		assert.Error(t, err)
 		assert.Equal(t, result, products.Product{})
 	})
@@ -89,13 +103,13 @@ func TestDBRepositoryStore(t *testing.T) {
 			&prod.FreezingRate, &prod.ProductTypeId,
 			&prod.SellerId).WillReturnResult(sqlmock.NewResult(1, 0))
 		productsRepo := products.NewRepository(db)
-		result, err := productsRepo.Store(prod)
+		result, err := productsRepo.Store(context.Background(), prod)
 		assert.Equal(t, err, fmt.Errorf("fail to save"))
 		assert.Equal(t, result, products.Product{})
 	})
 }
 
-func TestDBRepositoryGetAll(t *testing.T) {
+func TestRepositoryGetAll(t *testing.T) {
 	t.Run("find_all_ok", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -104,7 +118,7 @@ func TestDBRepositoryGetAll(t *testing.T) {
 		rows := mockRowsArray()
 		mock.ExpectQuery(regexp.QuoteMeta(products.GETALL)).WillReturnRows(rows)
 		productsRepo := products.NewRepository(db)
-		result, err := productsRepo.GetAll()
+		result, err := productsRepo.GetAll(context.Background())
 		assert.NoError(t, err)
 		assert.Equal(t, result[0], prod[0])
 		assert.Equal(t, result[1], prod[1])
@@ -121,7 +135,7 @@ func TestDBRepositoryGetAll(t *testing.T) {
 			"", "", "", "", "", "", "", "", "", "", "", "")
 		mock.ExpectQuery(regexp.QuoteMeta(products.GETALL)).WillReturnRows(rows)
 		productsRepo := products.NewRepository(db)
-		prod, err := productsRepo.GetAll()
+		prod, err := productsRepo.GetAll(context.Background())
 		assert.Equal(t, prod, []products.Product(nil))
 		assert.Error(t, err)
 	})
@@ -132,13 +146,13 @@ func TestDBRepositoryGetAll(t *testing.T) {
 		mock.ExpectQuery(regexp.QuoteMeta(
 			products.GETALL)).WillReturnError(sql.ErrNoRows)
 		productsRepo := products.NewRepository(db)
-		prod, err := productsRepo.GetAll()
+		prod, err := productsRepo.GetAll(context.Background())
 		assert.Equal(t, prod, []products.Product(nil))
 		assert.Error(t, err)
 	})
 }
 
-func TestDBRepositoryGetById(t *testing.T) {
+func TestRepositoryGetById(t *testing.T) {
 	t.Run("find_by_id_existent", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -148,7 +162,7 @@ func TestDBRepositoryGetById(t *testing.T) {
 		stmt := mock.ExpectPrepare(regexp.QuoteMeta(products.GETBYID))
 		stmt.ExpectQuery().WithArgs(prod[0].ID).WillReturnRows(rows)
 		productsRepo := products.NewRepository(db)
-		result, err := productsRepo.GetById(prod[0].ID)
+		result, err := productsRepo.GetById(context.Background(), prod[0].ID)
 		assert.NoError(t, err)
 		assert.Equal(t, result, prod[0])
 	})
@@ -160,7 +174,7 @@ func TestDBRepositoryGetById(t *testing.T) {
 		errNotFound := fmt.Errorf("product 999 not found")
 		stmt.ExpectQuery().WithArgs(999).WillReturnError(errNotFound)
 		productsRepo := products.NewRepository(db)
-		result, err := productsRepo.GetById(999)
+		result, err := productsRepo.GetById(context.Background(), 999)
 		assert.Equal(t, err, errNotFound)
 		assert.Equal(t, result, products.Product{})
 	})
@@ -172,13 +186,13 @@ func TestDBRepositoryGetById(t *testing.T) {
 		stmt := mock.ExpectPrepare(regexp.QuoteMeta(products.GETBYID))
 		stmt.ExpectQuery().WithArgs(prod[0].ID).WillReturnError(sql.ErrNoRows)
 		productsRepo := products.NewRepository(db)
-		result, err := productsRepo.GetById(prod[0].ID)
+		result, err := productsRepo.GetById(context.Background(), prod[0].ID)
 		assert.Equal(t, result, products.Product{})
 		assert.Error(t, err)
 	})
 }
 
-func TestDBRepositoryUpdate(t *testing.T) {
+func TestRepositoryUpdate(t *testing.T) {
 	t.Run("update_ok", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -191,9 +205,22 @@ func TestDBRepositoryUpdate(t *testing.T) {
 			&prod.FreezingRate, &prod.ProductTypeId,
 			&prod.SellerId, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 		productsRepo := products.NewRepository(db)
-		result, err := productsRepo.Update(prod, 1)
+		result, err := productsRepo.Update(context.Background(), prod, 1)
 		assert.NoError(t, err)
 		assert.Equal(t, result, prod)
+	})
+	t.Run("update_prepare_fail", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		prod := createProductsArray()[0]
+		errPrepare := fmt.Errorf("fail to preprare")
+		mock.ExpectPrepare(regexp.QuoteMeta(
+			products.UPDATE)).WillReturnError(errPrepare)
+		productsRepo := products.NewRepository(db)
+		result, err := productsRepo.Update(context.Background(), prod, 1)
+		assert.Equal(t, err, errPrepare)
+		assert.Equal(t, result, products.Product{})
 	})
 	t.Run("update_non_existent", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
@@ -207,7 +234,7 @@ func TestDBRepositoryUpdate(t *testing.T) {
 			&prod.FreezingRate, &prod.ProductTypeId,
 			&prod.SellerId, 1).WillReturnResult(sqlmock.NewResult(1, 0))
 		productsRepo := products.NewRepository(db)
-		result, err := productsRepo.Update(prod, 1)
+		result, err := productsRepo.Update(context.Background(), prod, 1)
 		assert.Equal(t, err, fmt.Errorf("product 1 not found"))
 		assert.Equal(t, result, products.Product{})
 	})
@@ -223,13 +250,13 @@ func TestDBRepositoryUpdate(t *testing.T) {
 			&prod.FreezingRate, &prod.ProductTypeId,
 			&prod.SellerId, 1).WillReturnError(sql.ErrNoRows)
 		productsRepo := products.NewRepository(db)
-		result, err := productsRepo.Update(prod, 1)
+		result, err := productsRepo.Update(context.Background(), prod, 1)
 		assert.Equal(t, result, products.Product{})
 		assert.Error(t, err)
 	})
 }
 
-func TestDBRepositoryDelete(t *testing.T) {
+func TestRepositoryDelete(t *testing.T) {
 	t.Run("delete_ok", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -237,8 +264,19 @@ func TestDBRepositoryDelete(t *testing.T) {
 		stmt := mock.ExpectPrepare(regexp.QuoteMeta(products.DELETE))
 		stmt.ExpectExec().WithArgs(1).WillReturnResult(sqlmock.NewResult(0, 1))
 		productsRepo := products.NewRepository(db)
-		err = productsRepo.Delete(1)
+		err = productsRepo.Delete(context.Background(), 1)
 		assert.NoError(t, err)
+	})
+	t.Run("delete_prepare_fail", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		errPrepare := fmt.Errorf("fail to preprare")
+		mock.ExpectPrepare(regexp.QuoteMeta(
+			products.DELETE)).WillReturnError(errPrepare)
+		productsRepo := products.NewRepository(db)
+		err = productsRepo.Delete(context.Background(), 1)
+		assert.Equal(t, err, errPrepare)
 	})
 	t.Run("delete_non_existent", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
@@ -247,7 +285,7 @@ func TestDBRepositoryDelete(t *testing.T) {
 		stmt := mock.ExpectPrepare(regexp.QuoteMeta(products.DELETE))
 		stmt.ExpectExec().WithArgs(1).WillReturnResult(sqlmock.NewResult(0, 0))
 		productsRepo := products.NewRepository(db)
-		err = productsRepo.Delete(1)
+		err = productsRepo.Delete(context.Background(), 1)
 		assert.Equal(t, err, fmt.Errorf("product 1 not found"))
 	})
 	t.Run("delete_fail_exec", func(t *testing.T) {
@@ -257,7 +295,57 @@ func TestDBRepositoryDelete(t *testing.T) {
 		stmt := mock.ExpectPrepare(regexp.QuoteMeta(products.DELETE))
 		stmt.ExpectExec().WithArgs(1).WillReturnError(sql.ErrNoRows)
 		productsRepo := products.NewRepository(db)
-		err = productsRepo.Delete(1)
+		err = productsRepo.Delete(context.Background(), 1)
 		assert.Error(t, err)
+	})
+}
+
+func TestRepositoryProductCode(t *testing.T) {
+	t.Run("product_code_ok", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(products.PRODUCT_CODE))
+		stmt.ExpectQuery().WithArgs(
+			context.Background(), 1, "001").WillReturnRows()
+		productsRepo := products.NewRepository(db)
+		res := productsRepo.CheckProductCode(context.Background(), 1, "001")
+		assert.Equal(t, res, true)
+	})
+	t.Run("product_code_prepare_fail", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		errPrepare := fmt.Errorf("fail to preprare")
+		mock.ExpectPrepare(regexp.QuoteMeta(
+			products.PRODUCT_CODE)).WillReturnError(errPrepare)
+		productsRepo := products.NewRepository(db)
+		res := productsRepo.CheckProductCode(context.Background(), 1, "001")
+		assert.Equal(t, res, false)
+	})
+}
+
+func TestRepositoryProductType(t *testing.T) {
+	t.Run("product_type_ok", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(products.PRODUCT_TYPE))
+		stmt.ExpectQuery().WithArgs(
+			context.Background(), 1).WillReturnRows()
+		productsRepo := products.NewRepository(db)
+		res := productsRepo.CheckProductType(context.Background(), 1)
+		assert.Equal(t, res, false)
+	})
+	t.Run("product_type_prepare_fail", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		errPrepare := fmt.Errorf("fail to preprare")
+		mock.ExpectPrepare(regexp.QuoteMeta(
+			products.PRODUCT_CODE)).WillReturnError(errPrepare)
+		productsRepo := products.NewRepository(db)
+		res := productsRepo.CheckProductType(context.Background(), 1)
+		assert.Equal(t, res, false)
 	})
 }

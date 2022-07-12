@@ -36,6 +36,8 @@ func main() {
 		log.Fatal("failed to load .env")
 	}
 
+	gin.SetMode("release")
+
 	server := gin.Default()
 
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
@@ -43,15 +45,19 @@ func main() {
 
 	baseRoute := server.Group("/api/v1/")
 	{
-		routes.Products(baseRoute)
+		localityService := routes.Localities(baseRoute)
+		sellerService := routes.Sellers(baseRoute, localityService)
+		productsService := routes.Products(baseRoute, sellerService)
+
+		routes.ProductRecord(baseRoute, productsService)
 
 		routes.Buyers(baseRoute)
 
+		routes.PurchaseOrders(baseRoute)
+
 		routes.Sections(baseRoute)
 
-		routes.Sellers(baseRoute)
-
-		routes.Localities(baseRoute)
+		routes.ProductBatches(baseRoute)
 
 		employeeRouterGroup := baseRoute.Group("/employees")
 		{

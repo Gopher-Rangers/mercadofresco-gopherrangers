@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Localities(routerGroup *gin.RouterGroup) {
+func Localities(routerGroup *gin.RouterGroup) locality.Service {
 	localityRepository := locality.NewMariaDBRepository(database.GetInstance())
 	localityService := locality.NewService(localityRepository)
 	localityController := handlers.NewLocality(localityService)
@@ -18,4 +18,6 @@ func Localities(routerGroup *gin.RouterGroup) {
 		localityRouterGroup.GET("/reportSellers", localityController.ReportSellers)
 		localityRouterGroup.POST("/", localityController.Create)
 	}
+
+	return localityService
 }

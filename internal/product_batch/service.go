@@ -1,6 +1,9 @@
 package productbatch
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type Services interface {
 	Report(ctx context.Context) ([]Report, error)
@@ -18,7 +21,12 @@ func NewService(r Repository) Services {
 }
 
 func (s service) Create(ctx context.Context, pb ProductBatch) (ProductBatch, error) {
-	pb, err := s.repository.Create(ctx, pb)
+	_, err := s.repository.GetByBatchNum(ctx, pb.BatchNumber)
+	if err == nil {
+		return ProductBatch{}, fmt.Errorf("error: batch number '%d' already exists in BD", pb.BatchNumber)
+	}
+
+	pb, err = s.repository.Create(ctx, pb)
 	if err != nil {
 		return ProductBatch{}, err
 	}

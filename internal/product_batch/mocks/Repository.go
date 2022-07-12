@@ -35,6 +35,27 @@ func (_m *Repository) Create(ctx context.Context, pb productbatch.ProductBatch) 
 	return r0, r1
 }
 
+// GetByBatchNum provides a mock function with given fields: ctx, bn
+func (_m *Repository) GetByBatchNum(ctx context.Context, bn int) (productbatch.ProductBatch, error) {
+	ret := _m.Called(ctx, bn)
+
+	var r0 productbatch.ProductBatch
+	if rf, ok := ret.Get(0).(func(context.Context, int) productbatch.ProductBatch); ok {
+		r0 = rf(ctx, bn)
+	} else {
+		r0 = ret.Get(0).(productbatch.ProductBatch)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
+		r1 = rf(ctx, bn)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Report provides a mock function with given fields: ctx
 func (_m *Repository) Report(ctx context.Context) ([]productbatch.Report, error) {
 	ret := _m.Called(ctx)

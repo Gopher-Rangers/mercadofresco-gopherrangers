@@ -3,12 +3,18 @@ package handlers
 import (
 	"errors"
 	"fmt"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"net/http"
 	"strconv"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
+)
+
+const (
+	ERR_UNIQUE_CID_VALUE          = "the cid already exists"
+	ERR_LOCALITY_NON_EXISTS_VALUE = "locality_id does not exists"
+	ERR_ID_NON_EXISTS_VALUE       = "locality_id does not exists"
 )
 
 type requestSeller struct {
@@ -16,6 +22,7 @@ type requestSeller struct {
 	CompanyName string `json:"company_name" binding:"required"`
 	Address     string `json:"address" binding:"required"`
 	Telephone   string `json:"telephone" binding:"required"`
+	LocalityID  int    `json:"locality_id" binding:"required"`
 }
 
 type Seller struct {
@@ -79,11 +86,20 @@ func (s *Seller) Update(ctx *gin.Context) {
 		return
 	}
 
-	updateSeller, err := s.service.Update(ctx, idConvertido, req.CompanyId, req.CompanyName, req.Address, req.Telephone)
+	updateSeller, err := s.service.Update(ctx, idConvertido, req.CompanyId, req.CompanyName, req.Address, req.Telephone, req.LocalityID)
 
 	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
-		return
+		switch err.Error() {
+		case ERR_UNIQUE_CID_VALUE:
+			ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+			return
+		case ERR_LOCALITY_NON_EXISTS_VALUE:
+			ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+			return
+		default:
+			ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+			return
+		}
 	}
 
 	ctx.JSON(web.NewResponse(http.StatusOK, updateSeller))
@@ -97,12 +113,20 @@ func (s *Seller) Create(ctx *gin.Context) {
 		return
 	}
 
-	newSeller, err := s.service.Create(ctx, req.CompanyId, req.CompanyName, req.Address, req.Telephone)
+	newSeller, err := s.service.Create(ctx, req.CompanyId, req.CompanyName, req.Address, req.Telephone, req.LocalityID)
 
 	if err != nil {
-		ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
-		return
+		switch err.Error() {
+		case ERR_UNIQUE_CID_VALUE:
+			ctx.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+			return
+
+		case ERR_LOCALITY_NON_EXISTS_VALUE:
+			ctx.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+			return
+		}
 	}
+
 	ctx.JSON(web.NewResponse(http.StatusCreated, newSeller))
 }
 
@@ -127,19 +151,23 @@ func (s *Seller) Delete(ctx *gin.Context) {
 
 func validateFields(req requestSeller) error {
 	if req.CompanyId == 0 {
-		return errors.New("field cid is required")
+		return errors.New("check cid field data entry")
 	}
 
 	if req.CompanyName == "" {
-		return errors.New("field company_name is required")
+		return errors.New("check  company_name field data entry")
 	}
 
 	if req.Address == "" {
-		return errors.New("field address is required")
+		return errors.New("check address field data entry")
 	}
 
 	if req.Telephone == "" {
-		return errors.New("field telephone is required")
+		return errors.New("check telephone field data entry")
+	}
+
+	if req.LocalityID == 0 {
+		return errors.New("check locality_id field data entry")
 	}
 	return nil
 }

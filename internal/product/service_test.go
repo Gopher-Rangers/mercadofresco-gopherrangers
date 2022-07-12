@@ -3,12 +3,14 @@ package products_test
 import (
 	"context"
 	"fmt"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/locality"
+	mocksLocality "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/locality/mocks"
 	"testing"
 
 	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
+	mocks "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product/mocks"
 	seller "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller"
 	mockSeller "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/seller/mocks"
-	mocks "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product/mocks"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -50,7 +52,9 @@ func createProductsArray() []products.Product {
 func TestStore(t *testing.T) {
 	t.Run("create_ok", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		expected := products.Product{
@@ -81,7 +85,9 @@ func TestStore(t *testing.T) {
 	})
 	t.Run("create_inexistent_seller", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		expected := products.Product{
@@ -108,7 +114,9 @@ func TestStore(t *testing.T) {
 	})
 	t.Run("create_inexistent_product_type", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		expected := products.Product{
@@ -133,7 +141,9 @@ func TestStore(t *testing.T) {
 	})
 	t.Run("create_conflict", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		expected := products.Product{
@@ -163,7 +173,9 @@ func TestStore(t *testing.T) {
 	})
 	t.Run("create_error", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		expected := products.Product{
@@ -197,7 +209,9 @@ func TestStore(t *testing.T) {
 func TestGetAll(t *testing.T) {
 	t.Run("find_all", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		ps := createProductsArray()
@@ -211,7 +225,9 @@ func TestGetAll(t *testing.T) {
 func TestGetById(t *testing.T) {
 	t.Run("find_by_id_existent", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		ps := createProductsArray()
@@ -222,7 +238,9 @@ func TestGetById(t *testing.T) {
 	})
 	t.Run("find_by_id_non_existent", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		e := fmt.Errorf("produto 3 não encontrado")
@@ -237,7 +255,9 @@ func TestGetById(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	t.Run("update_existent", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		expected := products.Product{
@@ -268,7 +288,9 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("update_inexistent_product_type", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		expected := products.Product{
@@ -293,7 +315,9 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("update_inexistent_seller", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		expected := products.Product{
@@ -320,7 +344,9 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("update_non_existent", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		expected := products.Product{
@@ -352,7 +378,9 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("update_conflict", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		expected := products.Product{
@@ -384,7 +412,9 @@ func TestUpdate(t *testing.T) {
 func TestDelete(t *testing.T) {
 	t.Run("delete_ok", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		mockRepository.On("Delete", context.Background(), 1).Return(nil)
@@ -393,7 +423,9 @@ func TestDelete(t *testing.T) {
 	})
 	t.Run("delete_non_existent", func(t *testing.T) {
 		mockSellerRepository := mockSeller.NewRepository(t)
-		sellerService := seller.NewService(mockSellerRepository)
+		mockLocalityRepository := mocksLocality.NewRepository(t)
+		localityService := locality.NewService(mockLocalityRepository)
+		sellerService := seller.NewService(mockSellerRepository, localityService)
 		mockRepository := mocks.NewRepository(t)
 		service := products.NewService(mockRepository, sellerService)
 		e := fmt.Errorf("produto 3 não encontrado")

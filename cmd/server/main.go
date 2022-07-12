@@ -29,7 +29,9 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
+
 	err := godotenv.Load("../../.env")
+
 	if err != nil {
 		log.Fatal("failed to load .env")
 	}
@@ -43,7 +45,8 @@ func main() {
 
 	baseRoute := server.Group("/api/v1/")
 	{
-		sellerService := routes.Sellers(baseRoute)
+		localityService := routes.Localities(baseRoute)
+		sellerService := routes.Sellers(baseRoute, localityService)
 		productsService := routes.Products(baseRoute, sellerService)
 
 		routes.ProductRecord(baseRoute, productsService)

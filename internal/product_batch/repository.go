@@ -1,6 +1,7 @@
 package productbatch
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 )
@@ -26,9 +27,9 @@ type Report struct {
 }
 
 type Repository interface {
-	Create(pb ProductBatch) (ProductBatch, error)
-	Report() ([]Report, error)
-	ReportByID(id int) (Report, error)
+	Create(ctx context.Context, pb ProductBatch) (ProductBatch, error)
+	Report(ctx context.Context) ([]Report, error)
+	ReportByID(ctx context.Context, id int) (Report, error)
 }
 
 type repository struct {
@@ -39,8 +40,8 @@ func NewRepository(db *sql.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r repository) Create(pb ProductBatch) (ProductBatch, error) {
-	res, err := r.db.Exec(SqlCreateBatch, pb.BatchNumber, pb.CurQuantity, pb.CurTemperature, pb.DueDate,
+func (r repository) Create(ctx context.Context, pb ProductBatch) (ProductBatch, error) {
+	res, err := r.db.ExecContext(ctx, SqlCreateBatch, pb.BatchNumber, pb.CurQuantity, pb.CurTemperature, pb.DueDate,
 		pb.InitialQuantity, pb.ManufactDate, pb.ManufactHour, pb.MinTemperature, pb.ProductTypeID, pb.SectionID)
 	if err != nil {
 		return ProductBatch{}, err
@@ -57,8 +58,8 @@ func (r repository) Create(pb ProductBatch) (ProductBatch, error) {
 	return pb, nil
 }
 
-func (r repository) Report() ([]Report, error) {
-	rows, err := r.db.Query(SqlReportBatchAll)
+func (r repository) Report(ctx context.Context) ([]Report, error) {
+	rows, err := r.db.QueryContext(ctx, SqlReportBatchAll)
 	if err != nil {
 		return []Report{}, err
 	}
@@ -80,8 +81,8 @@ func (r repository) Report() ([]Report, error) {
 	return rep, nil
 }
 
-func (r repository) ReportByID(id int) (Report, error) {
-	rows := r.db.QueryRow(SqlReportBatchByID, id)
+func (r repository) ReportByID(ctx context.Context, id int) (Report, error) {
+	rows := r.db.QueryRowContext(ctx, SqlReportBatchByID, id)
 
 	var rep Report
 	err := rows.Scan(&rep.SecID, &rep.SecNum, &rep.ProdCount)

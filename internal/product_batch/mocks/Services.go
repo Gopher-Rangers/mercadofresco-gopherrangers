@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	productbatch "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product_batch"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -12,20 +14,20 @@ type Services struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: pb
-func (_m *Services) Create(pb productbatch.ProductBatch) (productbatch.ProductBatch, error) {
-	ret := _m.Called(pb)
+// Create provides a mock function with given fields: ctx, pb
+func (_m *Services) Create(ctx context.Context, pb productbatch.ProductBatch) (productbatch.ProductBatch, error) {
+	ret := _m.Called(ctx, pb)
 
 	var r0 productbatch.ProductBatch
-	if rf, ok := ret.Get(0).(func(productbatch.ProductBatch) productbatch.ProductBatch); ok {
-		r0 = rf(pb)
+	if rf, ok := ret.Get(0).(func(context.Context, productbatch.ProductBatch) productbatch.ProductBatch); ok {
+		r0 = rf(ctx, pb)
 	} else {
 		r0 = ret.Get(0).(productbatch.ProductBatch)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(productbatch.ProductBatch) error); ok {
-		r1 = rf(pb)
+	if rf, ok := ret.Get(1).(func(context.Context, productbatch.ProductBatch) error); ok {
+		r1 = rf(ctx, pb)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -33,13 +35,13 @@ func (_m *Services) Create(pb productbatch.ProductBatch) (productbatch.ProductBa
 	return r0, r1
 }
 
-// Report provides a mock function with given fields:
-func (_m *Services) Report() ([]productbatch.Report, error) {
-	ret := _m.Called()
+// Report provides a mock function with given fields: ctx
+func (_m *Services) Report(ctx context.Context) ([]productbatch.Report, error) {
+	ret := _m.Called(ctx)
 
 	var r0 []productbatch.Report
-	if rf, ok := ret.Get(0).(func() []productbatch.Report); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) []productbatch.Report); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]productbatch.Report)
@@ -47,8 +49,8 @@ func (_m *Services) Report() ([]productbatch.Report, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -56,20 +58,20 @@ func (_m *Services) Report() ([]productbatch.Report, error) {
 	return r0, r1
 }
 
-// ReportByID provides a mock function with given fields: id
-func (_m *Services) ReportByID(id int) (productbatch.Report, error) {
-	ret := _m.Called(id)
+// ReportByID provides a mock function with given fields: ctx, id
+func (_m *Services) ReportByID(ctx context.Context, id int) (productbatch.Report, error) {
+	ret := _m.Called(ctx, id)
 
 	var r0 productbatch.Report
-	if rf, ok := ret.Get(0).(func(int) productbatch.Report); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, int) productbatch.Report); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Get(0).(productbatch.Report)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
+		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -23,6 +23,7 @@ const (
 	DELETE       = "DELETE FROM products WHERE id=?"
 	PRODUCT_CODE = `SELECT product_code FROM products
 					WHERE id != ? and product_code = ?`
+	PRODUCT_TYPE = `SELECT * FROM product_types WHERE id=?`
 )
 
 type Product struct {
@@ -40,6 +41,11 @@ type Product struct {
 	SellerId                       int     `json:"seller_id"`
 }
 
+type productType struct {
+	ID          int    `json:"id"`
+	Description string `json:"description" validate:"required"`
+}
+
 type Repository interface {
 	Store(ctx context.Context, prod Product) (Product, error)
 	GetAll(ctx context.Context) ([]Product, error)
@@ -47,6 +53,7 @@ type Repository interface {
 	Update(ctx context.Context, prod Product, id int) (Product, error)
 	Delete(ctx context.Context, id int) error
 	CheckProductCode(ctx context.Context, id int, productCode string) bool
+	CheckProductType(ctx context.Context, productTypeId int) bool
 }
 
 type repository struct {
@@ -165,4 +172,15 @@ func (r *repository) CheckProductCode(ctx context.Context,
 	defer stmt.Close()
 	err = stmt.QueryRowContext(ctx, id, productCode).Scan(&productCode)
 	return err != nil
+}
+
+func (r *repository) CheckProductType(ctx context.Context, productTypeId int) bool {
+	stmt, err := r.db.PrepareContext(ctx, PRODUCT_TYPE)
+	if err != nil {
+		return false
+	}
+	defer stmt.Close()
+	pt := productType{}
+	err = stmt.QueryRowContext(ctx, productTypeId).Scan(&pt.ID, &pt.Description)
+	return err == nil
 }

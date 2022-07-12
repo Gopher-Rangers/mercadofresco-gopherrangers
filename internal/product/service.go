@@ -9,6 +9,7 @@ import (
 
 const (
 	ERROR_INEXISTENT_SELLER = "the seller id doesn`t exist"
+	ERROR_INEXISTENT_PRODUCT_TYPE = "the product type id doesn`t exist"
 	ERROR_UNIQUE_PRODUCT_CODE = "the product code must be unique"
 )
 
@@ -37,6 +38,9 @@ func (s *service) checkIfSellerExists(ctx context.Context, prod Product) bool {
 }
 
 func (s *service) Store(ctx context.Context, prod Product) (Product, error) {
+	if !s.repository.CheckProductType(ctx, prod.ProductTypeId) {
+		return Product{}, fmt.Errorf(ERROR_INEXISTENT_PRODUCT_TYPE)
+	}
 	if !s.checkIfSellerExists(ctx, prod) {
 		return Product{}, fmt.Errorf(ERROR_INEXISTENT_SELLER)
 	}
@@ -65,6 +69,9 @@ func (s *service) GetById(ctx context.Context, id int) (Product, error) {
 
 func (s *service) Update(ctx context.Context, prod Product, id int) (
 	Product, error) {
+	if !s.repository.CheckProductType(ctx, prod.ProductTypeId) {
+		return Product{}, fmt.Errorf(ERROR_INEXISTENT_PRODUCT_TYPE)
+	}
 	if !s.checkIfSellerExists(ctx, prod) {
 		return Product{}, fmt.Errorf(ERROR_INEXISTENT_SELLER)
 	}

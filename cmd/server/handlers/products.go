@@ -97,7 +97,9 @@ func (prod *Product) Store() gin.HandlerFunc {
 		}
 		p, err := prod.service.Store(c.Request.Context(), req)
 		if err != nil {
-			if err.Error() == ERROR_UNIQUE_PRODUCT_CODE {
+			if err.Error() == products.ERROR_UNIQUE_PRODUCT_CODE ||
+				err.Error() == products.ERROR_INEXISTENT_PRODUCT_TYPE ||
+				err.Error() == products.ERROR_INEXISTENT_SELLER {
 				c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 				return
 			}
@@ -218,7 +220,9 @@ func (prod *Product) Update() gin.HandlerFunc {
 		}
 		p, err := prod.service.Update(c.Request.Context(), req, int(id))
 		if err != nil {
-			if err.Error() == ERROR_UNIQUE_PRODUCT_CODE {
+			if err.Error() == products.ERROR_UNIQUE_PRODUCT_CODE ||
+				err.Error() == products.ERROR_INEXISTENT_PRODUCT_TYPE ||
+				err.Error() == products.ERROR_INEXISTENT_SELLER {
 				c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 				return
 			}

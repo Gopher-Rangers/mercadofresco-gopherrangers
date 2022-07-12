@@ -323,5 +323,29 @@ func TestRepositoryProductCode(t *testing.T) {
 		res := productsRepo.CheckProductCode(context.Background(), 1, "001")
 		assert.Equal(t, res, false)
 	})
+}
 
+func TestRepositoryProductType(t *testing.T) {
+	t.Run("product_type_ok", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(products.PRODUCT_TYPE))
+		stmt.ExpectQuery().WithArgs(
+			context.Background(), 1).WillReturnRows()
+		productsRepo := products.NewRepository(db)
+		res := productsRepo.CheckProductType(context.Background(), 1)
+		assert.Equal(t, res, false)
+	})
+	t.Run("product_type_prepare_fail", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		errPrepare := fmt.Errorf("fail to preprare")
+		mock.ExpectPrepare(regexp.QuoteMeta(
+			products.PRODUCT_CODE)).WillReturnError(errPrepare)
+		productsRepo := products.NewRepository(db)
+		res := productsRepo.CheckProductType(context.Background(), 1)
+		assert.Equal(t, res, false)
+	})
 }

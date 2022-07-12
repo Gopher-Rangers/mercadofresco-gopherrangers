@@ -28,6 +28,20 @@ func (_m *Repository) CheckProductCode(ctx context.Context, id int, productCode 
 	return r0
 }
 
+// CheckProductType provides a mock function with given fields: ctx, productTypeId
+func (_m *Repository) CheckProductType(ctx context.Context, productTypeId int) bool {
+	ret := _m.Called(ctx, productTypeId)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(context.Context, int) bool); ok {
+		r0 = rf(ctx, productTypeId)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
 // Delete provides a mock function with given fields: ctx, id
 func (_m *Repository) Delete(ctx context.Context, id int) error {
 	ret := _m.Called(ctx, id)

@@ -56,7 +56,7 @@ func main() {
 
 		routes.ProductBatches(baseRoute)
 
-		routes.Sellers(baseRoute)
+		routes.Sellers(baseRoute, localityService)
 
 		routes.Employees(baseRoute)
 

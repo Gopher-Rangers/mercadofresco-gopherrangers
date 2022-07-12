@@ -46,7 +46,7 @@ func (r repository) Create(cardNum int, firstName string, lastName string, wareh
 
 	rowsAffected, _ := res.RowsAffected()
 	if rowsAffected <= 0 {
-		return Employee{}, fmt.Errorf("rows not affected")
+		return Employee{}, fmt.Errorf("employee not created")
 	}
 
 	lastID, _ := res.LastInsertId()

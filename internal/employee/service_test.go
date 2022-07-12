@@ -94,7 +94,7 @@ func TestCreate(t *testing.T) {
 		}
 
 		mockRepository.On("GetAll").Return(employees, nil)
-		mockRepository.On("Create", 3, expected.CardNumber, expected.FirstName, expected.LastName, expected.WareHouseID).Return(expected, nil)
+		mockRepository.On("Create", expected.CardNumber, expected.FirstName, expected.LastName, expected.WareHouseID).Return(expected, nil)
 		employee, err := service.Create(expected.CardNumber, expected.FirstName, expected.LastName, expected.WareHouseID)
 		assert.Nil(t, err)
 		assert.Equal(t, expected, employee)
@@ -124,21 +124,25 @@ func TestUpdate(t *testing.T) {
 			LastName:    "Diferente",
 			WareHouseID: 76657665445,
 		}
-		mockRepository.On("Update", expected, 2).Return(expected, nil)
+
+		mockRepository.On("GetById", 2).Return(expected, nil)
+		mockRepository.On("Update", 2, expected.FirstName, expected.LastName, expected.WareHouseID).Return(expected, nil)
 		employee, err := service.Update(expected, 2)
 		assert.Nil(t, err)
 		assert.Equal(t, expected, employee)
 	})
 	t.Run("update_non_existent", func(t *testing.T) {
-		mockRespository := mocks.NewRepository(t)
-		service := employee.NewService(mockRespository)
+		mockRepository := mocks.NewRepository(t)
+		service := employee.NewService(mockRepository)
 		expected := employee.Employee{
 			FirstName:   "Nome",
 			LastName:    "Diferente",
 			WareHouseID: 76657665445,
 		}
 		e := fmt.Errorf("funcionário não foi encontrado")
-		mockRespository.On("Update", expected, 15).Return(expected, e)
+
+		mockRepository.On("GetById", 15).Return(expected, nil)
+		mockRepository.On("Update", 15, expected.FirstName, expected.LastName, expected.WareHouseID).Return(expected, e)
 		_, err := service.Update(expected, 15)
 		assert.Equal(t, e, err)
 	})

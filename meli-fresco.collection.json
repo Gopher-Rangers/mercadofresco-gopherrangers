@@ -1,9 +1,8 @@
 {
 	"info": {
-		"_postman_id": "16b60108-c557-4059-9a96-2142cd6b38ed",
+		"_postman_id": "825d0b62-8595-4116-90ae-b5ce261fc715",
 		"name": "meli-fresco",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "21224036"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
@@ -600,18 +599,43 @@
 					"response": []
 				},
 				{
-					"name": "Create - Buyers",
+					"name": "GetAll - Buyers Copy",
 					"request": {
-						"method": "POST",
+						"method": "GET",
 						"header": [
 							{
 								"key": "token",
 								"value": "mafagafo"
 							}
 						],
+						"url": {
+							"raw": "localhost:8080/api/v1/buyers",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"buyers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create - Buyers",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "CSGO"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"card_number_id\": \"Card11\",\n    \"first_name\": \"Victor Hugoo\",\n    \"last_name\": \"Grabowski Beltramini\"\n}",
+							"raw": "{\n    \"card_number_id\": \"Card4\",\n    \"first_name\": \"Teste\",\n    \"last_name\": \"Beltramini\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -640,12 +664,12 @@
 						"header": [
 							{
 								"key": "token",
-								"value": "mafagafo",
+								"value": "CSGO",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "localhost:8080/api/v1/buyers/1823565335",
+							"raw": "localhost:8080/api/v1/buyers/5",
 							"host": [
 								"localhost"
 							],
@@ -654,7 +678,7 @@
 								"api",
 								"v1",
 								"buyers",
-								"1823565335"
+								"5"
 							]
 						}
 					},
@@ -690,6 +714,147 @@
 								"v1",
 								"buyers",
 								"3809393133"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Purchase Orders",
+			"item": [
+				{
+					"name": "GetById - Purchase Orders",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "CSGO"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/purchase-orders/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"purchase-orders",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create - Purchase Orders",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "CSGO"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n        \"order_number\": \"order4\",\n        \"order_date\": \"2008-11-11\",\n        \"tracking_code\": \"1521\",\n        \"buyer_id\": 1,\n        \"product_record_id\": 1,\n        \"order_status_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/purchase-orders",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"purchase-orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetById - Buyer with purchases",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "CSGO"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/v1/buyers/report-purchase-orders?id=2",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"buyers",
+								"report-purchase-orders"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAll - Buyers with purchases Copy",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "CSGO"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/v1/buyers/report-purchase-orders?id=2",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"buyers",
+								"report-purchase-orders"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								}
 							]
 						}
 					},

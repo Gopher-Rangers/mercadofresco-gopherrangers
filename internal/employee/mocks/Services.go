@@ -48,7 +48,7 @@ func (_m *Services) Delete(id int) error {
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *Services) GetAll() []employee.Employee {
+func (_m *Services) GetAll() ([]employee.Employee, error) {
 	ret := _m.Called()
 
 	var r0 []employee.Employee
@@ -60,7 +60,14 @@ func (_m *Services) GetAll() []employee.Employee {
 		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetById provides a mock function with given fields: id
@@ -84,18 +91,25 @@ func (_m *Services) GetById(id int) (employee.Employee, error) {
 	return r0, r1
 }
 
-// LastID provides a mock function with given fields:
-func (_m *Services) LastID() int {
-	ret := _m.Called()
+// GetCount provides a mock function with given fields: id, counter
+func (_m *Services) GetCount(id int, counter int) (employee.EmployeeOrderCount, error) {
+	ret := _m.Called(id, counter)
 
-	var r0 int
-	if rf, ok := ret.Get(0).(func() int); ok {
-		r0 = rf()
+	var r0 employee.EmployeeOrderCount
+	if rf, ok := ret.Get(0).(func(int, int) employee.EmployeeOrderCount); ok {
+		r0 = rf(id, counter)
 	} else {
-		r0 = ret.Get(0).(int)
+		r0 = ret.Get(0).(employee.EmployeeOrderCount)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(id, counter)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // Update provides a mock function with given fields: emp, id

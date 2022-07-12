@@ -12,20 +12,20 @@ type Repository struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: id, cardNum, firstName, lastName, warehouseId
-func (_m *Repository) Create(id int, cardNum int, firstName string, lastName string, warehouseId int) (employee.Employee, error) {
-	ret := _m.Called(id, cardNum, firstName, lastName, warehouseId)
+// Create provides a mock function with given fields: cardNum, firstName, lastName, warehouseId
+func (_m *Repository) Create(cardNum int, firstName string, lastName string, warehouseId int) (employee.Employee, error) {
+	ret := _m.Called(cardNum, firstName, lastName, warehouseId)
 
 	var r0 employee.Employee
-	if rf, ok := ret.Get(0).(func(int, int, string, string, int) employee.Employee); ok {
-		r0 = rf(id, cardNum, firstName, lastName, warehouseId)
+	if rf, ok := ret.Get(0).(func(int, string, string, int) employee.Employee); ok {
+		r0 = rf(cardNum, firstName, lastName, warehouseId)
 	} else {
 		r0 = ret.Get(0).(employee.Employee)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int, string, string, int) error); ok {
-		r1 = rf(id, cardNum, firstName, lastName, warehouseId)
+	if rf, ok := ret.Get(1).(func(int, string, string, int) error); ok {
+		r1 = rf(cardNum, firstName, lastName, warehouseId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -48,7 +48,7 @@ func (_m *Repository) Delete(id int) error {
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *Repository) GetAll() []employee.Employee {
+func (_m *Repository) GetAll() ([]employee.Employee, error) {
 	ret := _m.Called()
 
 	var r0 []employee.Employee
@@ -60,7 +60,14 @@ func (_m *Repository) GetAll() []employee.Employee {
 		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetById provides a mock function with given fields: id
@@ -84,34 +91,20 @@ func (_m *Repository) GetById(id int) (employee.Employee, error) {
 	return r0, r1
 }
 
-// LastID provides a mock function with given fields:
-func (_m *Repository) LastID() int {
-	ret := _m.Called()
-
-	var r0 int
-	if rf, ok := ret.Get(0).(func() int); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(int)
-	}
-
-	return r0
-}
-
-// Update provides a mock function with given fields: emp, id
-func (_m *Repository) Update(emp employee.Employee, id int) (employee.Employee, error) {
-	ret := _m.Called(emp, id)
+// Update provides a mock function with given fields: id, firstName, lastName, warehouseId
+func (_m *Repository) Update(id int, firstName string, lastName string, warehouseId int) (employee.Employee, error) {
+	ret := _m.Called(id, firstName, lastName, warehouseId)
 
 	var r0 employee.Employee
-	if rf, ok := ret.Get(0).(func(employee.Employee, int) employee.Employee); ok {
-		r0 = rf(emp, id)
+	if rf, ok := ret.Get(0).(func(int, string, string, int) employee.Employee); ok {
+		r0 = rf(id, firstName, lastName, warehouseId)
 	} else {
 		r0 = ret.Get(0).(employee.Employee)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(employee.Employee, int) error); ok {
-		r1 = rf(emp, id)
+	if rf, ok := ret.Get(1).(func(int, string, string, int) error); ok {
+		r1 = rf(id, firstName, lastName, warehouseId)
 	} else {
 		r1 = ret.Error(1)
 	}

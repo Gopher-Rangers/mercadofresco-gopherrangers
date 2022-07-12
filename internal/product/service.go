@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	ERROR_INEXISTENT_SELLER = "the seller id doesn`t exist"
+	ERROR_INEXISTENT_SELLER       = "the seller id doesn`t exist"
 	ERROR_INEXISTENT_PRODUCT_TYPE = "the product type id doesn`t exist"
-	ERROR_UNIQUE_PRODUCT_CODE = "the product code must be unique"
+	ERROR_UNIQUE_PRODUCT_CODE     = "the product code must be unique"
 )
 
 type Service interface {
@@ -22,18 +22,18 @@ type Service interface {
 }
 
 type service struct {
-	repository Repository
+	repository    Repository
 	sellerService seller.Service
 }
 
 func NewService(r Repository, sellerService seller.Service) Service {
 	return &service{
-		repository: r,
+		repository:    r,
 		sellerService: sellerService}
 }
 
 func (s *service) checkIfSellerExists(ctx context.Context, prod Product) bool {
-	_, err := s.sellerService.GetOne(ctx, prod.ID)
+	_, err := s.sellerService.GetOne(ctx, prod.SellerId)
 	return err == nil
 }
 

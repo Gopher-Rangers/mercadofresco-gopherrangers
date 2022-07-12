@@ -4,12 +4,18 @@ import (
 	"fmt"
 )
 
+type EmployeeOrderCount struct {
+	Employee
+	count int
+}
+
 type Services interface {
 	Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 	GetAll() ([]Employee, error)
 	Delete(id int) error
 	GetById(id int) (Employee, error)
 	Update(emp Employee, id int) (Employee, error)
+	GetCount(id, counter int) (EmployeeOrderCount, error)
 }
 
 type service struct {
@@ -90,4 +96,10 @@ func (s *service) Update(emp Employee, id int) (Employee, error) {
 		return Employee{}, err
 	}
 	return employee, nil
+}
+
+func (s *service) GetCount(id, counter int) (EmployeeOrderCount, error) {
+	employee, _ := s.repository.GetById(id)
+
+	return EmployeeOrderCount{employee, counter}, nil
 }

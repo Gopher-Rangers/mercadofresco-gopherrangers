@@ -16,6 +16,7 @@ type InboundOrder struct {
 
 type Repository interface {
 	Create(orderDate string, orderNumber string, employeeId int, productBatchId int, warehouseId int) (InboundOrder, error)
+	GetCountByEmployee(id int) (count int)
 }
 
 type repository struct {
@@ -41,4 +42,30 @@ func (r repository) Create(orderDate string, orderNumber string, employeeId int,
 
 	emp := InboundOrder{int(lastID), orderDate, orderNumber, employeeId, productBatchId, warehouseId}
 	return emp, nil
+}
+
+func (r repository) GetCountByEmployee(id int) (count int) {
+	var ordersArray []InboundOrder
+
+	rows, err := r.db.Query(SqlGetAllbyId, id)
+
+	if err != nil {
+		return id
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var order InboundOrder
+
+		_ = rows.Scan(&order.ID)
+
+		if err != nil {
+			return id
+		}
+
+		ordersArray = append(ordersArray, order)
+	}
+
+	return len(ordersArray)
 }

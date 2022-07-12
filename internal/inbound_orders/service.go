@@ -1,7 +1,8 @@
 package inboundorders
 
 type Services interface {
-	Create(orderDate string, orderNumber string, employeeId int, productBatchId int, warehouseId int) (InboundOrder, error)
+	Create(orderDate, orderNumber string, employeeId, productBatchId, warehouseId int) (InboundOrder, error)
+	GetCounterByEmployee(id int) (counter int)
 }
 
 type service struct {
@@ -13,10 +14,16 @@ func NewService(r Repository) Services {
 	return &s
 }
 
-func (s *service) Create(orderDate string, orderNumber string, employeeId int, productBatchId int, warehouseId int) (InboundOrder, error) {
+func (s *service) Create(orderDate, orderNumber string, employeeId, productBatchId, warehouseId int) (InboundOrder, error) {
 	inboundOrder, err := s.repository.Create(orderDate, orderNumber, employeeId, productBatchId, warehouseId)
 	if err != nil {
 		return InboundOrder{}, err
 	}
 	return inboundOrder, nil
+}
+
+func (s *service) GetCounterByEmployee(id int) (counter int) {
+	counter = s.repository.GetCountByEmployee(id)
+
+	return counter
 }

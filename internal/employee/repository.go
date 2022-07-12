@@ -13,6 +13,15 @@ type Employee struct {
 	WareHouseID int    `json:"warehouse_id"`
 }
 
+type EmployeeInboundOrders struct {
+	ID                 int    `json:"id"`
+	CardNumber         int    `json:"card_number_id"`
+	FirstName          string `json:"first_name"`
+	LastName           string `json:"last_name"`
+	WareHouseID        int    `json:"warehouse_id"`
+	InboundOrdersCount int    `json:"inbound_orders_count"`
+}
+
 type Repository interface {
 	Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error)
 	GetAll() ([]Employee, error)

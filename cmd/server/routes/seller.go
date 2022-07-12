@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Sellers(routerGroup *gin.RouterGroup) {
+func Sellers(routerGroup *gin.RouterGroup) seller.Service {
 
 	sellerRepository := seller.NewMariaDBRepository(database.GetInstance())
 	sellerService := seller.NewService(sellerRepository)
@@ -22,4 +22,5 @@ func Sellers(routerGroup *gin.RouterGroup) {
 		sellerRouterGroup.POST("/", sellerController.Create)
 		sellerRouterGroup.DELETE("/:id", sellerController.Delete)
 	}
+	return sellerService
 }

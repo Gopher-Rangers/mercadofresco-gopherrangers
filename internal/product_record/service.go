@@ -30,8 +30,8 @@ func NewService(r Repository, productsService products.Service) Service {
 		productsService: productsService}
 }
 
-func (s *service) checkIfProductExists(prod ProductRecord) bool {
-	_, err := s.productsService.GetById(prod.ProductId)
+func (s *service) checkIfProductExists(ctx context.Context, prod ProductRecord) bool {
+	_, err := s.productsService.GetById(ctx, prod.ProductId)
 	return err == nil
 }
 
@@ -48,7 +48,7 @@ func (s *service) checkDatetime(last_update_time string) (bool, error) {
 }
 
 func (s *service) Store(ctx context.Context, prod ProductRecord) (ProductRecord, error) {
-	if !s.checkIfProductExists(prod) {
+	if !s.checkIfProductExists(ctx, prod) {
 		return ProductRecord{}, fmt.Errorf(ERROR_INEXISTENT_PRODUCT)
 	}
 	dateTimeOk, err := s.checkDatetime(prod.LastUpdateDate)

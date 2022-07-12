@@ -61,8 +61,8 @@ func (r mysqlCarryRepository) GetCarryByCid(cid string) (domain.Carry, error) {
 	err := stmt.Scan(&carry.ID, &carry.Cid, &carry.Name, &carry.Address, &carry.Telephone, &carry.LocalityID)
 
 	if err != nil {
-		return domain.Carry{}, fmt.Errorf("o carry com esse `cid`: %s não foi encontrado", carry.Cid)
+		return domain.Carry{}, fmt.Errorf("a carry com esse `cid`: %s não foi encontrada", carry.Cid)
 	}
 
-	return domain.Carry{}, nil
+	return carry, nil
 }

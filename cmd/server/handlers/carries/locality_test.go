@@ -39,7 +39,7 @@ func Test_GetCarryLocality(t *testing.T) {
 
 	t.Run("Deve retornar um código 404, quando a locality da carry não existir.", func(t *testing.T) {
 
-		repository.On("GetCarryLocalityByID", 1).Return(domain.Locality{}, errors.New("O warehouse não foi encontrado!")).Once()
+		repository.On("GetCarryLocalityByID", 1).Return(domain.Locality{}, errors.New("a localidade não foi encontrada!")).Once()
 
 		rr := httptest.NewRecorder()
 
@@ -95,7 +95,7 @@ func Test_GetCarryLocality(t *testing.T) {
 
 		json.Unmarshal(rr.Body.Bytes(), &respBody)
 
-		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		assert.Equal(t, http.StatusInternalServerError, rr.Code)
 		assert.Contains(t, "erro ao acessar o banco de dados", respBody.Error)
 	})
 

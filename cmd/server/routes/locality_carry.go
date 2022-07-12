@@ -18,5 +18,6 @@ func LocalityCarry(routerGroup *gin.RouterGroup) {
 	{
 
 		localityRouterGroup.GET("/", localityHandler.GetCarryLocality)
+
 	}
 }

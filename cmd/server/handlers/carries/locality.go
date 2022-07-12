@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/domain"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/usecases"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/pkg/web"
 	"github.com/gin-gonic/gin"
@@ -19,29 +20,41 @@ func NewLocality(l usecases.ServiceLocality) Locality {
 
 func (l Locality) GetCarryLocality(ctx *gin.Context) {
 
-	localityID, _ := strconv.Atoi(ctx.Query("id"))
+	localityIDs := ctx.QueryArray("id")
 
-	if localityID == 0 {
-		localities, err := l.service.GetAllCarriesLocality()
+	results := []domain.Locality{}
 
-		if err != nil {
-			ctx.JSON(web.DecodeError(http.StatusBadRequest, "erro ao acessar o banco de dados"))
+	for _, stringId := range localityIDs {
+
+		id, err := strconv.Atoi(stringId)
+
+		if id == 0 {
+			localities, err := l.service.GetAllCarriesLocality()
+
+			if err != nil {
+				ctx.JSON(web.DecodeError(http.StatusInternalServerError, "erro ao acessar o banco de dados"))
+				return
+			}
+
+			ctx.JSON(web.NewResponse(http.StatusOK, localities))
 			return
 		}
 
-		ctx.JSON(web.NewResponse(http.StatusOK, localities))
+		if err != nil {
+			ctx.JSON(web.DecodeError(http.StatusBadRequest, "id fornecido é inválido!"))
+			return
+		}
 
-	} else {
-
-		locality, err := l.service.GetCarryLocalityByID(localityID)
+		locality, err := l.service.GetCarryLocalityByID(id)
 
 		if err != nil {
 			ctx.JSON(web.DecodeError(http.StatusNotFound, "a localidade não foi encontrada!"))
 			return
 		}
 
-		ctx.JSON(web.NewResponse(http.StatusOK, locality))
+		results = append(results, locality)
 
 	}
 
+	ctx.JSON(web.NewResponse(http.StatusOK, results))
 }

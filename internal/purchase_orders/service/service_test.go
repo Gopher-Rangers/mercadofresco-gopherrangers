@@ -63,9 +63,9 @@ func TestCreate(t *testing.T) {
 			ProductRecordId: 1,
 			OrderStatusId:   1,
 		}
-		mockRepository.On("ValidadeOrderNumber", expected.OrderNumber).Return(false, fmt.Errorf("error"))
+		mockRepository.On("ValidadeOrderNumber", expected.OrderNumber).Return(false, fmt.Errorf("the order number must be unique"))
 		_, err := newService.Create(ctx, expected)
-		assert.Equal(t, fmt.Errorf("error"), err)
+		assert.Equal(t, fmt.Errorf("the order number must be unique"), err)
 	})
 	t.Run("create_ok", func(t *testing.T) {
 		ctx := context.Background()

@@ -25,7 +25,7 @@ func (s *service) GetById(ctx context.Context, id int) (domain.PurchaseOrders, e
 func (s *service) Create(ctx context.Context, purchaseOrder domain.PurchaseOrders) (domain.PurchaseOrders, error) {
 	isValid, err := s.repository.ValidadeOrderNumber(purchaseOrder.OrderNumber)
 	if err != nil {
-		return domain.PurchaseOrders{}, err
+		return domain.PurchaseOrders{}, fmt.Errorf(domain.ERROR_UNIQUE_ORDER_NUMBER)
 	}
 	if !isValid {
 		return domain.PurchaseOrders{}, fmt.Errorf("order number: %s already exist", purchaseOrder.OrderNumber)

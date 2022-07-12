@@ -5,8 +5,12 @@ import (
 )
 
 type EmployeeOrderCount struct {
-	Employee
-	count int
+	ID          int    `json:"id"`
+	CardNumber  int    `json:"card_number_id"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	WareHouseID int    `json:"warehouse_id"`
+	Count       int    `json:"inbound_orders_count"`
 }
 
 type Services interface {
@@ -101,5 +105,5 @@ func (s *service) Update(emp Employee, id int) (Employee, error) {
 func (s *service) GetCount(id, counter int) (EmployeeOrderCount, error) {
 	employee, _ := s.repository.GetById(id)
 
-	return EmployeeOrderCount{employee, counter}, nil
+	return EmployeeOrderCount{employee.ID, employee.CardNumber, employee.FirstName, employee.LastName, employee.WareHouseID, counter}, nil
 }

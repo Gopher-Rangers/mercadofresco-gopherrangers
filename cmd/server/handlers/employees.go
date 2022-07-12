@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -166,7 +165,6 @@ func (e Employee) GetOrderCount() gin.HandlerFunc {
 			return
 		}
 
-		fmt.Println(employee)
 		c.JSON(web.NewResponse(http.StatusOK, employee))
 	}
 }

@@ -118,6 +118,8 @@ func (r *repository) GetBuyerOrdersById(ctx context.Context, id int) (domain.Buy
 
 	var buyerData domain.BuyerTotalOrders
 
+	buyerData.ID = 0
+
 	rows, err := r.db.QueryContext(ctx, SqlBuyerWithOrdersById, id)
 	if err != nil {
 		return domain.BuyerTotalOrders{}, err
@@ -130,6 +132,10 @@ func (r *repository) GetBuyerOrdersById(ctx context.Context, id int) (domain.Buy
 		if err != nil {
 			return domain.BuyerTotalOrders{}, fmt.Errorf("buyer with id (%d) not founded", id)
 		}
+	}
+
+	if buyerData.ID == 0 {
+		return domain.BuyerTotalOrders{}, fmt.Errorf("buyer with id (%d) not founded", id)
 	}
 
 	return buyerData, nil

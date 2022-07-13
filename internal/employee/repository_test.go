@@ -67,9 +67,11 @@ func TestRepositoryUpdate(t *testing.T) {
 		assert.NoError(t, err)
 		defer db.Close()
 
+		rows := mockRow()
 		emp := createEmployeeArray()[0]
 		mock.ExpectExec(regexp.QuoteMeta(employees.SqlUpdate)).WithArgs(&emp.FirstName,
 			&emp.LastName, &emp.WareHouseID, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+		mock.ExpectQuery(regexp.QuoteMeta(employees.SqlGetById)).WithArgs(1).WillReturnRows(rows)
 		employeesRepo := employees.NewRepository(db)
 		result, err := employeesRepo.Update(1, emp.FirstName, emp.LastName, emp.WareHouseID)
 		assert.NoError(t, err)

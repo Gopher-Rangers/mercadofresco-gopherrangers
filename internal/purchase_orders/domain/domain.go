@@ -6,6 +6,7 @@ import (
 
 const (
 	ERROR_UNIQUE_ORDER_NUMBER = "the order number must be unique"
+	ERROR_WHILE_SAVING        = "the order number must be unique"
 )
 
 type PurchaseOrders struct {

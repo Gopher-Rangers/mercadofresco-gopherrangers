@@ -115,7 +115,7 @@ func (r repository) GetById(id int) (Employee, error) {
 
 	rows, err := r.db.Query(SqlGetById, id)
 	if err != nil {
-		return Employee{}, err
+		return Employee{}, fmt.Errorf("funcionario nao existe")
 	}
 
 	defer rows.Close()

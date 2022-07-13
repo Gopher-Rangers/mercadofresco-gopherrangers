@@ -54,28 +54,37 @@ func (r repository) Create(orderDate string, orderNumber string, employeeId int,
 	return emp, nil
 }
 
+// func (r repository) GetCountByEmployee(id int) (count int) {
+// 	var ordersArray []InboundOrder
+
+// 	rows, err := r.db.Query(SqlGetAllbyId, id)
+
+// 	if err != nil {
+// 		return id
+// 	}
+
+// 	defer rows.Close()
+
+// 	for rows.Next() {
+// 		var order InboundOrder
+
+// 		_ = rows.Scan(&order.ID)
+
+// 		if err != nil {
+// 			return id
+// 		}
+
+// 		ordersArray = append(ordersArray, order)
+// 	}
+
+// 	return len(ordersArray)
+// }
+
 func (r repository) GetCountByEmployee(id int) (count int) {
-	var ordersArray []InboundOrder
+	var counter int
+	row := r.db.QueryRow(SqlCountByEmployee, id)
 
-	rows, err := r.db.Query(SqlGetAllbyId, id)
+	_ = row.Scan(&counter)
 
-	if err != nil {
-		return id
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		var order InboundOrder
-
-		_ = rows.Scan(&order.ID)
-
-		if err != nil {
-			return id
-		}
-
-		ordersArray = append(ordersArray, order)
-	}
-
-	return len(ordersArray)
+	return counter
 }

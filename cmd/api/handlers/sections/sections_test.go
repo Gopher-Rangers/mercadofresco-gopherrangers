@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	sections "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/sections"
+	sections "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers/sections"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section/mocks"
 	"github.com/gin-gonic/gin"

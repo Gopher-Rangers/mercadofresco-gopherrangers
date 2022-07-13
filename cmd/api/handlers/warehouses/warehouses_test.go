@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/warehouses"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers/warehouses"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/domain"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/warehouse/usecases/mock/mock_service"
 

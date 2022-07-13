@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/database"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/validation"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/database"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers/validation"
 	purchaseOrdersHandler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/controller"
 	purchaseOrdersRepo "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/repository"
 	purchaseOrdersService "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/service"

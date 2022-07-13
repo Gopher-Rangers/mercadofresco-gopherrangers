@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/database"
-	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/database"
+	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers"
 	employees "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
 	inboundOrders "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/inbound_orders"
 

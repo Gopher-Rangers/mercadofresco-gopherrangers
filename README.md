@@ -193,7 +193,7 @@ docker-compose up
 go get -u
 
 # Access the server folder
-cd /cmd/server
+cd /cmd/api
 
 # Run the project
 go run main.go

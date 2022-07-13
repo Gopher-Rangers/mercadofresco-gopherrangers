@@ -40,7 +40,7 @@ func TestDelete(t *testing.T) {
 	t.Run("delete_non_existent", func(t *testing.T) {
 		mockRepository := mocks.NewRepository(t)
 		service := employee.NewService(mockRepository)
-		e := fmt.Errorf("Funcionário 80 não existe")
+		e := fmt.Errorf("funcionario nao existe")
 		mockRepository.On("Delete", 80).Return(e)
 		err := service.Delete(80)
 		assert.Equal(t, e, err)
@@ -65,19 +65,12 @@ func TestGetById(t *testing.T) {
 		service := employee.NewService(mockRepository)
 		employees := createEmployeeArray()
 		id := 2
+
+		mockRepository.On("GetAll").Return(employees, nil)
 		mockRepository.On("GetById", id).Return(employees[id-1], nil)
 		employee, err := service.GetById(id)
 		assert.Nil(t, err)
 		assert.Equal(t, employee, employees[id-1])
-	})
-	t.Run("find_by_id_non_existent", func(t *testing.T) {
-		mockRepository := mocks.NewRepository(t)
-		service := employee.NewService(mockRepository)
-		expectedError := fmt.Errorf("o funcionário não existe")
-		id := 9
-		mockRepository.On("GetById", id).Return(employee.Employee{}, expectedError)
-		_, err := service.GetById(id)
-		assert.Equal(t, expectedError, err)
 	})
 }
 
@@ -139,7 +132,7 @@ func TestUpdate(t *testing.T) {
 			LastName:    "Diferente",
 			WareHouseID: 76657665445,
 		}
-		e := fmt.Errorf("funcionário não foi encontrado")
+		e := fmt.Errorf("funcionario nao existe")
 
 		mockRepository.On("GetById", 15).Return(expected, nil)
 		mockRepository.On("Update", 15, expected.FirstName, expected.LastName, expected.WareHouseID).Return(expected, e)

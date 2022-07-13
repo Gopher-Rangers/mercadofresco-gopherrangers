@@ -84,7 +84,7 @@ func (r repository) GetAll() ([]Employee, error) {
 func (r repository) Update(id int, firstName string, lastName string, warehouseId int) (Employee, error) {
 	res, err := r.db.Exec(SqlUpdate, firstName, lastName, warehouseId, id)
 	if err != nil {
-		return Employee{}, err
+		return Employee{}, fmt.Errorf("funcionario nao existe")
 	}
 
 	rowsAffected, _ := res.RowsAffected()

@@ -77,6 +77,19 @@ func TestRepositoryUpdate(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, result, emp)
 	})
+	t.Run("find_by_id_non_existent", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+
+		expectedError := fmt.Errorf("funcionario nao existe")
+		mock.ExpectQuery(regexp.QuoteMeta(employees.SqlUpdate)).WithArgs(13).WillReturnError(expectedError)
+		employeesRepo := employees.NewRepository(db)
+		result, err := employeesRepo.Update(13, "novo", "nome", 3)
+
+		assert.Equal(t, err, expectedError)
+		assert.Equal(t, result, employees.Employee{})
+	})
 }
 
 func TestRepositoryGetAll(t *testing.T) {

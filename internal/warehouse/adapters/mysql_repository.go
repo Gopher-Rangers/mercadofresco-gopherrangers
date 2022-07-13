@@ -38,7 +38,7 @@ func (r mysqlRepository) GetAll() []domain.Warehouse {
 		return []domain.Warehouse{}
 	}
 
-	defer rows.Close()
+	defer rows.Close() // fechar conexão com o banco de dados
 
 	warehouses := []domain.Warehouse{}
 
@@ -109,7 +109,7 @@ func (r *mysqlRepository) UpdatedWarehouseID(id int, code string) (domain.Wareho
 	warehouse, err := r.GetByID(id)
 
 	if err != nil {
-		return domain.Warehouse{}, fmt.Errorf("id inexistente no banco de dados")
+		return warehouse, fmt.Errorf("id inexistente no banco de dados")
 	}
 
 	stmt, err := r.db.Prepare(queryUpdateWarehouse)
@@ -137,12 +137,6 @@ func (r *mysqlRepository) UpdatedWarehouseID(id int, code string) (domain.Wareho
 
 func (r *mysqlRepository) DeleteWarehouse(id int) error {
 
-	_, err := r.GetByID(id)
-
-	if err != nil {
-		return fmt.Errorf("o id: %d não foi encontrado", id)
-	}
-
 	stmt, err := r.db.Prepare(queryDeleteWarehouse)
 
 	if err != nil {
@@ -151,10 +145,16 @@ func (r *mysqlRepository) DeleteWarehouse(id int) error {
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(id)
+	result, err := stmt.Exec(id)
 
 	if err != nil {
 		return fmt.Errorf("erro ao executar query: %v", err)
+	}
+
+	rows, _ := result.RowsAffected()
+
+	if rows == 0 {
+		return fmt.Errorf("id inexistente no banco de dados")
 	}
 
 	return nil

@@ -184,6 +184,7 @@ func TestReportPurchaseOrdersByBuyer(t *testing.T) {
 
 func createBaseData() []domain.Buyer {
 	var buyers []domain.Buyer
+
 	buyerOne := domain.Buyer{
 		ID:           25735482,
 		CardNumberId: "Card1",

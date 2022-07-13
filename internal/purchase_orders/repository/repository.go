@@ -69,5 +69,7 @@ func (r *repository) ValidadeOrderNumber(orderNumber string) (bool, error) {
 		return false, err
 	}
 
-	return !result, nil
+	fmt.Println(result)
+
+	return result, nil
 }

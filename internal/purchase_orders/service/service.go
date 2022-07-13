@@ -28,7 +28,7 @@ func (s *service) Create(ctx context.Context, purchaseOrder domain.PurchaseOrder
 		return domain.PurchaseOrders{}, fmt.Errorf(domain.ERROR_UNIQUE_ORDER_NUMBER)
 	}
 	if !isValid {
-		return domain.PurchaseOrders{}, fmt.Errorf("order number: %s already exist", purchaseOrder.OrderNumber)
+		return domain.PurchaseOrders{}, fmt.Errorf(domain.ERROR_UNIQUE_ORDER_NUMBER)
 	}
 
 	newPurchaseOrder, err := s.repository.Create(ctx, purchaseOrder)

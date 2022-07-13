@@ -5,16 +5,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/validation"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/controller"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/domain"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/domain/mocks"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 
-	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers/validation"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/controller"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/domain"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/buyer/domain/mocks"
+
+	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -90,7 +91,7 @@ func TestGetAll(t *testing.T) {
 
 		req, response := createRequestTestIvalidToken(http.MethodGet, URL, "")
 
-		buyerRouterGroup.GET("/", validation.AuthToken, buyerHandler.GetAll)
+		buyerRouterGroup.GET("/", buyerHandler.GetAll)
 		server.ServeHTTP(response, req)
 
 		resp := responseDataArray{}
@@ -171,7 +172,7 @@ func TestReportPurchaseOrdersByBuyer(t *testing.T) {
 
 		req, response := createRequestTestIvalidToken(http.MethodGet, URL+"report-purchase-orders", "")
 
-		buyerRouterGroup.GET("/report-purchase-orders", validation.AuthToken, buyerHandler.ReportPurchaseOrdersByBuyer)
+		buyerRouterGroup.GET("/report-purchase-orders", buyerHandler.ReportPurchaseOrdersByBuyer)
 		server.ServeHTTP(response, req)
 
 		resp := responseDataArray{}
@@ -243,7 +244,7 @@ func TestDelete(t *testing.T) {
 		req, response := createRequestTest(http.MethodDelete, URL+"1", "")
 
 		mockService.On("Delete", context.Background(), 1).Return(fmt.Errorf("produto 1 não encontrado"))
-		buyerRouterGroup.DELETE("/:id", validation.ValidateID, validation.AuthToken, buyerHandler.Delete)
+		buyerRouterGroup.DELETE("/:id", validation.ValidateID, buyerHandler.Delete)
 		server.ServeHTTP(response, req)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
@@ -256,7 +257,7 @@ func TestDelete(t *testing.T) {
 
 		req, response := createRequestTest(http.MethodDelete, URL+"non_number", "")
 
-		buyerRouterGroup.DELETE("/:id", validation.ValidateID, validation.AuthToken, buyerHandler.Delete)
+		buyerRouterGroup.DELETE("/:id", validation.ValidateID, buyerHandler.Delete)
 		server.ServeHTTP(response, req)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
@@ -269,7 +270,7 @@ func TestDelete(t *testing.T) {
 
 		req, response := createRequestTestIvalidToken(http.MethodDelete, URL+"1", "")
 
-		buyerRouterGroup.DELETE("/:id", validation.AuthToken, validation.ValidateID, buyerHandler.Delete)
+		buyerRouterGroup.DELETE("/:id", validation.ValidateID, buyerHandler.Delete)
 		server.ServeHTTP(response, req)
 
 		assert.Equal(t, http.StatusUnauthorized, response.Code)
@@ -341,7 +342,7 @@ func TestStore(t *testing.T) {
 		expected := `{"id":25735482,"card_number_id":"Card1","first_name":"Victor Hugoo","last_name":"Beltramini"}`
 
 		req, response := createRequestTestIvalidToken(http.MethodPost, URL, expected)
-		buyerRouterGroup.POST("/", validation.AuthToken, buyerHandler.Create)
+		buyerRouterGroup.POST("/", buyerHandler.Create)
 		server.ServeHTTP(response, req)
 
 		resp := responseData{}
@@ -361,7 +362,7 @@ func TestStore(t *testing.T) {
 		expected := `{"id":25735482,"card_number_id":"","first_name":"Victor Hugoo","last_name":"Beltramini"}`
 
 		req, response := createRequestTest(http.MethodPost, URL, expected)
-		buyerRouterGroup.POST("/", validation.AuthToken, buyerHandler.Create)
+		buyerRouterGroup.POST("/", buyerHandler.Create)
 		server.ServeHTTP(response, req)
 
 		resp := responseData{}
@@ -385,7 +386,7 @@ func TestGetById(t *testing.T) {
 		req, response := createRequestTest(http.MethodGet, URL+"1", "")
 
 		mockService.On("GetById", context.Background(), 1).Return(buyersData[0], nil)
-		buyerRouterGroup.GET("/:id", validation.ValidateID, validation.AuthToken, buyerHandler.GetBuyerById)
+		buyerRouterGroup.GET("/:id", validation.ValidateID, buyerHandler.GetBuyerById)
 		server.ServeHTTP(response, req)
 
 		resp := responseData{}
@@ -406,7 +407,7 @@ func TestGetById(t *testing.T) {
 		req, response := createRequestTest(http.MethodGet, URL+"25735483", "")
 
 		mockService.On("GetById", context.Background(), 25735483).Return(buyerData, fmt.Errorf("buyer with id %d not founded", 25735483))
-		buyerRouterGroup.GET("/:id", validation.ValidateID, validation.AuthToken, buyerHandler.GetBuyerById)
+		buyerRouterGroup.GET("/:id", validation.ValidateID, buyerHandler.GetBuyerById)
 		server.ServeHTTP(response, req)
 
 		resp := responseData{}
@@ -426,7 +427,7 @@ func TestGetById(t *testing.T) {
 		buyerData := domain.Buyer{}
 		req, response := createRequestTestIvalidToken(http.MethodGet, URL+"1", "")
 
-		buyerRouterGroup.GET("/:id", validation.ValidateID, validation.AuthToken, buyerHandler.GetBuyerById)
+		buyerRouterGroup.GET("/:id", validation.ValidateID, buyerHandler.GetBuyerById)
 		server.ServeHTTP(response, req)
 
 		resp := responseData{}
@@ -446,7 +447,7 @@ func TestGetById(t *testing.T) {
 		buyerData := domain.Buyer{}
 		req, response := createRequestTest(http.MethodGet, URL+"sdadas", "")
 
-		buyerRouterGroup.GET("/:id", validation.ValidateID, validation.AuthToken, buyerHandler.GetBuyerById)
+		buyerRouterGroup.GET("/:id", validation.ValidateID, buyerHandler.GetBuyerById)
 		server.ServeHTTP(response, req)
 
 		resp := responseData{}
@@ -496,7 +497,7 @@ func TestUpdate(t *testing.T) {
 		expected := `{"id":25735482,"card_number_id":"Card1231","first_name":"","last_name":"Beltramini"}`
 
 		req, response := createRequestTest(http.MethodPut, URL+"25735482", expected)
-		buyerRouterGroup.PUT("/:id", validation.ValidateID, validation.AuthToken, buyerHandler.Update)
+		buyerRouterGroup.PUT("/:id", validation.ValidateID, buyerHandler.Update)
 		server.ServeHTTP(response, req)
 
 		resp := responseData{}
@@ -516,7 +517,7 @@ func TestUpdate(t *testing.T) {
 		expected := `{"id":25735482,"card_number_id":"","first_name":"Victor","last_name":"Beltramini"}`
 
 		req, response := createRequestTest(http.MethodPut, URL+"25735482", expected)
-		buyerRouterGroup.PUT("/:id", validation.ValidateID, validation.AuthToken, buyerHandler.Update)
+		buyerRouterGroup.PUT("/:id", validation.ValidateID, buyerHandler.Update)
 		server.ServeHTTP(response, req)
 
 		resp := responseData{}
@@ -536,7 +537,7 @@ func TestUpdate(t *testing.T) {
 		expected := `{"id":25735482,"card_number_id":"Card1231","first_name":"Victor Hugo","last_name":""}`
 
 		req, response := createRequestTest(http.MethodPut, URL+"25735482", expected)
-		buyerRouterGroup.PUT("/:id", validation.ValidateID, validation.AuthToken, buyerHandler.Update)
+		buyerRouterGroup.PUT("/:id", validation.ValidateID, buyerHandler.Update)
 		server.ServeHTTP(response, req)
 
 		resp := responseData{}
@@ -581,7 +582,7 @@ func TestUpdate(t *testing.T) {
 
 		expected := `{"id":25735482,"card_number_id":"Card1231","first_name":"Victor Hugoo","last_name":"Beltramini"}`
 		req, response := createRequestTestIvalidToken(http.MethodPatch, URL+"1", expected)
-		buyerRouterGroup.PATCH("/:id", validation.AuthToken, buyerHandler.Update)
+		buyerRouterGroup.PATCH("/:id", buyerHandler.Update)
 		server.ServeHTTP(response, req)
 
 		resp := responseData{}

@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/database"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/product_batches"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/database"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers/product_batches"
 	productbatch "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product_batch"
 	"github.com/gin-gonic/gin"
 )

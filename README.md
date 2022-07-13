@@ -192,14 +192,10 @@ docker-compose up
 # Install requirements
 go get -u
 
-# Access the server folder
-cd /cmd/server
-
 # Run the project
-go run main.go
+go run ./...
 
 # To run the tests
-cd ../..
 go test ./... 
 
 # To see the tests coverage

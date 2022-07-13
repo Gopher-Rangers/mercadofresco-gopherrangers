@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/carries"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers/carries"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/domain"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/usecases"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/carry/usecases/mock/mock_repository_locality"

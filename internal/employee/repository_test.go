@@ -60,5 +60,4 @@ func TestRepositoryCreate(t *testing.T) {
 		assert.Equal(t, err, fmt.Errorf("employee not created"))
 		assert.Equal(t, result, employees.Employee{})
 	})
-
 }

@@ -73,11 +73,21 @@ func (s service) Delete(id int) error {
 }
 
 func (s service) GetById(id int) (Employee, error) {
-	employee, err := s.repository.GetById(id)
+	AllEmployees, err := s.repository.GetAll()
 	if err != nil {
 		return Employee{}, err
 	}
-	return employee, nil
+
+	for i := range AllEmployees {
+		if AllEmployees[i].ID == id {
+			emp, err := s.repository.GetById(id)
+			if err != nil {
+				return Employee{}, err
+			}
+			return emp, nil
+		}
+	}
+	return Employee{}, fmt.Errorf("funcionario nao existe")
 }
 
 func (s *service) Update(emp Employee, id int) (Employee, error) {

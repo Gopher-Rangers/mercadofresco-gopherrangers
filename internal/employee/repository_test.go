@@ -61,3 +61,19 @@ func TestRepositoryCreate(t *testing.T) {
 		assert.Equal(t, result, employees.Employee{})
 	})
 }
+
+// func TestRepositoryUpdate(t *testing.T) {
+// 	t.Run("update_ok", func(t *testing.T) {
+// 		db, mock, err := sqlmock.New()
+
+// 		assert.NoError(t, err)
+// 		defer db.Close()
+// 		emp := createEmployeeArray()[1]
+// 		mock.ExpectExec(regexp.QuoteMeta(employees.SqlUpdate)).WithArgs(&emp.FirstName,
+// 			&emp.LastName, &emp.WareHouseID, emp.ID).WillReturnResult(sqlmock.NewResult(1, 1))
+// 		employeesRepo := employees.NewRepository(db)
+// 		result, err := employeesRepo.Update(1, emp.FirstName, emp.LastName, emp.WareHouseID)
+// 		assert.NoError(t, err)
+// 		assert.Equal(t, result, emp)
+// 	})
+// }

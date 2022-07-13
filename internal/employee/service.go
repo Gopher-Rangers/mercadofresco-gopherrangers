@@ -66,9 +66,9 @@ func (s *service) GetAll() ([]Employee, error) {
 func (s service) Delete(id int) error {
 	err := s.repository.Delete(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("funcionario nao existe")
 	}
-	fmt.Println("chegou no service delete")
+
 	return nil
 }
 
@@ -107,7 +107,7 @@ func (s *service) Update(emp Employee, id int) (Employee, error) {
 
 	employee, err := s.repository.Update(id, emp.FirstName, emp.LastName, emp.WareHouseID)
 	if err != nil {
-		return Employee{}, err
+		return Employee{}, fmt.Errorf("funcionario nao existe")
 	}
 	return employee, nil
 }

@@ -41,7 +41,7 @@ func NewRepository(db *sql.DB) Repository {
 func (r repository) Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
 	res, err := r.db.Exec(SqlCreate, cardNum, firstName, lastName, warehouseId)
 	if err != nil {
-		return Employee{}, err
+		return Employee{}, fmt.Errorf("galpao %d nao existe", warehouseId)
 	}
 
 	rowsAffected, _ := res.RowsAffected()

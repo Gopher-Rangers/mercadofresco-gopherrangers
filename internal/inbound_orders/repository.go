@@ -3,6 +3,7 @@ package inboundorders
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 )
 
 type InboundOrder struct {
@@ -30,6 +31,15 @@ func NewRepository(db *sql.DB) Repository {
 func (r repository) Create(orderDate string, orderNumber string, employeeId int, productBatchId int, warehouseId int) (InboundOrder, error) {
 	res, err := r.db.Exec(SqlCreate, orderDate, orderNumber, employeeId, productBatchId, warehouseId)
 	if err != nil {
+		if strings.Contains(err.Error(), "employee_id") {
+			return InboundOrder{}, fmt.Errorf("funcionario nao existe")
+		}
+		if strings.Contains(err.Error(), "product_batch_id") {
+			return InboundOrder{}, fmt.Errorf("product batch nao existe")
+		}
+		if strings.Contains(err.Error(), "warehouse_id") {
+			return InboundOrder{}, fmt.Errorf("warehouse nao existe")
+		}
 		return InboundOrder{}, err
 	}
 

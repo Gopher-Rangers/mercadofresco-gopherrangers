@@ -22,7 +22,7 @@ type PurchaseOrders struct {
 type Repository interface {
 	Create(ctx context.Context, purchaseOrder PurchaseOrders) (PurchaseOrders, error)
 	GetById(ctx context.Context, id int) (PurchaseOrders, error)
-	ValidadeOrderNumber(orderNumber string) (bool, error)
+	ValidadeOrderNumber(ctx context.Context, orderNumber string) bool
 }
 
 type Service interface {

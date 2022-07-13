@@ -10,7 +10,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers/validation"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/controller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/domain"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/domain/mocks"
@@ -160,34 +159,9 @@ func TestCreate(t *testing.T) {
 		resp := responseData{}
 		json.Unmarshal(response.Body.Bytes(), &resp)
 
-		assert.Equal(t, http.StatusBadRequest, response.Code, resp.Code)
+		assert.Equal(t, http.StatusConflict, response.Code, resp.Code)
 		assert.Equal(t, domain.PurchaseOrders{}, resp.Data)
 		assert.Equal(t, resp.Error, "the order number must be unique")
-	})
-	t.Run("create_invalid_token", func(t *testing.T) {
-		mockService := mocks.NewService(t)
-		buyerHandler := controller.NewPurchaseOrder(mockService)
-
-		server := gin.Default()
-		buyerRouterGroup := server.Group(URL)
-
-		expected := `{"order_number": "order1",
-       "order_date": "2008-11-11T13:23:44Z",
-       "tracking_code": "1521",
-       "buyer_id": 1,
-       "product_record_id": 1,
-       "order_status_id": 1}`
-
-		req, response := createRequestTestIvalidToken(http.MethodPost, URL, expected)
-		buyerRouterGroup.POST("/", validation.AuthToken, buyerHandler.Create)
-		server.ServeHTTP(response, req)
-
-		resp := responseData{}
-		json.Unmarshal(response.Body.Bytes(), &resp)
-
-		assert.Equal(t, http.StatusUnauthorized, response.Code, resp.Code)
-		assert.Equal(t, domain.PurchaseOrders{}, resp.Data)
-		assert.Equal(t, resp.Error, "invalid token")
 	})
 }
 

@@ -19,8 +19,6 @@ func Buyers(routerGroup *gin.RouterGroup) {
 	buyerRouterGroup := routerGroup.Group("/buyers")
 	{
 
-		buyerRouterGroup.Use(validation.AuthToken)
-
 		buyerRouterGroup.GET("/", buyerHandler.GetAll)
 		buyerRouterGroup.POST("/", buyerHandler.Create)
 		buyerRouterGroup.GET("/:id", validation.ValidateID, buyerHandler.GetBuyerById)

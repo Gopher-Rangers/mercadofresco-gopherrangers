@@ -18,8 +18,6 @@ func PurchaseOrders(routerGroup *gin.RouterGroup) {
 
 	purchaseOrderGroup := routerGroup.Group("/purchase-orders")
 	{
-		purchaseOrderGroup.Use(validation.AuthToken)
-
 		purchaseOrderGroup.POST("/", handler.Create)
 		purchaseOrderGroup.GET("/:id", validation.ValidateID, handler.GetPurchaseOrderById)
 	}

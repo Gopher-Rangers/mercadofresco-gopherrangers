@@ -57,11 +57,11 @@ func (b *PurchaseOrders) Create(c *gin.Context) {
 	newPurchaseOrder, err := b.service.Create(c.Request.Context(), purchaseOrder)
 
 	if err != nil {
-		if err.Error() == domain.ERROR_WHILE_SAVING {
-			c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
+		if err.Error() == domain.ERROR_UNIQUE_ORDER_NUMBER {
+			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 			return
 		}
-		c.JSON(web.DecodeError(http.StatusConflict, domain.ERROR_UNIQUE_ORDER_NUMBER))
+		c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
 		return
 	}
 

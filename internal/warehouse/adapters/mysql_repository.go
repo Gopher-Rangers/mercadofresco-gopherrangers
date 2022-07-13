@@ -136,6 +136,13 @@ func (r *mysqlRepository) UpdatedWarehouseID(id int, code string) (domain.Wareho
 }
 
 func (r *mysqlRepository) DeleteWarehouse(id int) error {
+
+	_, err := r.GetByID(id)
+
+	if err != nil {
+		return fmt.Errorf("o id: %d não foi encontrado", id)
+	}
+
 	stmt, err := r.db.Prepare(queryDeleteWarehouse)
 
 	if err != nil {

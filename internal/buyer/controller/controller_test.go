@@ -80,6 +80,7 @@ func TestGetAll(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, baseData, resp.Data)
 	})
+}
 
 func TestReportPurchaseOrdersByBuyer(t *testing.T) {
 	t.Run("find_all", func(t *testing.T) {

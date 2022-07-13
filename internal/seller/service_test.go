@@ -111,7 +111,7 @@ func TestService_Update(t *testing.T) {
 		assert.Equal(t, expectedError, err)
 	})
 
-	t.Run("Se o cid já existir, o elemento não poderá ser atualizador.", func(t *testing.T) {
+	t.Run("Se o cid já existir, o elemento não poderá ser atualizado.", func(t *testing.T) {
 		mockRepo := mocks.NewRepository(t)
 		mockLocalityRepo := localityMock.NewRepository(t)
 
@@ -126,9 +126,9 @@ func TestService_Update(t *testing.T) {
 		mockRepo.On("GetAll", context.Background()).Return(sellerList, nil)
 
 		service := seller.NewService(mockRepo, mockLocalityRepo)
-		_, err := service.Update(context.Background(), 1, 5, "Meli", "América do Sul", "5501154545454", 1)
+		_, err := service.Update(context.Background(), 1, 6, "Meli", "América do Sul", "5501154545454", 1)
 
-		assert.NotNil(t, err)
+		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)
 	})
 

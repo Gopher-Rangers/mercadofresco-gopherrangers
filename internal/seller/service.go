@@ -43,7 +43,7 @@ func (s *service) Create(ctx context.Context, cid int, companyName, address, tel
 		return Seller{}, fmt.Errorf("locality_id does not exists")
 	}
 
-	err = s.findByCid(ctx, cid)
+	err = s.findByCid(ctx, cid, Seller{})
 
 	if err != nil {
 		return Seller{}, err
@@ -70,7 +70,7 @@ func (s *service) Update(ctx context.Context, id, cid int, companyName, address,
 		return Seller{}, fmt.Errorf("locality_id does not exists")
 	}
 
-	err = s.findByCid(ctx, cid)
+	err = s.findByCid(ctx, cid, oneSeller)
 
 	if err != nil {
 		return Seller{}, err
@@ -108,7 +108,7 @@ func (s *service) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s service) findByCid(ctx context.Context, cid int) error {
+func (s service) findByCid(ctx context.Context, cid int, seller Seller) error {
 	var sellerList []Seller
 
 	sellerList, err := s.GetAll(ctx)
@@ -118,9 +118,10 @@ func (s service) findByCid(ctx context.Context, cid int) error {
 	}
 
 	for i := range sellerList {
-		if sellerList[i].CompanyId == cid {
+		if sellerList[i].CompanyId == cid && sellerList[i].Id != seller.Id {
 			return errors.New("the cid already exists")
 		}
 	}
+
 	return nil
 }

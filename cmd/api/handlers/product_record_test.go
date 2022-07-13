@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers"
+	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers"
 	productrecord "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product_record"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product_record/mocks"
 

@@ -5,16 +5,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/handlers/validation"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers/validation"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/controller"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/domain"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/purchase_orders/domain/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"testing"
 )
 
 const (

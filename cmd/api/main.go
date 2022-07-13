@@ -1,10 +1,9 @@
 package main
 
 import (
-	"log"
 	"os"
 
-	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/server/routes"
+	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/routes"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/docs"
 
 	"github.com/gin-gonic/gin"
@@ -27,11 +26,7 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 
-	err := godotenv.Load("../../.env")
-
-	if err != nil {
-		log.Fatal("failed to load .env")
-	}
+	godotenv.Load(".env")
 
 	gin.SetMode("release")
 

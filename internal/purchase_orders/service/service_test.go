@@ -48,7 +48,7 @@ func TestCreate(t *testing.T) {
 		}
 		mockRepository.On("ValidadeOrderNumber", expected.OrderNumber).Return(false, nil)
 		_, err := newService.Create(ctx, expected)
-		assert.Equal(t, fmt.Errorf("order number: Order1 already exist"), err)
+		assert.Equal(t, fmt.Errorf("the order number must be unique"), err)
 	})
 	t.Run("create_conflict_error", func(t *testing.T) {
 		ctx := context.Background()

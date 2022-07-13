@@ -61,10 +61,6 @@ func (b *PurchaseOrders) Create(c *gin.Context) {
 			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 			return
 		}
-		if err.Error() == "Error 1062: Duplicate entry 'order229' for key 'purchase_orders.UNIQUE_ORDER_NUMBER'" {
-			c.JSON(web.DecodeError(http.StatusConflict, domain.ERROR_UNIQUE_ORDER_NUMBER))
-			return
-		}
 		c.JSON(web.DecodeError(http.StatusBadRequest, err.Error()))
 		return
 	}

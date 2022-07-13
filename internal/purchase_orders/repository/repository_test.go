@@ -150,7 +150,7 @@ func TestValidadeOrderNumber(t *testing.T) {
 		repo := purchaseOrdersRepo.NewRepository(db)
 		result, err := repo.ValidadeOrderNumber(purchasesData[0].OrderNumber)
 		assert.NoError(t, err)
-		assert.Equal(t, true, result)
+		assert.Equal(t, false, result)
 	})
 	t.Run("test_invalid_order_number", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
@@ -168,7 +168,7 @@ func TestValidadeOrderNumber(t *testing.T) {
 		repo := purchaseOrdersRepo.NewRepository(db)
 		result, err := repo.ValidadeOrderNumber(purchasesData[0].OrderNumber)
 		assert.NoError(t, err)
-		assert.Equal(t, false, result)
+		assert.Equal(t, true, result)
 	})
 	t.Run("test_validate_order_number_query_err", func(t *testing.T) {
 		db, mock, err := sqlmock.New()

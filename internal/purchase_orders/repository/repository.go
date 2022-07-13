@@ -45,12 +45,12 @@ func (r repository) Create(ctx context.Context, purchaseOrder domain.PurchaseOrd
 	}
 	rowsAffected, _ := res.RowsAffected()
 	if rowsAffected == 0 {
-		return domain.PurchaseOrders{}, fmt.Errorf("error while saving")
+		return domain.PurchaseOrders{}, fmt.Errorf(domain.ERROR_WHILE_SAVING)
 	}
 
 	lastID, err := res.LastInsertId()
 	if err != nil || lastID < 1 {
-		return domain.PurchaseOrders{}, fmt.Errorf("error while saving")
+		return domain.PurchaseOrders{}, fmt.Errorf(domain.ERROR_WHILE_SAVING)
 	}
 
 	purchaseOrder.ID = int(lastID)

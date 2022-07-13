@@ -152,7 +152,7 @@ func TestCreate(t *testing.T) {
 			ProductRecordId: 1,
 			OrderStatusId:   1,
 		}).Return(domain.PurchaseOrders{},
-			fmt.Errorf("purchase order with order number Order1 already exists"))
+			fmt.Errorf("the order number must be unique"))
 		buyerRouterGroup.POST("/", buyerHandler.Create)
 		server.ServeHTTP(response, req)
 
@@ -161,7 +161,7 @@ func TestCreate(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, response.Code, resp.Code)
 		assert.Equal(t, domain.PurchaseOrders{}, resp.Data)
-		assert.Equal(t, resp.Error, "purchase order with order number Order1 already exists")
+		assert.Equal(t, resp.Error, "the order number must be unique")
 	})
 	t.Run("create_invalid_token", func(t *testing.T) {
 		mockService := mocks.NewService(t)

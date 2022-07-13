@@ -128,7 +128,6 @@ func TestRepositoryCreate(t *testing.T) {
 
 		repo := purchaseOrdersRepo.NewRepository(db)
 		result, err := repo.Create(context.Background(), purchaseOrder)
-		assert.Equal(t, err, fmt.Errorf("error while saving"))
 		assert.Equal(t, result, domain.PurchaseOrders{})
 	})
 }

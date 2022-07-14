@@ -1,12 +1,12 @@
 package web
 
 type Response struct {
-	Code  int    `json:"code"`
-	Data  any    `json:"data,omitempty"`
-	Error string `json:"error,omitempty"`
+	Code  int         `json:"code"`
+	Data  interface{} `json:"data,omitempty"`
+	Error string      `json:"error,omitempty"`
 }
 
-func NewResponse(statusCode int, data any) (int, Response) {
+func NewResponse(statusCode int, data interface{}) (int, Response) {
 	return statusCode, Response{statusCode, data, ""}
 }
 

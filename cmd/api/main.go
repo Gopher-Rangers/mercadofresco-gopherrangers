@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"os"
 
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/routes"
@@ -34,6 +35,8 @@ func main() {
 
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 	server.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
+	server.GET("/ping", func(ctx *gin.Context) { ctx.JSON(http.StatusOK, "pong") })
 
 	baseRoute := server.Group("/api/v1/")
 	{

@@ -41,12 +41,12 @@ func NewRepository(db *sql.DB) Repository {
 func (r repository) Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
 	res, err := r.db.Exec(SqlCreate, cardNum, firstName, lastName, warehouseId)
 	if err != nil {
-		return Employee{}, err
+		return Employee{}, fmt.Errorf("galpao %d nao existe", warehouseId)
 	}
 
 	rowsAffected, _ := res.RowsAffected()
 	if rowsAffected <= 0 {
-		return Employee{}, fmt.Errorf("rows not affected")
+		return Employee{}, fmt.Errorf("employee not created")
 	}
 
 	lastID, _ := res.LastInsertId()
@@ -82,13 +82,15 @@ func (r repository) GetAll() ([]Employee, error) {
 }
 
 func (r repository) Update(id int, firstName string, lastName string, warehouseId int) (Employee, error) {
+	olderEmployee, _ := r.GetById(id)
+	newEmployee := Employee{id, olderEmployee.CardNumber, firstName, lastName, warehouseId}
 	res, err := r.db.Exec(SqlUpdate, firstName, lastName, warehouseId, id)
 	if err != nil {
-		return Employee{}, err
+		return Employee{}, fmt.Errorf("funcionario nao existe")
 	}
 
 	rowsAffected, _ := res.RowsAffected()
-	if rowsAffected <= 0 {
+	if rowsAffected <= 0 && newEmployee != olderEmployee {
 		return Employee{}, fmt.Errorf("rows not affected")
 	}
 
@@ -115,7 +117,7 @@ func (r repository) GetById(id int) (Employee, error) {
 
 	rows, err := r.db.Query(SqlGetById, id)
 	if err != nil {
-		return Employee{}, err
+		return Employee{}, fmt.Errorf("funcionario nao existe")
 	}
 
 	defer rows.Close()

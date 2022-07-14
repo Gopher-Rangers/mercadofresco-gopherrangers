@@ -43,7 +43,7 @@ func (s *service) validateCardNumber(cardNum int) bool {
 
 func (s *service) Create(cardNum int, firstName string, lastName string, warehouseId int) (Employee, error) {
 	if !s.validateCardNumber(cardNum) {
-		return Employee{}, fmt.Errorf("funcionário com cartão nº: %d já existe no banco de dados", cardNum)
+		return Employee{}, fmt.Errorf("funcionario com cartão n: %d ja existe no banco de dados", cardNum)
 	}
 	emps, err := s.repository.Create(cardNum, firstName, lastName, warehouseId)
 	if err != nil {
@@ -58,23 +58,36 @@ func (s *service) GetAll() ([]Employee, error) {
 	if err != nil {
 		return emps, err
 	}
+
+	fmt.Println("chegou no service")
 	return emps, nil
 }
 
 func (s service) Delete(id int) error {
 	err := s.repository.Delete(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("funcionario nao existe")
 	}
+
 	return nil
 }
 
 func (s service) GetById(id int) (Employee, error) {
-	employee, err := s.repository.GetById(id)
+	AllEmployees, err := s.repository.GetAll()
 	if err != nil {
 		return Employee{}, err
 	}
-	return employee, nil
+
+	for i := range AllEmployees {
+		if AllEmployees[i].ID == id {
+			emp, err := s.repository.GetById(id)
+			if err != nil {
+				return Employee{}, err
+			}
+			return emp, nil
+		}
+	}
+	return Employee{}, fmt.Errorf("funcionario nao existe")
 }
 
 func (s *service) Update(emp Employee, id int) (Employee, error) {
@@ -94,7 +107,7 @@ func (s *service) Update(emp Employee, id int) (Employee, error) {
 
 	employee, err := s.repository.Update(id, emp.FirstName, emp.LastName, emp.WareHouseID)
 	if err != nil {
-		return Employee{}, err
+		return Employee{}, fmt.Errorf("funcionario nao existe")
 	}
 	return employee, nil
 }

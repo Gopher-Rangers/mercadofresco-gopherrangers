@@ -25,7 +25,7 @@ const (
 
 type responseInboundOrder struct {
 	Code  int
-	Data  []inboundorders.InboundOrder
+	Data  inboundorders.InboundOrder
 	Error string
 }
 

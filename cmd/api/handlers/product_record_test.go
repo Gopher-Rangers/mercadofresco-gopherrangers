@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers"
@@ -86,15 +85,6 @@ func createProductRecordRequestTest(method string, url string, body string) (
 	*http.Request, *httptest.ResponseRecorder) {
 	req := httptest.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("TOKEN", os.Getenv("TOKEN"))
-	return req, httptest.NewRecorder()
-}
-
-func createProductRecordRequestTestIvalidToken(method string, url string,
-	body string) (*http.Request, *httptest.ResponseRecorder) {
-	req := httptest.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("TOKEN", "invalid_token")
 	return req, httptest.NewRecorder()
 }
 
@@ -217,32 +207,6 @@ func TestProductRecordStore(t *testing.T) {
 		assert.Equal(t, productrecord.ProductRecord{}, resp.Data)
 		assert.Equal(t, resp.Error, bindError)
 	})
-	t.Run("create_invalid_token", func(t *testing.T) {
-		mockService := mocks.NewService(t)
-		handlerProduct := handler.NewProductRecord(mockService)
-
-		server := gin.Default()
-		productRouterGroup := server.Group(URL_PRODUCT_RECORD_POST)
-
-		expected := `{"id": 1,
-			"last_update_date": "2025-07-06 13:30:00",
-			"purchase_price": 10.10,
-			"sale_price": 100.10,
-			"product_id": 1}`
-		req, rr := createProductRecordRequestTestIvalidToken(
-			http.MethodPost,
-			URL_PRODUCT_RECORD_POST,
-			expected)
-		productRouterGroup.POST("/", handlerProduct.Store())
-		server.ServeHTTP(rr, req)
-
-		resp := responseProductRecord{}
-		json.Unmarshal(rr.Body.Bytes(), &resp)
-
-		assert.Equal(t, http.StatusUnauthorized, rr.Code, resp.Code)
-		assert.Equal(t, productrecord.ProductRecord{}, resp.Data)
-		assert.Equal(t, resp.Error, handler.ERROR_TOKEN)
-	})
 	t.Run("create_wrong_body", func(t *testing.T) {
 		mockService := mocks.NewService(t)
 		handlerProduct := handler.NewProductRecord(mockService)
@@ -294,28 +258,6 @@ func TestProductRecordGet(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rr.Code, resp.Code)
 		assert.Equal(t, ps, resp.Data)
 		assert.Equal(t, resp.Error, "")
-	})
-	t.Run("find_invalid_token", func(t *testing.T) {
-		mockService := mocks.NewService(t)
-		handlerProduct := handler.NewProductRecord(mockService)
-
-		server := gin.Default()
-		productRouterGroup := server.Group(URL_PRODUCT_RECORD_GET)
-
-		req, rr := createProductRecordRequestTestIvalidToken(http.MethodGet,
-			URL_PRODUCT_RECORD_GET, "")
-
-		productRouterGroup.GET("/", handlerProduct.Get())
-		server.ServeHTTP(rr, req)
-
-		resp := responseProductRecordGetArray{}
-		json.Unmarshal(rr.Body.Bytes(), &resp)
-
-		expected := []productrecord.ProductRecordGet(
-			[]productrecord.ProductRecordGet(nil))
-		assert.Equal(t, http.StatusUnauthorized, rr.Code, resp.Code)
-		assert.Equal(t, resp.Data, expected)
-		assert.Equal(t, resp.Error, handler.ERROR_TOKEN)
 	})
 	t.Run("find_by_id_id_non_number", func(t *testing.T) {
 		mockService := mocks.NewService(t)

@@ -62,6 +62,7 @@ func (r *repository) ValidadeOrderNumber(ctx context.Context, orderNumber string
 
 	var orderExistent string
 	stmt, err := r.db.PrepareContext(ctx, SqlOrderNumber)
+
 	if err != nil {
 		return false
 	}

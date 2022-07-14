@@ -76,7 +76,7 @@ func createEmployeeRequestTest(method string, url string, body string) (
 	return req, httptest.NewRecorder()
 }
 
-func TestProductCreate(t *testing.T) {
+func TestEmployeeCreate(t *testing.T) {
 	t.Run("create_ok", func(t *testing.T) {
 		mockEmpService := mockEmp.NewServices(t)
 		mockIOService := mockIo.NewServices(t)
@@ -102,6 +102,69 @@ func TestProductCreate(t *testing.T) {
 		json.Unmarshal(rr.Body.Bytes(), &resp)
 		assert.Equal(t, http.StatusCreated, rr.Code, resp.Code)
 		assert.Equal(t, emps[0], resp.Data)
+		assert.Equal(t, resp.Error, "")
+	})
+}
+
+func TestEmployeeGetAll(t *testing.T) {
+	t.Run("get_all_ok", func(t *testing.T) {
+		mockEmpService := mockEmp.NewServices(t)
+		mockIOService := mockIo.NewServices(t)
+		handlerEmployee := handler.NewEmployee(mockEmpService, mockIOService)
+		server := gin.Default()
+		employeeRouterGroup := server.Group(URL_EMPLOYEES)
+		emps := createEmployeesArray()
+		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, "")
+
+		mockEmpService.On("GetAll").Return(emps, nil)
+		employeeRouterGroup.GET("/", handlerEmployee.GetAll())
+		server.ServeHTTP(rr, req)
+		resp := responseEmployeeArray{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+		assert.Equal(t, http.StatusOK, rr.Code, resp.Code)
+		assert.Equal(t, emps, resp.Data)
+		assert.Equal(t, resp.Error, "")
+	})
+}
+
+func TestEmployeeGetById(t *testing.T) {
+	t.Run("get_by_id_existent", func(t *testing.T) {
+		mockEmpService := mockEmp.NewServices(t)
+		mockIOService := mockIo.NewServices(t)
+		handlerEmployee := handler.NewEmployee(mockEmpService, mockIOService)
+		server := gin.Default()
+		employeeRouterGroup := server.Group(URL_EMPLOYEES)
+		emps := createEmployeesArray()
+		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, "")
+
+		mockEmpService.On("GetById", 1).Return(emps[0], nil)
+		employeeRouterGroup.GET("/", handlerEmployee.GetById())
+		server.ServeHTTP(rr, req)
+		resp := responseEmployee{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+		assert.Equal(t, http.StatusOK, rr.Code, resp.Code)
+		assert.Equal(t, emps, resp.Data)
+		assert.Equal(t, resp.Error, "")
+	})
+}
+
+func TestEmployeeDelete(t *testing.T) {
+	t.Run("delete_ok", func(t *testing.T) {
+		mockEmpService := mockEmp.NewServices(t)
+		mockIOService := mockIo.NewServices(t)
+		handlerEmployee := handler.NewEmployee(mockEmpService, mockIOService)
+		server := gin.Default()
+		employeeRouterGroup := server.Group(URL_EMPLOYEES)
+
+		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, "")
+
+		mockEmpService.On("Delete", 1).Return(nil)
+		employeeRouterGroup.DELETE("/:id", handlerEmployee.Delete())
+		server.ServeHTTP(rr, req)
+		resp := responseEmployee{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+		assert.Equal(t, http.StatusNoContent, rr.Code, resp.Code)
+		assert.Equal(t, resp.Data, []employee.Employee([]employee.Employee(nil)))
 		assert.Equal(t, resp.Error, "")
 	})
 }

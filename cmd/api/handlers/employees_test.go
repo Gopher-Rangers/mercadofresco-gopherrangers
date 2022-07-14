@@ -114,7 +114,7 @@ func TestEmployeeGetAll(t *testing.T) {
 		server := gin.Default()
 		employeeRouterGroup := server.Group(URL_EMPLOYEES)
 		emps := createEmployeesArray()
-		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, "")
+		req, rr := createEmployeeRequestTest(http.MethodGet, URL_EMPLOYEES, "")
 
 		mockEmpService.On("GetAll").Return(emps, nil)
 		employeeRouterGroup.GET("/", handlerEmployee.GetAll())
@@ -135,15 +135,15 @@ func TestEmployeeGetById(t *testing.T) {
 		server := gin.Default()
 		employeeRouterGroup := server.Group(URL_EMPLOYEES)
 		emps := createEmployeesArray()
-		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, "")
+		req, rr := createEmployeeRequestTest(http.MethodGet, URL_EMPLOYEES+"1", "")
 
 		mockEmpService.On("GetById", 1).Return(emps[0], nil)
-		employeeRouterGroup.GET("/", handlerEmployee.GetById())
+		employeeRouterGroup.GET("/:id", handlerEmployee.GetById())
 		server.ServeHTTP(rr, req)
 		resp := responseEmployee{}
 		json.Unmarshal(rr.Body.Bytes(), &resp)
 		assert.Equal(t, http.StatusOK, rr.Code, resp.Code)
-		assert.Equal(t, emps, resp.Data)
+		assert.Equal(t, emps[0], resp.Data)
 		assert.Equal(t, resp.Error, "")
 	})
 }
@@ -156,7 +156,7 @@ func TestEmployeeDelete(t *testing.T) {
 		server := gin.Default()
 		employeeRouterGroup := server.Group(URL_EMPLOYEES)
 
-		req, rr := createEmployeeRequestTest(http.MethodPost, URL_EMPLOYEES, "")
+		req, rr := createEmployeeRequestTest(http.MethodDelete, URL_EMPLOYEES+"1", "")
 
 		mockEmpService.On("Delete", 1).Return(nil)
 		employeeRouterGroup.DELETE("/:id", handlerEmployee.Delete())
@@ -164,7 +164,7 @@ func TestEmployeeDelete(t *testing.T) {
 		resp := responseEmployee{}
 		json.Unmarshal(rr.Body.Bytes(), &resp)
 		assert.Equal(t, http.StatusNoContent, rr.Code, resp.Code)
-		assert.Equal(t, resp.Data, []employee.Employee([]employee.Employee(nil)))
+		assert.Equal(t, resp.Data, employee.Employee{})
 		assert.Equal(t, resp.Error, "")
 	})
 }

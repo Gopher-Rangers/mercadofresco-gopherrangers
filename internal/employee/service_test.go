@@ -104,7 +104,7 @@ func TestCreate(t *testing.T) {
 		}
 		mockRepository.On("GetAll").Return(employees, nil)
 		_, err := service.Create(expected.CardNumber, expected.FirstName, expected.LastName, expected.WareHouseID)
-		assert.Equal(t, err, fmt.Errorf("funcionário com cartão nº: 7878447 já existe no banco de dados"))
+		assert.Equal(t, err, fmt.Errorf("funcionario com cartão n: 7878447 ja existe no banco de dados"))
 	})
 }
 

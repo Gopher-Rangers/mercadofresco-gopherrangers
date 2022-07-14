@@ -47,7 +47,8 @@ func TestDBRepositoryGetById(t *testing.T) {
 			mockBuyers[0].OrderStatusId,
 		)
 
-		mock.ExpectQuery(regexp.QuoteMeta(purchaseOrdersRepo.SqlGetById)).WithArgs(1).WillReturnRows(rows)
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(purchaseOrdersRepo.SqlGetById))
+		stmt.ExpectQuery().WithArgs(purchasesData[0].ID).WillReturnRows(rows)
 
 		buyersRepo := purchaseOrdersRepo.NewRepository(db)
 		result, err := buyersRepo.GetById(context.Background(), purchasesData[0].ID)
@@ -60,7 +61,8 @@ func TestDBRepositoryGetById(t *testing.T) {
 		defer db.Close()
 		errNotFound := fmt.Errorf("purchase order with id (10) not founded")
 
-		mock.ExpectQuery(regexp.QuoteMeta(purchaseOrdersRepo.SqlGetById)).WithArgs(10).WillReturnError(errNotFound)
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(purchaseOrdersRepo.SqlGetById))
+		stmt.ExpectQuery().WithArgs(1).WillReturnError(errNotFound)
 
 		purchaseRepository := purchaseOrdersRepo.NewRepository(db)
 		result, err := purchaseRepository.GetById(context.Background(), 10)
@@ -139,17 +141,17 @@ func TestValidadeOrderNumber(t *testing.T) {
 		defer db.Close()
 		purchasesData := createBaseData()
 		rows := sqlmock.NewRows([]string{
-			"result",
+			"",
 		}).AddRow(
-			0,
+			"",
 		)
-
-		mock.ExpectQuery(regexp.QuoteMeta(purchaseOrdersRepo.SqlOrderNumber)).WithArgs(&purchasesData[0].OrderNumber).WillReturnRows(rows)
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(purchaseOrdersRepo.SqlOrderNumber))
+		stmt.ExpectQuery().WithArgs(purchasesData[0].OrderNumber).WillReturnRows(rows)
 
 		repo := purchaseOrdersRepo.NewRepository(db)
-		result := repo.ValidadeOrderNumber(context.Background(), purchasesData[0].OrderNumber)
+		result, err := repo.ValidadeOrderNumber(context.Background(), purchasesData[0].OrderNumber)
 		assert.NoError(t, err)
-		assert.Equal(t, false, result)
+		assert.Equal(t, true, result)
 	})
 	t.Run("test_invalid_order_number", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
@@ -159,13 +161,14 @@ func TestValidadeOrderNumber(t *testing.T) {
 		rows := sqlmock.NewRows([]string{
 			"result",
 		}).AddRow(
-			1,
+			purchasesData[0].OrderNumber,
 		)
 
-		mock.ExpectQuery(regexp.QuoteMeta(purchaseOrdersRepo.SqlOrderNumber)).WithArgs(&purchasesData[0].OrderNumber).WillReturnRows(rows)
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(purchaseOrdersRepo.SqlOrderNumber))
+		stmt.ExpectQuery().WithArgs(purchasesData[0].OrderNumber).WillReturnRows(rows)
 
 		repo := purchaseOrdersRepo.NewRepository(db)
-		result := repo.ValidadeOrderNumber(context.Background(), purchasesData[0].OrderNumber)
+		result, err := repo.ValidadeOrderNumber(context.Background(), purchasesData[0].OrderNumber)
 		assert.NoError(t, err)
 		assert.Equal(t, false, result)
 	})
@@ -178,7 +181,7 @@ func TestValidadeOrderNumber(t *testing.T) {
 		mock.ExpectQuery(regexp.QuoteMeta(purchaseOrdersRepo.SqlOrderNumber)).WithArgs(&purchasesData[0].OrderNumber).WillReturnError(sql.ErrNoRows)
 
 		repo := purchaseOrdersRepo.NewRepository(db)
-		result := repo.ValidadeOrderNumber(context.Background(), purchasesData[0].OrderNumber)
+		result, err := repo.ValidadeOrderNumber(context.Background(), purchasesData[0].OrderNumber)
 		assert.Equal(t, false, result)
 	})
 

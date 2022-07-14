@@ -59,6 +59,7 @@ func createEmployeesArray() []employee.Employee {
 func createEmployee() []employee.Employee {
 	var emps []employee.Employee
 	empToCreate := employee.Employee{
+		ID:          1,
 		CardNumber:  123,
 		FirstName:   "Sergio",
 		LastName:    "Blabla",
@@ -86,6 +87,7 @@ func TestProductCreate(t *testing.T) {
 		empToCreate := createEmployee()
 		emps := createEmployeesArray()
 		expected := `{
+			
 			"card_number": 123,
 			"first_name": "Sergio",
 			"last_name": "Blabla",

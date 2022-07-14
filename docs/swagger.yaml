@@ -1,5 +1,5 @@
 definitions:
-  handlers.buyerRequest:
+  controller.buyerRequest:
     properties:
       card_number_id:
         type: string
@@ -35,6 +35,17 @@ definitions:
       recommended_freezing_temperature:
         type: number
       width:
+        type: number
+    type: object
+  handlers.requestProductRecord:
+    properties:
+      last_update_date:
+        type: string
+      product_id:
+        type: integer
+      purchase_price:
+        type: number
+      sale_price:
         type: number
     type: object
   web.Response:
@@ -98,12 +109,12 @@ paths:
         name: token
         required: true
         type: string
-      - description: Product to store
+      - description: Buyer to store
         in: body
         name: buyer
         required: true
         schema:
-          $ref: '#/definitions/handlers.buyerRequest'
+          $ref: '#/definitions/controller.buyerRequest'
       produces:
       - application/json
       responses:
@@ -167,7 +178,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: get a especific buyer by id
+      description: Get number of purchase Orders by an ID of a specific buyer
       parameters:
       - description: token
         in: header
@@ -212,7 +223,7 @@ paths:
         name: buyer
         required: true
         schema:
-          $ref: '#/definitions/handlers.buyerRequest'
+          $ref: '#/definitions/controller.buyerRequest'
       produces:
       - application/json
       responses:
@@ -239,6 +250,83 @@ paths:
       summary: Update buyer by ID
       tags:
       - Buyers
+  /api/v1/productRecords:
+    post:
+      consumes:
+      - application/json
+      description: store product records
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: Product Record to store
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.requestProductRecord'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/web.Response'
+        "401":
+          description: We need token
+          schema:
+            $ref: '#/definitions/web.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.Response'
+        "422":
+          description: Missing some mandatory field
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: Store product records
+      tags:
+      - Product Records
+  /api/v1/productRecords/{id}:
+    get:
+      consumes:
+      - application/json
+      description: list products records by ID
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+        "400":
+          description: We need ID
+          schema:
+            $ref: '#/definitions/web.Response'
+        "401":
+          description: We need token
+          schema:
+            $ref: '#/definitions/web.Response'
+        "404":
+          description: Can not find ID
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: List product records by ID
+      tags:
+      - Products Records
   /api/v1/products:
     get:
       consumes:
@@ -428,4 +516,76 @@ paths:
       summary: Update products by ID
       tags:
       - Products
+  /api/v1/purchase-orders:
+    post:
+      consumes:
+      - application/json
+      description: store a new purchase order
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: Purchase Order to store
+        in: body
+        name: buyer
+        required: true
+        schema:
+          $ref: '#/definitions/controller.buyerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/web.Response'
+        "401":
+          description: We need token
+          schema:
+            $ref: '#/definitions/web.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/web.Response'
+        "422":
+          description: Missing some mandatory field
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: Create PurchaseOrder
+      tags:
+      - Buyers
+  /api/v1/purchase-orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get a specific purchase order by id
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+        "401":
+          description: We need token
+          schema:
+            $ref: '#/definitions/web.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: List buyer
+      tags:
+      - Buyers
 swagger: "2.0"

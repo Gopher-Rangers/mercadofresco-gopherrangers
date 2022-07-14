@@ -14,8 +14,6 @@ func Sections(routerGroup *gin.RouterGroup) {
 		sec_service := section.NewService(sec_rep)
 		section := sections.NewSection(sec_service)
 
-		sectionRouterGroup.Use(section.TokenAuthMiddleware)
-
 		sectionRouterGroup.GET("/", section.GetAll())
 		sectionRouterGroup.POST("/", section.CreateSection())
 		sectionRouterGroup.GET("/:id", section.IdVerificatorMiddleware, section.GetByID())

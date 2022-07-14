@@ -69,6 +69,22 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, section.Section{}, prod)
 		assert.Equal(t, errors.New("seção com sectionNumber: 40 já existe no banco de dados"), err)
 	})
+
+	t.Run("create_fail_getall", func(t *testing.T) {
+		mockRepository := mocks.NewRepository(t)
+		service := section.NewService(mockRepository)
+		mockRepository.On("GetAll").Return([]section.Section{}, errors.New("rows not affected"))
+
+		secs := createSectionArray()
+		exp := secs[0]
+
+		prod, err := service.Create(exp.SectionNumber, exp.CurCapacity, exp.MinTemperature,
+			exp.CurCapacity, exp.MinCapacity, exp.MaxCapacity, exp.WareHouseID, exp.ProductTypeID)
+
+		exp.SectionNumber = 50
+		assert.Equal(t, section.Section{}, prod)
+		assert.Equal(t, errors.New("internal server error"), err)
+	})
 }
 
 func TestGetAll(t *testing.T) {
@@ -80,6 +96,17 @@ func TestGetAll(t *testing.T) {
 		mockRepository.On("GetAll").Return(exp, nil)
 		sections, _ := service.GetAll()
 		assert.Equal(t, exp, sections)
+	})
+
+	t.Run("find_fail_getall", func(t *testing.T) {
+		mockRepository := mocks.NewRepository(t)
+		service := section.NewService(mockRepository)
+		mockRepository.On("GetAll").Return([]section.Section{}, errors.New("rows not affected"))
+
+		prod, err := service.GetAll()
+
+		assert.Equal(t, []section.Section{}, prod)
+		assert.Equal(t, errors.New("internal server error"), err)
 	})
 }
 
@@ -102,6 +129,17 @@ func TestGetByID(t *testing.T) {
 		sec, err := service.GetByID(1)
 		assert.Nil(t, err)
 		assert.Equal(t, exp, sec)
+	})
+
+	t.Run("find_by_id_fail_getall", func(t *testing.T) {
+		mockRepository := mocks.NewRepository(t)
+		service := section.NewService(mockRepository)
+		mockRepository.On("GetAll").Return([]section.Section{}, errors.New("rows not affected"))
+
+		prod, err := service.GetByID(1)
+
+		assert.Equal(t, section.Section{}, prod)
+		assert.Equal(t, errors.New("internal server error"), err)
 	})
 }
 
@@ -143,6 +181,17 @@ func TestUpdateSecID(t *testing.T) {
 		assert.Equal(t, section.CodeError{404, errors.New("seção 99 não encontrada")}, err)
 		assert.Equal(t, section.Section{}, sec)
 	})
+
+	t.Run("update_fail_getall", func(t *testing.T) {
+		mockRepository := mocks.NewRepository(t)
+		service := section.NewService(mockRepository)
+		mockRepository.On("GetAll").Return([]section.Section{}, errors.New("rows not affected"))
+
+		prod, err := service.UpdateSecID(2, 572836456385)
+
+		assert.Equal(t, section.Section{}, prod)
+		assert.Equal(t, section.CodeError{500, errors.New("internal server error")}, err)
+	})
 }
 
 func TestDelete(t *testing.T) {
@@ -155,11 +204,34 @@ func TestDelete(t *testing.T) {
 	t.Run("delete_non_existent", func(t *testing.T) {
 		err := service.DeleteSection(99)
 		assert.NotNil(t, err)
+		assert.Equal(t, errors.New("seção com id: 99 não existe no banco de dados"), err)
 	})
 
 	t.Run("delete_ok", func(t *testing.T) {
 		mockRepository.On("DeleteSection", 1).Return(nil)
 		err := service.DeleteSection(1)
 		assert.Nil(t, err)
+	})
+
+	t.Run("delete_fail_scan", func(t *testing.T) {
+		mockRepository = mocks.NewRepository(t)
+		service = section.NewService(mockRepository)
+		mockRepository.On("GetAll").Return(secs, nil)
+		mockRepository.On("DeleteSection", 1).Return(errors.New("rows not affected"))
+		err := service.DeleteSection(1)
+
+		assert.NotNil(t, err)
+		assert.Equal(t, errors.New("rows not affected"), err)
+	})
+
+	t.Run("delete_fail_getall", func(t *testing.T) {
+		mockRepository = mocks.NewRepository(t)
+		service = section.NewService(mockRepository)
+		mockRepository.On("GetAll").Return([]section.Section{}, errors.New("rows not affected"))
+
+		err := service.DeleteSection(1)
+
+		assert.NotNil(t, err)
+		assert.Equal(t, errors.New("internal server error"), err)
 	})
 }

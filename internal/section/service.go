@@ -25,7 +25,7 @@ func NewService(r Repository) Services {
 func (s *service) GetAll() ([]Section, error) {
 	ps, err := s.repository.GetAll()
 	if err != nil {
-		return ps, err
+		return ps, errors.New("internal server error")
 	}
 	return ps, nil
 }
@@ -33,7 +33,7 @@ func (s *service) GetAll() ([]Section, error) {
 func (s *service) GetByID(id int) (Section, error) {
 	ListSections, err := s.repository.GetAll()
 	if err != nil {
-		return Section{}, err
+		return Section{}, errors.New("internal server error")
 	}
 
 	for i := range ListSections {
@@ -52,7 +52,7 @@ func (s *service) GetByID(id int) (Section, error) {
 func (s *service) Create(secNum, curTemp, minTemp, curCap, minCap, maxCap, wareID, typeID int) (Section, error) {
 	ListSections, err := s.repository.GetAll()
 	if err != nil {
-		return Section{}, err
+		return Section{}, errors.New("internal server error")
 	}
 
 	for i := range ListSections {
@@ -92,7 +92,7 @@ func (s *service) UpdateSecID(id, secNum int) (Section, CodeError) {
 func (s *service) DeleteSection(id int) error {
 	ListSections, err := s.repository.GetAll()
 	if err != nil {
-		return err
+		return errors.New("internal server error")
 	}
 
 	for i := range ListSections {

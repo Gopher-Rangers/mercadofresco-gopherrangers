@@ -8,12 +8,9 @@ import (
 	"testing"
 
 	handler "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers"
-	// employee "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee"
 
 	inboundorders "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/inbound_orders"
 	mock "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/inbound_orders/mocks"
-
-	// mockEmp "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/employee/mocks"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -86,5 +83,30 @@ func TestInboundOrdersCreate(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, rr.Code, resp.Code)
 		assert.Equal(t, ios[0], resp.Data)
 		assert.Equal(t, resp.Error, "")
+	})
+	t.Run("create_error_all_mandatory", func(t *testing.T) {
+		mockService := mock.NewServices(t)
+		handlerInboundOrder := handler.NewInboundOrder(mockService)
+		server := gin.Default()
+		inboundOrderRouterGroup := server.Group(URL_INBOUND_ORDER)
+		expected := `{
+			"id": 0,
+			"order_date": "",
+			"order_number": "",
+			"employee_id": 0,
+			"product_batch_id": 0,
+			"warehouse_id": 0}`
+		req, rr := createInboundOrdersRequestTest(
+			http.MethodPost,
+			URL_INBOUND_ORDER,
+			expected)
+
+		inboundOrderRouterGroup.POST("/", handlerInboundOrder.Create())
+		server.ServeHTTP(rr, req)
+		resp := responseInboundOrder{}
+		json.Unmarshal(rr.Body.Bytes(), &resp)
+		assert.Equal(t, http.StatusUnprocessableEntity, rr.Code, resp.Code)
+		assert.Equal(t, inboundorders.InboundOrder{}, resp.Data)
+		assert.Equal(t, resp.Error, "preencha todos os campos")
 	})
 }

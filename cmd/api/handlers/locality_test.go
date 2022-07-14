@@ -3,13 +3,14 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"testing"
+
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/locality"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/locality/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"net/http"
-	"testing"
 )
 
 const (
@@ -164,7 +165,11 @@ func TestLocality_GetAll(t *testing.T) {
 		mockService := mocks.NewRepository(t)
 		handlerLocality := NewLocality(mockService)
 
-		localityList := []locality.Locality{{1, "6700", "Gru", "SP", "BRA"}, {2, "6701", "Rio", "RJ", "BRA"}}
+		localityList := []locality.Locality{{
+			Id: 1, ZipCode: "6700", LocalityName: "Gru",
+			ProvinceName: "SP", CountryName: "BRA"},
+			{Id: 2, ZipCode: "6701", LocalityName: "Rio",
+				ProvinceName: "RJ", CountryName: "BRA"}}
 		dataJson, _ := json.Marshal(localityList)
 
 		req, rr := createRequestTest(http.MethodGet, URL_LOCALITY, string(dataJson))
@@ -182,7 +187,11 @@ func TestLocality_GetAll(t *testing.T) {
 		mockService := mocks.NewRepository(t)
 		handlerLocality := NewLocality(mockService)
 
-		localityList := []locality.Locality{{1, "6700", "Gru", "SP", "BRA"}, {2, "6701", "Rio", "RJ", "BRA"}}
+		localityList := []locality.Locality{{
+			Id: 1, ZipCode: "6700", LocalityName: "Gru",
+			ProvinceName: "SP", CountryName: "BRA"},
+			{Id: 2, ZipCode: "6701", LocalityName: "Rio",
+				ProvinceName: "RJ", CountryName: "BRA"}}
 		dataJson, _ := json.Marshal(localityList)
 
 		req, rr := createRequestTest(http.MethodGet, URL_LOCALITY, string(dataJson))

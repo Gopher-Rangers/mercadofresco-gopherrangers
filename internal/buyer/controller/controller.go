@@ -164,6 +164,10 @@ func (b *Buyer) Create(c *gin.Context) {
 	buyer := domain.Buyer{CardNumberId: req.CardNumberId, FirstName: req.FirstName, LastName: req.LastName}
 	newBuyer, err := b.service.Create(c.Request.Context(), buyer)
 	if err != nil {
+		if err.Error() == domain.ERROR_UNIQUE_CARD_NUMBER_ID {
+			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+			return
+		}
 		c.JSON(web.DecodeError(http.StatusNotFound, err.Error()))
 		return
 	}
@@ -198,6 +202,10 @@ func (b *Buyer) Update(c *gin.Context) {
 
 	newBuyer, err := b.service.Update(c.Request.Context(), domain.Buyer(req))
 	if err != nil {
+		if err.Error() == domain.ERROR_UNIQUE_CARD_NUMBER_ID {
+			c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
+			return
+		}
 		c.JSON(web.DecodeError(http.StatusConflict, err.Error()))
 		return
 	}

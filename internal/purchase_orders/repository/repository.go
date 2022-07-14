@@ -18,22 +18,18 @@ func NewRepository(db *sql.DB) domain.Repository {
 func (r *repository) GetById(ctx context.Context, id int) (domain.PurchaseOrders, error) {
 	var purchaseOrder domain.PurchaseOrders
 
-	rows, err := r.db.QueryContext(ctx, SqlGetById, id)
+	stmt, err := r.db.PrepareContext(ctx, SqlGetById)
+
 	if err != nil {
 		return domain.PurchaseOrders{}, err
 	}
 
-	defer rows.Close() // Impedir vazamento de memória
-
-	for rows.Next() {
-		err := rows.Scan(&purchaseOrder.ID, &purchaseOrder.OrderNumber, &purchaseOrder.OrderDate,
-			&purchaseOrder.TrackingCode, &purchaseOrder.BuyerId, &purchaseOrder.ProductRecordId, &purchaseOrder.OrderStatusId)
-		if err != nil {
-			return domain.PurchaseOrders{}, fmt.Errorf("purchase order with id (%d) not founded", id)
-		}
-
+	defer stmt.Close()
+	err = stmt.QueryRowContext(ctx, id).Scan(&purchaseOrder.ID, &purchaseOrder.OrderNumber, &purchaseOrder.OrderDate,
+		&purchaseOrder.TrackingCode, &purchaseOrder.BuyerId, &purchaseOrder.ProductRecordId, &purchaseOrder.OrderStatusId)
+	if err != nil {
+		return domain.PurchaseOrders{}, fmt.Errorf("purchase order with id (%d) not founded", id)
 	}
-
 	return purchaseOrder, nil
 }
 
@@ -58,15 +54,16 @@ func (r repository) Create(ctx context.Context, purchaseOrder domain.PurchaseOrd
 	return purchaseOrder, nil
 }
 
-func (r *repository) ValidadeOrderNumber(ctx context.Context, orderNumber string) bool {
+func (r *repository) ValidadeOrderNumber(ctx context.Context, orderNumber string) (bool, error) {
 
 	var orderExistent string
 	stmt, err := r.db.PrepareContext(ctx, SqlOrderNumber)
+
 	if err != nil {
-		return false
+		return false, err
 	}
 	defer stmt.Close()
 	err = stmt.QueryRowContext(ctx, orderNumber).Scan(&orderExistent)
 
-	return orderExistent == ""
+	return orderExistent == "", nil
 }

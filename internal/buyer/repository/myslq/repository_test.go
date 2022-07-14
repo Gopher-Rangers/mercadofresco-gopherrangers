@@ -50,7 +50,7 @@ func TestRepositoryGetAll(t *testing.T) {
 	assert.NoError(t, err)
 	defer db.Close()
 	rows := mockRows()
-	query := "SELECT \\* FROM `mercado-fresco`.`buyers`"
+	query := "SELECT \\* FROM buyers"
 
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
@@ -72,7 +72,7 @@ func TestGetAllFailScan(t *testing.T) {
 		"id", "card_number_id", "first_name", "last_name",
 	}).AddRow("", "", "", "")
 
-	query := "SELECT \\* FROM `mercado-fresco`.`buyersRepository`"
+	query := "SELECT \\* FROM buyersRepository`"
 
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
@@ -87,7 +87,7 @@ func TestGetAllFailSelect(t *testing.T) {
 	assert.NoError(t, err)
 	defer db.Close()
 
-	query := "SELECT \\* FROM `mercado-fresco`.`buyersRepository`"
+	query := "SELECT \\* FROM buyers"
 
 	mock.ExpectQuery(query).WillReturnError(sql.ErrNoRows)
 
@@ -426,4 +426,57 @@ func createBaseDataWithPurchaseOrders() []domain.BuyerTotalOrders {
 	}
 	buyers = append(buyers, buyerOne, buyerTwo)
 	return buyers
+}
+
+func TestValidadeOrderNumber(t *testing.T) {
+	t.Run("test_valid_order_number", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		buyersData := createBaseData()
+		rows := sqlmock.NewRows([]string{
+			"",
+		}).AddRow(
+			1,
+		)
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(buyersRepository.SqlUniqueCardNumberId))
+		stmt.ExpectQuery().WithArgs(buyersData[0].ID, buyersData[0].CardNumberId).WillReturnRows(rows)
+
+		repo := buyersRepository.NewRepository(db)
+		result, err := repo.ValidateCardNumberId(context.Background(), buyersData[0].ID, buyersData[0].CardNumberId)
+		assert.NoError(t, err)
+		assert.Equal(t, false, result)
+	})
+	t.Run("test_invalid_order_number", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		buyersData := createBaseData()
+		rows := sqlmock.NewRows([]string{
+			"result",
+		}).AddRow(
+			0,
+		)
+
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(buyersRepository.SqlUniqueCardNumberId))
+		stmt.ExpectQuery().WithArgs(buyersData[0].ID, buyersData[0].CardNumberId).WillReturnRows(rows)
+
+		repo := buyersRepository.NewRepository(db)
+		result, err := repo.ValidateCardNumberId(context.Background(), buyersData[0].ID, buyersData[0].CardNumberId)
+		assert.NoError(t, err)
+		assert.Equal(t, true, result)
+	})
+	t.Run("test_validate_order_number_query_err", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		buyersData := createBaseData()
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(buyersRepository.SqlUniqueCardNumberId))
+		stmt.ExpectQuery().WithArgs(buyersData[0].ID, buyersData[0].CardNumberId).WillReturnError(sql.ErrNoRows)
+
+		repo := buyersRepository.NewRepository(db)
+		result, err := repo.ValidateCardNumberId(context.Background(), buyersData[0].ID, buyersData[0].CardNumberId)
+		assert.Equal(t, true, result)
+	})
+
 }

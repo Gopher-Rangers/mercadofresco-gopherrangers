@@ -165,31 +165,16 @@ func TestCreate(t *testing.T) {
 		service := service.NewService(mockRepository)
 		baseData := createBaseData()
 		expected := domain.Buyer{
-			CardNumberId: "Card3",
+			CardNumberId: "Card1",
 			FirstName:    "Victor",
 			LastName:     "Beltramini",
 		}
-		mockRepository.On("GetAll", ctx).Return(baseData, nil)
+		mockRepository.On("ValidateCardNumberId", ctx, baseData[0].ID, baseData[0].CardNumberId).Return(true, nil)
 		expected.ID = 25735482
-		mockRepository.On("Create", ctx, expected).Return(domain.Buyer{}, fmt.Errorf("buyer with card_number_id %s already exists", expected.CardNumberId))
+		mockRepository.On("Create", ctx, expected).Return(domain.Buyer{}, fmt.Errorf("the card number id must be unique"))
 		newBuyer, err := service.Create(ctx, expected)
-		assert.Equal(t, err, fmt.Errorf("buyer with card_number_id %s already exists", expected.CardNumberId))
+		assert.Equal(t, err, fmt.Errorf("the card number id must be unique"))
 		assert.Equal(t, domain.Buyer{}, newBuyer)
-	})
-	t.Run("create_conflict_service", func(t *testing.T) {
-		ctx := context.Background()
-		mockRepository := mocks.NewRepository(t)
-		service := service.NewService(mockRepository)
-		buyersData := createBaseData()
-		expected := domain.Buyer{
-			ID:           25735482,
-			CardNumberId: "Card2",
-			FirstName:    "Victor",
-			LastName:     "Beltramini",
-		}
-		mockRepository.On("GetAll", ctx).Return(buyersData, nil)
-		_, err := service.Create(ctx, expected)
-		assert.Equal(t, fmt.Errorf("buyer with card_number_id %s already exists", expected.CardNumberId), err)
 	})
 	t.Run("create_ok", func(t *testing.T) {
 		ctx := context.Background()
@@ -197,11 +182,13 @@ func TestCreate(t *testing.T) {
 		service := service.NewService(mockRepository)
 		baseData := createBaseData()
 		expected := domain.Buyer{
-			CardNumberId: "Card3",
+			CardNumberId: "Card1",
 			FirstName:    "Victor",
 			LastName:     "Beltramini",
 		}
-		mockRepository.On("GetAll", ctx).Return(baseData, nil)
+
+		mockRepository.On("ValidateCardNumberId", ctx, baseData[0].ID, baseData[0].CardNumberId).Return(true, nil)
+
 		expected.ID = 25735482
 		mockRepository.On("Create", ctx, expected).Return(expected, nil)
 		newBuyer, err := service.Create(ctx, expected)
@@ -220,11 +207,12 @@ func TestUpdate(t *testing.T) {
 		buyersData := createBaseData()
 		expected := domain.Buyer{
 			ID:           25735482,
-			CardNumberId: "Card77",
+			CardNumberId: "Card1",
 			FirstName:    "Victor",
 			LastName:     "Beltramini",
 		}
-		mockRepository.On("GetAll", ctx).Return(buyersData, nil)
+		mockRepository.On("ValidateCardNumberId", ctx, buyersData[0].ID, buyersData[0].CardNumberId).Return(true, nil)
+
 		mockRepository.On("Update", ctx, expected).Return(expected, nil)
 		prod, err := service.Update(ctx, expected)
 		assert.Nil(t, err)
@@ -236,12 +224,13 @@ func TestUpdate(t *testing.T) {
 		service := service.NewService(mockRepository)
 		buyersData := createBaseData()
 		expected := domain.Buyer{
-			ID:           22735482,
-			CardNumberId: "Card77",
+			ID:           25735482,
+			CardNumberId: "Card1",
 			FirstName:    "Victor",
 			LastName:     "Beltramini",
 		}
-		mockRepository.On("GetAll", ctx).Return(buyersData, nil)
+		mockRepository.On("ValidateCardNumberId", ctx, buyersData[0].ID, buyersData[0].CardNumberId).Return(true, nil)
+
 		mockRepository.On("Update", ctx, expected).Return(domain.Buyer{}, fmt.Errorf("buyer with id: %d not found", expected.ID))
 		prod, err := service.Update(ctx, expected)
 		assert.Equal(t, fmt.Errorf("buyer with id: %d not found", expected.ID), err)
@@ -254,12 +243,13 @@ func TestUpdate(t *testing.T) {
 		buyersData := createBaseData()
 		expected := domain.Buyer{
 			ID:           25735482,
-			CardNumberId: "Card2",
+			CardNumberId: "Card1",
 			FirstName:    "Victor",
 			LastName:     "Beltramini",
 		}
-		mockRepository.On("GetAll", ctx).Return(buyersData, nil)
+		mockRepository.On("ValidateCardNumberId", ctx, buyersData[0].ID, buyersData[0].CardNumberId).Return(false, nil)
+
 		_, err := service.Update(ctx, expected)
-		assert.Equal(t, fmt.Errorf("buyer with card_number_id %s already exists", expected.CardNumberId), err)
+		assert.Equal(t, fmt.Errorf("the card number id must be unique"), err)
 	})
 }

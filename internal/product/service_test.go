@@ -167,7 +167,6 @@ func TestStore(t *testing.T) {
 		mockRepository.On("CheckProductCode", context.Background(),
 			expected.ID, expected.ProductCode).Return(false)
 		prod, err := service.Store(context.Background(), expected)
-		fmt.Println(err)
 		assert.Equal(t, err, fmt.Errorf("the product code must be unique"))
 		assert.Equal(t, products.Product{}, prod)
 	})

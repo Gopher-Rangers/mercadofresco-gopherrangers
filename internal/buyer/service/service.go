@@ -15,9 +15,12 @@ func NewService(r domain.Repository) domain.Service {
 }
 
 func (s *service) Create(ctx context.Context, buyer domain.Buyer) (domain.Buyer, error) {
-	err := validateCardNumber(ctx, buyer.CardNumberId, s)
+	isValid, err := s.repository.ValidateCardNumberId(ctx, buyer.ID, buyer.CardNumberId)
 	if err != nil {
 		return domain.Buyer{}, err
+	}
+	if !isValid {
+		return domain.Buyer{}, fmt.Errorf(domain.ERROR_UNIQUE_CARD_NUMBER_ID)
 	}
 
 	newBuyer, err := s.repository.Create(ctx, buyer)
@@ -27,23 +30,13 @@ func (s *service) Create(ctx context.Context, buyer domain.Buyer) (domain.Buyer,
 	return newBuyer, nil
 }
 
-func validateCardNumber(ctx context.Context, cardNumberId string, s *service) error {
-
-	entities, _ := s.repository.GetAll(ctx)
-
-	for i := 0; i < len(entities); i++ {
-		if entities[i].CardNumberId == cardNumberId {
-			return fmt.Errorf("buyer with card_number_id %s already exists", cardNumberId)
-		}
-	}
-
-	return nil
-}
-
 func (s *service) Update(ctx context.Context, buyer domain.Buyer) (domain.Buyer, error) {
-	err := validateCardNumber(ctx, buyer.CardNumberId, s)
+	isValid, err := s.repository.ValidateCardNumberId(ctx, buyer.ID, buyer.CardNumberId)
 	if err != nil {
 		return domain.Buyer{}, err
+	}
+	if !isValid {
+		return domain.Buyer{}, fmt.Errorf(domain.ERROR_UNIQUE_CARD_NUMBER_ID)
 	}
 
 	updatedBuyer, err := s.repository.Update(ctx, buyer)

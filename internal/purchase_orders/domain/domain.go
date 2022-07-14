@@ -6,7 +6,7 @@ import (
 
 const (
 	ERROR_UNIQUE_ORDER_NUMBER = "the order number must be unique"
-	ERROR_WHILE_SAVING        = "the order number must be unique"
+	ERROR_WHILE_SAVING        = "Error while saving"
 )
 
 type PurchaseOrders struct {
@@ -22,7 +22,7 @@ type PurchaseOrders struct {
 type Repository interface {
 	Create(ctx context.Context, purchaseOrder PurchaseOrders) (PurchaseOrders, error)
 	GetById(ctx context.Context, id int) (PurchaseOrders, error)
-	ValidadeOrderNumber(ctx context.Context, orderNumber string) bool
+	ValidadeOrderNumber(ctx context.Context, orderNumber string) (bool, error)
 }
 
 type Service interface {

@@ -1,9 +1,7 @@
 package sections
 
 import (
-	"log"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
@@ -29,27 +27,6 @@ type Section struct {
 
 func NewSection(p section.Services) Section {
 	return Section{p}
-}
-
-func (p *Section) TokenAuthMiddleware(ctx *gin.Context) {
-	requiredToken := os.Getenv("TOKEN")
-
-	if requiredToken == "" {
-		log.Fatal("Variavel de sistema TOKEN vazia")
-	}
-
-	token := ctx.GetHeader("token")
-	if token == "" {
-		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusUnauthorized, "token vazio"))
-		return
-	}
-
-	if token != requiredToken {
-		ctx.AbortWithStatusJSON(web.DecodeError(http.StatusUnauthorized, "token inválido"))
-		return
-	}
-
-	ctx.Next()
 }
 
 func (p *Section) IdVerificatorMiddleware(ctx *gin.Context) {

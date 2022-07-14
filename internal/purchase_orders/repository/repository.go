@@ -58,16 +58,16 @@ func (r repository) Create(ctx context.Context, purchaseOrder domain.PurchaseOrd
 	return purchaseOrder, nil
 }
 
-func (r *repository) ValidadeOrderNumber(ctx context.Context, orderNumber string) bool {
+func (r *repository) ValidadeOrderNumber(ctx context.Context, orderNumber string) (bool, error) {
 
 	var orderExistent string
 	stmt, err := r.db.PrepareContext(ctx, SqlOrderNumber)
 
 	if err != nil {
-		return false
+		return false, err
 	}
 	defer stmt.Close()
 	err = stmt.QueryRowContext(ctx, orderNumber).Scan(&orderExistent)
 
-	return orderExistent == ""
+	return orderExistent == "", nil
 }

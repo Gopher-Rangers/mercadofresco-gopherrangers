@@ -57,3 +57,18 @@ func TestRepositoryCreate(t *testing.T) {
 		assert.Equal(t, err, fmt.Errorf("funcionario nao existe"))
 	})
 }
+
+func TestGetCountByEmployee(t *testing.T) {
+	t.Run("create_ok", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		io := createInboundOrdersArray()[0]
+		mock.ExpectExec(regexp.QuoteMeta(inboundorders.SqlCreate)).WithArgs(&io.OrderDate, &io.OrderNumber,
+			&io.EmployeeId, &io.ProductBatchId, &io.WarehouseId).WillReturnResult(sqlmock.NewResult(1, 1))
+		inboundordersRepo := inboundorders.NewRepository(db)
+		result, err := inboundordersRepo.Create(io.OrderDate, io.OrderNumber, io.EmployeeId, io.ProductBatchId, io.WarehouseId)
+		assert.NoError(t, err)
+		assert.Equal(t, result, io)
+	})
+}

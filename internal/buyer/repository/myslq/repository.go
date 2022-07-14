@@ -164,7 +164,7 @@ func (r *repository) GetBuyerTotalOrders(ctx context.Context) ([]domain.BuyerTot
 	return buyersData, nil
 }
 
-func (r *repository) ValidadeCardNumberId(ctx context.Context, id int, cardNumber string) (bool, error) {
+func (r *repository) ValidateCardNumberId(ctx context.Context, id int, cardNumber string) (bool, error) {
 
 	var idExists int
 	stmt, err := r.db.PrepareContext(ctx, SqlUniqueCardNumberId)

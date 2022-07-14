@@ -159,7 +159,7 @@ func (_m *Repository) Update(ctx context.Context, buyer domain.Buyer) (domain.Bu
 }
 
 // ValidadeCardNumberId provides a mock function with given fields: ctx, id, cardNumber
-func (_m *Repository) ValidadeCardNumberId(ctx context.Context, id int, cardNumber string) (bool, error) {
+func (_m *Repository) ValidateCardNumberId(ctx context.Context, id int, cardNumber string) (bool, error) {
 	ret := _m.Called(ctx, id, cardNumber)
 
 	var r0 bool

@@ -29,7 +29,7 @@ type Repository interface {
 	GetById(ctx context.Context, id int) (Buyer, error)
 	GetBuyerOrdersById(ctx context.Context, id int) (BuyerTotalOrders, error)
 	GetBuyerTotalOrders(ctx context.Context) ([]BuyerTotalOrders, error)
-	ValidadeCardNumberId(ctx context.Context, id int, cardNumber string) (bool, error)
+	ValidateCardNumberId(ctx context.Context, id int, cardNumber string) (bool, error)
 }
 
 type Service interface {

@@ -24,5 +24,5 @@ const (
 
 	SqlDelete = "DELETE FROM buyers WHERE id=?"
 
-	SqlUniqueCardNumberId = "SELECT order_number FROM purchase_orders where order_number = ?"
+	SqlUniqueCardNumberId = "SELECT id FROM buyers where id != ? and card_number_id = ?"
 )

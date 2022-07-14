@@ -169,7 +169,7 @@ func TestCreate(t *testing.T) {
 			FirstName:    "Victor",
 			LastName:     "Beltramini",
 		}
-		mockRepository.On("ValidadeCardNumberId", ctx, baseData[0].ID, baseData[0].CardNumberId).Return(true, nil)
+		mockRepository.On("ValidateCardNumberId", ctx, baseData[0].ID, baseData[0].CardNumberId).Return(true, nil)
 		expected.ID = 25735482
 		mockRepository.On("Create", ctx, expected).Return(domain.Buyer{}, fmt.Errorf("the card number id must be unique"))
 		newBuyer, err := service.Create(ctx, expected)
@@ -187,7 +187,7 @@ func TestCreate(t *testing.T) {
 			LastName:     "Beltramini",
 		}
 
-		mockRepository.On("ValidadeCardNumberId", ctx, baseData[0].ID, baseData[0].CardNumberId).Return(true, nil)
+		mockRepository.On("ValidateCardNumberId", ctx, baseData[0].ID, baseData[0].CardNumberId).Return(true, nil)
 
 		expected.ID = 25735482
 		mockRepository.On("Create", ctx, expected).Return(expected, nil)
@@ -211,7 +211,7 @@ func TestUpdate(t *testing.T) {
 			FirstName:    "Victor",
 			LastName:     "Beltramini",
 		}
-		mockRepository.On("ValidadeCardNumberId", ctx, buyersData[0].ID, buyersData[0].CardNumberId).Return(true, nil)
+		mockRepository.On("ValidateCardNumberId", ctx, buyersData[0].ID, buyersData[0].CardNumberId).Return(true, nil)
 
 		mockRepository.On("Update", ctx, expected).Return(expected, nil)
 		prod, err := service.Update(ctx, expected)
@@ -229,7 +229,7 @@ func TestUpdate(t *testing.T) {
 			FirstName:    "Victor",
 			LastName:     "Beltramini",
 		}
-		mockRepository.On("ValidadeCardNumberId", ctx, buyersData[0].ID, buyersData[0].CardNumberId).Return(true, nil)
+		mockRepository.On("ValidateCardNumberId", ctx, buyersData[0].ID, buyersData[0].CardNumberId).Return(true, nil)
 
 		mockRepository.On("Update", ctx, expected).Return(domain.Buyer{}, fmt.Errorf("buyer with id: %d not found", expected.ID))
 		prod, err := service.Update(ctx, expected)
@@ -247,7 +247,7 @@ func TestUpdate(t *testing.T) {
 			FirstName:    "Victor",
 			LastName:     "Beltramini",
 		}
-		mockRepository.On("ValidadeCardNumberId", ctx, buyersData[0].ID, buyersData[0].CardNumberId).Return(false, nil)
+		mockRepository.On("ValidateCardNumberId", ctx, buyersData[0].ID, buyersData[0].CardNumberId).Return(false, nil)
 
 		_, err := service.Update(ctx, expected)
 		assert.Equal(t, fmt.Errorf("the card number id must be unique"), err)

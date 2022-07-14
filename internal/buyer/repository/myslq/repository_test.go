@@ -427,3 +427,56 @@ func createBaseDataWithPurchaseOrders() []domain.BuyerTotalOrders {
 	buyers = append(buyers, buyerOne, buyerTwo)
 	return buyers
 }
+
+func TestValidadeOrderNumber(t *testing.T) {
+	t.Run("test_valid_order_number", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		buyersData := createBaseData()
+		rows := sqlmock.NewRows([]string{
+			"",
+		}).AddRow(
+			1,
+		)
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(buyersRepository.SqlUniqueCardNumberId))
+		stmt.ExpectQuery().WithArgs(buyersData[0].ID, buyersData[0].CardNumberId).WillReturnRows(rows)
+
+		repo := buyersRepository.NewRepository(db)
+		result, err := repo.ValidateCardNumberId(context.Background(), buyersData[0].ID, buyersData[0].CardNumberId)
+		assert.NoError(t, err)
+		assert.Equal(t, false, result)
+	})
+	t.Run("test_invalid_order_number", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		buyersData := createBaseData()
+		rows := sqlmock.NewRows([]string{
+			"result",
+		}).AddRow(
+			0,
+		)
+
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(buyersRepository.SqlUniqueCardNumberId))
+		stmt.ExpectQuery().WithArgs(buyersData[0].ID, buyersData[0].CardNumberId).WillReturnRows(rows)
+
+		repo := buyersRepository.NewRepository(db)
+		result, err := repo.ValidateCardNumberId(context.Background(), buyersData[0].ID, buyersData[0].CardNumberId)
+		assert.NoError(t, err)
+		assert.Equal(t, true, result)
+	})
+	t.Run("test_validate_order_number_query_err", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		assert.NoError(t, err)
+		defer db.Close()
+		buyersData := createBaseData()
+		stmt := mock.ExpectPrepare(regexp.QuoteMeta(buyersRepository.SqlUniqueCardNumberId))
+		stmt.ExpectQuery().WithArgs(buyersData[0].ID, buyersData[0].CardNumberId).WillReturnError(sql.ErrNoRows)
+
+		repo := buyersRepository.NewRepository(db)
+		result, err := repo.ValidateCardNumberId(context.Background(), buyersData[0].ID, buyersData[0].CardNumberId)
+		assert.Equal(t, true, result)
+	})
+
+}

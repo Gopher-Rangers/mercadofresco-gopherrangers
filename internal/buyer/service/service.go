@@ -15,7 +15,7 @@ func NewService(r domain.Repository) domain.Service {
 }
 
 func (s *service) Create(ctx context.Context, buyer domain.Buyer) (domain.Buyer, error) {
-	isValid, err := s.repository.ValidadeCardNumberId(ctx, buyer.ID, buyer.CardNumberId)
+	isValid, err := s.repository.ValidateCardNumberId(ctx, buyer.ID, buyer.CardNumberId)
 	if err != nil {
 		return domain.Buyer{}, err
 	}
@@ -31,7 +31,7 @@ func (s *service) Create(ctx context.Context, buyer domain.Buyer) (domain.Buyer,
 }
 
 func (s *service) Update(ctx context.Context, buyer domain.Buyer) (domain.Buyer, error) {
-	isValid, err := s.repository.ValidadeCardNumberId(ctx, buyer.ID, buyer.CardNumberId)
+	isValid, err := s.repository.ValidateCardNumberId(ctx, buyer.ID, buyer.CardNumberId)
 	if err != nil {
 		return domain.Buyer{}, err
 	}

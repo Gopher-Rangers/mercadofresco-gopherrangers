@@ -13,12 +13,11 @@ import (
 
 func makeValidDBWarehouse() domain.Warehouse {
 	return domain.Warehouse{
-		ID:             1,
-		WarehouseCode:  "j753",
-		Address:        "Rua das Margaridas",
-		Telephone:      "4833334444",
-		MinCapacity:    100,
-		MinTemperature: 10,
+		ID:            1,
+		WarehouseCode: "j753",
+		Address:       "Rua das Margaridas",
+		Telephone:     "4833334444",
+		LocalityID:    1,
 	}
 }
 
@@ -28,11 +27,10 @@ func Test_CreateWarehouse(t *testing.T) {
 		service := usecases.NewService(mockRepository)
 
 		data := domain.Warehouse{
-			WarehouseCode:  "j753",
-			Address:        "Rua das Margaridas",
-			Telephone:      "4833334444",
-			MinCapacity:    100,
-			MinTemperature: 10,
+			WarehouseCode: "j753",
+			Address:       "Rua das Margaridas",
+			Telephone:     "4833334444",
+			LocalityID:    1,
 		}
 
 		expected := makeValidDBWarehouse()
@@ -40,9 +38,9 @@ func Test_CreateWarehouse(t *testing.T) {
 		mockRepository.On("FindByWarehouseCode", mock.AnythingOfType("string")).Return(domain.Warehouse{},
 			fmt.Errorf("o warehouse com esse `warehouse_code`: %s não foi encontrado", data.WarehouseCode))
 
-		mockRepository.On("CreateWarehouse", data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature).Return(expected, nil)
+		mockRepository.On("CreateWarehouse", data.WarehouseCode, data.Address, data.Telephone, data.LocalityID).Return(expected, nil)
 
-		result, err := service.CreateWarehouse(data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature)
+		result, err := service.CreateWarehouse(data.WarehouseCode, data.Address, data.Telephone, data.LocalityID)
 
 		assert.Nil(t, err)
 		assert.Equal(t, result, expected)
@@ -54,11 +52,10 @@ func Test_CreateWarehouse(t *testing.T) {
 		service := usecases.NewService(mockRepository)
 
 		data := domain.Warehouse{
-			WarehouseCode:  "j753",
-			Address:        "Rua das Margaridas",
-			Telephone:      "4833334444",
-			MinCapacity:    100,
-			MinTemperature: 10,
+			WarehouseCode: "j753",
+			Address:       "Rua das Margaridas",
+			Telephone:     "4833334444",
+			LocalityID:    1,
 		}
 
 		w := makeValidDBWarehouse()
@@ -67,7 +64,7 @@ func Test_CreateWarehouse(t *testing.T) {
 
 		mockRepository.On("FindByWarehouseCode", mock.AnythingOfType("string")).Return(w, nil)
 
-		result, err := service.CreateWarehouse(data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature)
+		result, err := service.CreateWarehouse(data.WarehouseCode, data.Address, data.Telephone, data.LocalityID)
 
 		assert.Equal(t, result, expected)
 		assert.Equal(t, err, fmt.Errorf("o `warehouse_code` já está em uso"))
@@ -79,20 +76,19 @@ func Test_CreateWarehouse(t *testing.T) {
 		service := usecases.NewService(mockRepository)
 
 		data := domain.Warehouse{
-			WarehouseCode:  "j753",
-			Address:        "Rua das Margaridas",
-			Telephone:      "4833334444",
-			MinCapacity:    100,
-			MinTemperature: 10,
+			WarehouseCode: "j753",
+			Address:       "Rua das Margaridas",
+			Telephone:     "4833334444",
+			LocalityID:    1,
 		}
 
 		expected := domain.Warehouse{}
 
 		mockRepository.On("FindByWarehouseCode", mock.AnythingOfType("string")).Return(expected, fmt.Errorf("o warehouse com esse `warehouse_code`: %s não foi encontrado", data.WarehouseCode))
 
-		mockRepository.On("CreateWarehouse", data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature).Return(expected, fmt.Errorf("não foi possível ler o arquivo"))
+		mockRepository.On("CreateWarehouse", data.WarehouseCode, data.Address, data.Telephone, data.LocalityID).Return(expected, fmt.Errorf("não foi possível ler o arquivo"))
 
-		result, err := service.CreateWarehouse(data.WarehouseCode, data.Address, data.Telephone, data.MinCapacity, data.MinTemperature)
+		result, err := service.CreateWarehouse(data.WarehouseCode, data.Address, data.Telephone, data.LocalityID)
 
 		assert.Equal(t, result, expected)
 		assert.Equal(t, err, fmt.Errorf("não foi possível ler o arquivo"))

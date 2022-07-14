@@ -45,12 +45,12 @@ func (r repository) Create(ctx context.Context, purchaseOrder domain.PurchaseOrd
 	}
 	rowsAffected, _ := res.RowsAffected()
 	if rowsAffected == 0 {
-		return domain.PurchaseOrders{}, fmt.Errorf("error while saving")
+		return domain.PurchaseOrders{}, fmt.Errorf(domain.ERROR_WHILE_SAVING)
 	}
 
 	lastID, err := res.LastInsertId()
 	if err != nil || lastID < 1 {
-		return domain.PurchaseOrders{}, fmt.Errorf("error while saving")
+		return domain.PurchaseOrders{}, fmt.Errorf(domain.ERROR_WHILE_SAVING)
 	}
 
 	purchaseOrder.ID = int(lastID)
@@ -58,16 +58,15 @@ func (r repository) Create(ctx context.Context, purchaseOrder domain.PurchaseOrd
 	return purchaseOrder, nil
 }
 
-func (r *repository) ValidadeOrderNumber(orderNumber string) (bool, error) {
-	var result bool
+func (r *repository) ValidadeOrderNumber(ctx context.Context, orderNumber string) bool {
 
-	query := r.db.QueryRow(SqlExistsOrderNumber, orderNumber)
-
-	err := query.Scan(&result)
-
+	var orderExistent string
+	stmt, err := r.db.PrepareContext(ctx, SqlOrderNumber)
 	if err != nil {
-		return false, err
+		return false
 	}
+	defer stmt.Close()
+	err = stmt.QueryRowContext(ctx, orderNumber).Scan(&orderExistent)
 
-	return !result, nil
+	return orderExistent == ""
 }

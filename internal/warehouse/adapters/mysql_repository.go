@@ -17,7 +17,7 @@ const (
 
 	queryGetByID = "SELECT * FROM warehouse WHERE id=?"
 
-	queryCreateWarehouse = "INSERT INTO warehouse (warehouse_code, address, telephone, minimum_capacity, minimum_temperature) VALUES (?, ?, ?, ?, ?)"
+	queryCreateWarehouse = "INSERT INTO warehouse (warehouse_code, address, telephone, locality_id) VALUES (?, ?, ?, ?)"
 
 	queryFindByWarehouseCode = "SELECT * FROM warehouse WHERE warehouse_code=?"
 
@@ -38,13 +38,13 @@ func (r mysqlRepository) GetAll() []domain.Warehouse {
 		return []domain.Warehouse{}
 	}
 
-	defer rows.Close()
+	defer rows.Close() // fechar conexão com o banco de dados
 
 	warehouses := []domain.Warehouse{}
 
 	for rows.Next() {
 		w := domain.Warehouse{}
-		rows.Scan(&w.ID, &w.WarehouseCode, &w.Address, &w.Telephone, &w.MinCapacity, &w.MinTemperature)
+		rows.Scan(&w.ID, &w.WarehouseCode, &w.Address, &w.Telephone, &w.LocalityID)
 		warehouses = append(warehouses, w)
 	}
 
@@ -60,7 +60,7 @@ func (r mysqlRepository) GetByID(id int) (domain.Warehouse, error) {
 
 	stmt := r.db.QueryRow(queryGetByID, id)
 
-	err := stmt.Scan(&warehouse.ID, &warehouse.WarehouseCode, &warehouse.Address, &warehouse.Telephone, &warehouse.MinCapacity, &warehouse.MinTemperature)
+	err := stmt.Scan(&warehouse.ID, &warehouse.WarehouseCode, &warehouse.Address, &warehouse.Telephone, &warehouse.LocalityID)
 
 	if err != nil {
 		return domain.Warehouse{}, fmt.Errorf("o id: %d não foi encontrado", id)
@@ -73,8 +73,7 @@ func (r *mysqlRepository) CreateWarehouse(
 	code,
 	address,
 	tel string,
-	minCap,
-	minTemp int) (domain.Warehouse, error) {
+	localityID int) (domain.Warehouse, error) {
 
 	stmt, err := r.db.Prepare(queryCreateWarehouse)
 
@@ -84,7 +83,7 @@ func (r *mysqlRepository) CreateWarehouse(
 
 	defer stmt.Close()
 
-	result, err := stmt.Exec(code, address, tel, minCap, minTemp)
+	result, err := stmt.Exec(code, address, tel, localityID)
 
 	if err != nil {
 		return domain.Warehouse{}, fmt.Errorf("erro ao executar a query")
@@ -97,12 +96,11 @@ func (r *mysqlRepository) CreateWarehouse(
 	}
 
 	return domain.Warehouse{
-		ID:             int(id),
-		WarehouseCode:  code,
-		Address:        address,
-		Telephone:      tel,
-		MinCapacity:    minCap,
-		MinTemperature: minTemp,
+		ID:            int(id),
+		WarehouseCode: code,
+		Address:       address,
+		Telephone:     tel,
+		LocalityID:    localityID,
 	}, nil
 
 }
@@ -111,7 +109,7 @@ func (r *mysqlRepository) UpdatedWarehouseID(id int, code string) (domain.Wareho
 	warehouse, err := r.GetByID(id)
 
 	if err != nil {
-		return domain.Warehouse{}, fmt.Errorf("id inexistente no banco de dados")
+		return warehouse, fmt.Errorf("id inexistente no banco de dados")
 	}
 
 	stmt, err := r.db.Prepare(queryUpdateWarehouse)
@@ -129,16 +127,16 @@ func (r *mysqlRepository) UpdatedWarehouseID(id int, code string) (domain.Wareho
 	}
 
 	return domain.Warehouse{
-		ID:             id,
-		WarehouseCode:  code,
-		Address:        warehouse.Address,
-		Telephone:      warehouse.Telephone,
-		MinCapacity:    warehouse.MinCapacity,
-		MinTemperature: warehouse.MinTemperature,
+		ID:            id,
+		WarehouseCode: code,
+		Address:       warehouse.Address,
+		Telephone:     warehouse.Telephone,
+		LocalityID:    warehouse.LocalityID,
 	}, nil
 }
 
 func (r *mysqlRepository) DeleteWarehouse(id int) error {
+
 	stmt, err := r.db.Prepare(queryDeleteWarehouse)
 
 	if err != nil {
@@ -147,10 +145,16 @@ func (r *mysqlRepository) DeleteWarehouse(id int) error {
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(id)
+	result, err := stmt.Exec(id)
 
 	if err != nil {
 		return fmt.Errorf("erro ao executar query: %v", err)
+	}
+
+	rows, _ := result.RowsAffected()
+
+	if rows == 0 {
+		return fmt.Errorf("id inexistente no banco de dados")
 	}
 
 	return nil
@@ -161,7 +165,7 @@ func (r mysqlRepository) FindByWarehouseCode(code string) (domain.Warehouse, err
 
 	stmt := r.db.QueryRow(queryFindByWarehouseCode, code)
 
-	err := stmt.Scan(&warehouse.ID, &warehouse.WarehouseCode, &warehouse.Address, &warehouse.Telephone, &warehouse.MinCapacity, &warehouse.MinTemperature)
+	err := stmt.Scan(&warehouse.ID, &warehouse.WarehouseCode, &warehouse.Address, &warehouse.Telephone, &warehouse.LocalityID)
 
 	if err != nil {
 		return domain.Warehouse{}, fmt.Errorf("o warehouse com esse `warehouse_code`: %s não foi encontrado", code)

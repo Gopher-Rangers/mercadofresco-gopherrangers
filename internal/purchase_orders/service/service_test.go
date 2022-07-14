@@ -46,9 +46,9 @@ func TestCreate(t *testing.T) {
 			ProductRecordId: 1,
 			OrderStatusId:   1,
 		}
-		mockRepository.On("ValidadeOrderNumber", expected.OrderNumber).Return(false, nil)
+		mockRepository.On("ValidadeOrderNumber", context.Background(), expected.OrderNumber).Return(false, nil)
 		_, err := newService.Create(ctx, expected)
-		assert.Equal(t, fmt.Errorf("order number: Order1 already exist"), err)
+		assert.Equal(t, fmt.Errorf("the order number must be unique"), err)
 	})
 	t.Run("create_conflict_error", func(t *testing.T) {
 		ctx := context.Background()
@@ -63,7 +63,7 @@ func TestCreate(t *testing.T) {
 			ProductRecordId: 1,
 			OrderStatusId:   1,
 		}
-		mockRepository.On("ValidadeOrderNumber", expected.OrderNumber).Return(false, fmt.Errorf("the order number must be unique"))
+		mockRepository.On("ValidadeOrderNumber", context.Background(), expected.OrderNumber).Return(false, fmt.Errorf("the order number must be unique"))
 		_, err := newService.Create(ctx, expected)
 		assert.Equal(t, fmt.Errorf("the order number must be unique"), err)
 	})
@@ -81,7 +81,7 @@ func TestCreate(t *testing.T) {
 			ProductRecordId: 1,
 			OrderStatusId:   1,
 		}
-		mockRepository.On("ValidadeOrderNumber", expected.OrderNumber).Return(true, nil)
+		mockRepository.On("ValidadeOrderNumber", context.Background(), expected.OrderNumber).Return(true, nil)
 		expected.ID = 1
 		mockRepository.On("Create", ctx, expected).Return(expected, nil)
 		newPurchase, err := newService.Create(ctx, expected)
@@ -102,7 +102,7 @@ func TestCreate(t *testing.T) {
 			ProductRecordId: 1,
 			OrderStatusId:   1,
 		}
-		mockRepository.On("ValidadeOrderNumber", expected.OrderNumber).Return(true, nil)
+		mockRepository.On("ValidadeOrderNumber", context.Background(), expected.OrderNumber).Return(true, nil)
 		expected.ID = 1
 		mockRepository.On("Create", ctx, expected).Return(domain.PurchaseOrders{}, fmt.Errorf("error"))
 		newPurchase, err := newService.Create(ctx, expected)

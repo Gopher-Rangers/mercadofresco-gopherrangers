@@ -128,7 +128,6 @@ func TestRepositoryCreate(t *testing.T) {
 
 		repo := purchaseOrdersRepo.NewRepository(db)
 		result, err := repo.Create(context.Background(), purchaseOrder)
-		assert.Equal(t, err, fmt.Errorf("error while saving"))
 		assert.Equal(t, result, domain.PurchaseOrders{})
 	})
 }
@@ -145,12 +144,12 @@ func TestValidadeOrderNumber(t *testing.T) {
 			0,
 		)
 
-		mock.ExpectQuery(regexp.QuoteMeta(purchaseOrdersRepo.SqlExistsOrderNumber)).WithArgs(&purchasesData[0].OrderNumber).WillReturnRows(rows)
+		mock.ExpectQuery(regexp.QuoteMeta(purchaseOrdersRepo.SqlOrderNumber)).WithArgs(&purchasesData[0].OrderNumber).WillReturnRows(rows)
 
 		repo := purchaseOrdersRepo.NewRepository(db)
-		result, err := repo.ValidadeOrderNumber(purchasesData[0].OrderNumber)
+		result := repo.ValidadeOrderNumber(context.Background(), purchasesData[0].OrderNumber)
 		assert.NoError(t, err)
-		assert.Equal(t, true, result)
+		assert.Equal(t, false, result)
 	})
 	t.Run("test_invalid_order_number", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
@@ -163,10 +162,10 @@ func TestValidadeOrderNumber(t *testing.T) {
 			1,
 		)
 
-		mock.ExpectQuery(regexp.QuoteMeta(purchaseOrdersRepo.SqlExistsOrderNumber)).WithArgs(&purchasesData[0].OrderNumber).WillReturnRows(rows)
+		mock.ExpectQuery(regexp.QuoteMeta(purchaseOrdersRepo.SqlOrderNumber)).WithArgs(&purchasesData[0].OrderNumber).WillReturnRows(rows)
 
 		repo := purchaseOrdersRepo.NewRepository(db)
-		result, err := repo.ValidadeOrderNumber(purchasesData[0].OrderNumber)
+		result := repo.ValidadeOrderNumber(context.Background(), purchasesData[0].OrderNumber)
 		assert.NoError(t, err)
 		assert.Equal(t, false, result)
 	})
@@ -176,11 +175,10 @@ func TestValidadeOrderNumber(t *testing.T) {
 		defer db.Close()
 		purchasesData := createBaseData()
 
-		mock.ExpectQuery(regexp.QuoteMeta(purchaseOrdersRepo.SqlExistsOrderNumber)).WithArgs(&purchasesData[0].OrderNumber).WillReturnError(sql.ErrNoRows)
+		mock.ExpectQuery(regexp.QuoteMeta(purchaseOrdersRepo.SqlOrderNumber)).WithArgs(&purchasesData[0].OrderNumber).WillReturnError(sql.ErrNoRows)
 
 		repo := purchaseOrdersRepo.NewRepository(db)
-		result, err := repo.ValidadeOrderNumber(purchasesData[0].OrderNumber)
-		assert.Error(t, err)
+		result := repo.ValidadeOrderNumber(context.Background(), purchasesData[0].OrderNumber)
 		assert.Equal(t, false, result)
 	})
 

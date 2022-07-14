@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 
 	productrecord "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product_record"
@@ -57,11 +56,6 @@ func NewRequestProductRecord() requestProductRecord {
 // @Router /api/v1/productRecords [POST]
 func (prod *ProductRecord) Store() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		token := c.Request.Header.Get("token")
-		if token != os.Getenv("TOKEN") {
-			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
-			return
-		}
 		var validate *validator.Validate = validator.New()
 		var req productrecord.ProductRecord
 		if err := c.Bind(&req); err != nil {
@@ -112,11 +106,6 @@ func (prod *ProductRecord) Store() gin.HandlerFunc {
 // @Router /api/v1/productRecords/{id} [GET]
 func (prod *ProductRecord) Get() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		token := c.Request.Header.Get("token")
-		if token != os.Getenv("TOKEN") {
-			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
-			return
-		}
 		idStr := c.Query("id")
 		idNum, err := strconv.Atoi(idStr)
 		if err != nil && idStr != "" {

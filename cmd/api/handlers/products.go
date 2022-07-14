@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 
 	products "github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/product"
@@ -70,11 +69,6 @@ func NewRequestProduct() requestProduct {
 // @Router /api/v1/products [POST]
 func (prod *Product) Store() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		token := c.Request.Header.Get("token")
-		if token != os.Getenv("TOKEN") {
-			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
-			return
-		}
 		var validate *validator.Validate = validator.New()
 		var req products.Product
 		if err := c.Bind(&req); err != nil {
@@ -124,11 +118,6 @@ func (prod *Product) Store() gin.HandlerFunc {
 // @Router /api/v1/products [GET]
 func (prod *Product) GetAll() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		token := c.Request.Header.Get("token")
-		if token != os.Getenv("TOKEN") {
-			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
-			return
-		}
 		p, _ := prod.service.GetAll(c.Request.Context())
 		c.JSON(web.NewResponse(http.StatusOK, p))
 	}
@@ -150,11 +139,6 @@ func (prod *Product) GetAll() gin.HandlerFunc {
 // @Router /api/v1/products/{some_id} [GET]
 func (prod *Product) GetById() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		token := c.Request.Header.Get("token")
-		if token != os.Getenv("TOKEN") {
-			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
-			return
-		}
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_ID))
@@ -187,11 +171,6 @@ func (prod *Product) GetById() gin.HandlerFunc {
 // @Router /api/v1/products/{some_id} [PATCH]
 func (prod *Product) Update() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		token := c.GetHeader("token")
-		if token != os.Getenv("TOKEN") {
-			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
-			return
-		}
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_ID))
@@ -249,11 +228,6 @@ func (prod *Product) Update() gin.HandlerFunc {
 // @Router /api/v1/products/{some_id} [DELETE]
 func (prod *Product) Delete() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		token := c.GetHeader("token")
-		if token != os.Getenv("TOKEN") {
-			c.JSON(web.DecodeError(http.StatusUnauthorized, ERROR_TOKEN))
-			return
-		}
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.JSON(web.DecodeError(http.StatusBadRequest, ERROR_ID))

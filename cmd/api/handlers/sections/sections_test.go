@@ -6,14 +6,12 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	sections "github.com/Gopher-Rangers/mercadofresco-gopherrangers/cmd/api/handlers/sections"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section"
 	"github.com/Gopher-Rangers/mercadofresco-gopherrangers/internal/section/mocks"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -253,53 +251,10 @@ func TestSectionDelete(t *testing.T) {
 	})
 }
 
-func TestTokenAuth(t *testing.T) {
-	router, mockRepository, sec := InitTest(t)
-	exp := createSectionArray()
-	router.Use(sec.TokenAuthMiddleware)
-	router.GET(URL_SECTIONS, sec.GetAll())
-	godotenv.Load("../../../../.env")
-
-	mockRepository.On("GetAll").Return(exp, nil)
-
-	t.Run("token_ok", func(t *testing.T) {
-		req, w := InitServer(http.MethodGet, URL_SECTIONS, nil)
-		req.Header.Add("Token", os.Getenv("TOKEN"))
-
-		router.ServeHTTP(w, req)
-
-		exp := ExpectedJSON{200, exp}
-		expJSON, _ := json.Marshal(exp)
-		assert.Equal(t, exp.Code, w.Code)
-		assert.Equal(t, string(expJSON), w.Body.String())
-	})
-
-	t.Run("token_invalid", func(t *testing.T) {
-		req, w := InitServer(http.MethodGet, URL_SECTIONS, nil)
-		req.Header.Add("Token", "XXXXXX")
-
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, 401, w.Code)
-		assert.Equal(t, "{\"code\":401,\"error\":\"token inválido\"}", w.Body.String())
-	})
-
-	t.Run("token_empty", func(t *testing.T) {
-		req, w := InitServer(http.MethodGet, URL_SECTIONS, nil)
-		req.Header.Add("Token", "")
-
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, 401, w.Code)
-		assert.Equal(t, "{\"code\":401,\"error\":\"token vazio\"}", w.Body.String())
-	})
-}
-
 func TestVerificatorID(t *testing.T) {
 	router, mockRepository, sec := InitTest(t)
 	router.Use(sec.IdVerificatorMiddleware)
 	router.DELETE(URL_SECTIONS+":id", sec.DeleteSection())
-	godotenv.Load("../../../../.env")
 
 	secs := createSectionArray()
 	mockRepository.On("GetAll").Return(secs, nil)

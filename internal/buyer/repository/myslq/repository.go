@@ -163,3 +163,17 @@ func (r *repository) GetBuyerTotalOrders(ctx context.Context) ([]domain.BuyerTot
 
 	return buyersData, nil
 }
+
+func (r *repository) ValidadeCardNumberId(ctx context.Context, id int, cardNumber string) (bool, error) {
+
+	var idExists int
+	stmt, err := r.db.PrepareContext(ctx, SqlUniqueCardNumberId)
+
+	if err != nil {
+		return false, err
+	}
+	defer stmt.Close()
+	err = stmt.QueryRowContext(ctx, id, cardNumber).Scan(&idExists)
+
+	return idExists == 0, nil
+}

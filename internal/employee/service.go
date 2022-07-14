@@ -58,8 +58,6 @@ func (s *service) GetAll() ([]Employee, error) {
 	if err != nil {
 		return emps, err
 	}
-
-	fmt.Println("chegou no service")
 	return emps, nil
 }
 
@@ -68,7 +66,6 @@ func (s service) Delete(id int) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("chegou no service delete")
 	return nil
 }
 

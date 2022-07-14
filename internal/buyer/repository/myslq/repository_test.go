@@ -50,7 +50,7 @@ func TestRepositoryGetAll(t *testing.T) {
 	assert.NoError(t, err)
 	defer db.Close()
 	rows := mockRows()
-	query := "SELECT \\* FROM `mercado-fresco`.`buyers`"
+	query := "SELECT \\* FROM buyers"
 
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
@@ -72,7 +72,7 @@ func TestGetAllFailScan(t *testing.T) {
 		"id", "card_number_id", "first_name", "last_name",
 	}).AddRow("", "", "", "")
 
-	query := "SELECT \\* FROM `mercado-fresco`.`buyersRepository`"
+	query := "SELECT \\* FROM buyersRepository`"
 
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
@@ -87,7 +87,7 @@ func TestGetAllFailSelect(t *testing.T) {
 	assert.NoError(t, err)
 	defer db.Close()
 
-	query := "SELECT \\* FROM `mercado-fresco`.`buyersRepository`"
+	query := "SELECT \\* FROM buyers"
 
 	mock.ExpectQuery(query).WillReturnError(sql.ErrNoRows)
 

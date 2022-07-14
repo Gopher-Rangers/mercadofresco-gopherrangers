@@ -57,7 +57,7 @@ func (_m *Repository) GetById(ctx context.Context, id int) (domain.PurchaseOrder
 }
 
 // ValidadeOrderNumber provides a mock function with given fields: ctx, orderNumber
-func (_m *Repository) ValidadeOrderNumber(ctx context.Context, orderNumber string) bool {
+func (_m *Repository) ValidadeOrderNumber(ctx context.Context, orderNumber string) (bool, error) {
 	ret := _m.Called(ctx, orderNumber)
 
 	var r0 bool
@@ -67,7 +67,14 @@ func (_m *Repository) ValidadeOrderNumber(ctx context.Context, orderNumber strin
 		r0 = ret.Get(0).(bool)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, orderNumber)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 type NewRepositoryT interface {

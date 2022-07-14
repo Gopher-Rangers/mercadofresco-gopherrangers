@@ -92,7 +92,6 @@ func TestCreate(t *testing.T) {
 		ctx := context.Background()
 		mockRepository := mocks.NewRepository(t)
 		newService := service.NewService(mockRepository)
-		//baseData := createBaseData()
 		expected := domain.PurchaseOrders{
 			ID:              1,
 			OrderNumber:     "Order1",

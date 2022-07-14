@@ -82,15 +82,15 @@ func (r repository) GetAll() ([]Employee, error) {
 }
 
 func (r repository) Update(id int, firstName string, lastName string, warehouseId int) (Employee, error) {
-	olderProduct, _ := r.GetById(id)
-	newProduct := Employee{id, olderProduct.CardNumber, firstName, lastName, warehouseId}
+	olderEmployee, _ := r.GetById(id)
+	newEmployee := Employee{id, olderEmployee.CardNumber, firstName, lastName, warehouseId}
 	res, err := r.db.Exec(SqlUpdate, firstName, lastName, warehouseId, id)
 	if err != nil {
 		return Employee{}, fmt.Errorf("funcionario nao existe")
 	}
 
 	rowsAffected, _ := res.RowsAffected()
-	if rowsAffected <= 0 && newProduct != olderProduct {
+	if rowsAffected <= 0 && newEmployee != olderEmployee {
 		return Employee{}, fmt.Errorf("rows not affected")
 	}
 

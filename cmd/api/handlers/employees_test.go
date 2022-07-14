@@ -86,7 +86,7 @@ func TestProductCreate(t *testing.T) {
 		empToCreate := createEmployee()
 		emps := createEmployeesArray()
 		expected := `{
-			"card_number": 123,
+			"card_number_id": 123,
 			"first_name": "Sergio",
 			"last_name": "Blabla",
 			"warehouse_id": 1}`
@@ -95,8 +95,7 @@ func TestProductCreate(t *testing.T) {
 			URL_EMPLOYEES,
 			expected)
 
-		mockEmpService.On("GetAll").Return(emps, nil)
-		mockEmpService.On("Create", empToCreate[0]).Return(emps[0], nil)
+		mockEmpService.On("Create", empToCreate[0].CardNumber, empToCreate[0].FirstName, empToCreate[0].LastName, empToCreate[0].WareHouseID).Return(emps[0], nil)
 		employeeRouterGroup.POST("/", handlerEmployee.Create())
 		server.ServeHTTP(rr, req)
 		resp := responseEmployee{}

@@ -15,7 +15,7 @@ type Repository interface {
 }
 
 const (
-	GETALL  = "SELECT * FROM SELLERS"
+	GETALL  = "SELECT * FROM sellers"
 	GETBYID = "SELECT * FROM sellers WHERE id=?"
 	INSERT  = "INSERT INTO sellers (cid, company_name, address, telephone, locality_id) VALUES (?,?,?,?,?)"
 	UPDATE  = "UPDATE sellers SET cid=?, company_name=?, address=?, telephone=?, locality_id=? WHERE id=?"
